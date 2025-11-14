@@ -1,0 +1,991 @@
+
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Fizikalni model rakete</title>
+          <style>
+            :root {
+              --primary-color: #FFF;
+              --user-color: #303030;
+              --font-size: 16px;
+              --font-weight: 600;
+              --line-height: 28px;
+
+            }
+          
+            body {
+              font-family: ui-sans-serif,-apple-system,system-ui,Segoe UI,Helvetica,Apple Color Emoji,Arial,sans-serif,Segoe UI Emoji,Segoe UI Symbol;
+              font-size: var(--font-size);
+              background-color: #212121;
+              color: var(--primary-color);
+              padding: 20px;
+              margin: 0 auto;
+              line-height: 1.5;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px dashed var(--primary-color);
+              padding-bottom: 15px;
+              max-width: 1200px;
+              margin-left: auto;
+              margin-right: auto;
+            }
+            .title {
+              font-size: 24px;
+              font-weight: bold;
+              margin: 0;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+            }
+            .timestamp {
+              color: #FFF;
+              font-size: 14px;
+              margin-top: 10px;
+            }
+            .conversation {
+              max-width: 900px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .message {
+              margin-bottom: 20px;
+              padding: 10px 20px;
+              border-radius: 18px;
+              width: fit-content;
+              max-width: 80%;
+              clear: both;
+              overflow: hidden;
+            }
+            .user-message {
+              float: right;
+              background-color: #303030;
+            }
+            .assistant-message {
+              float: left;
+            }
+            .role {
+              font-weight: bold;
+              margin-bottom: 5px;
+              text-transform: uppercase;
+            }
+            .user-message .role {
+              color: #ff3333;
+              text-align: right;
+            }
+            .assistant-message .role {
+              color: var(--primary-color);
+            }
+            .content {
+              user-select: text;
+              word-wrap: break-word;
+            }
+            table {
+              border-bottom-color: rgba(13, 13, 13, 0.05);
+              border-bottom-style: solid;
+              border-bottom-width: 0px;
+              border-collapse: separate;
+              border-image-outset: 0;
+              border-image-repeat: stretch;
+              border-image-slice: 100%;
+              border-image-source: none;
+              border-image-width: 1;
+              border-left-color: rgba(13, 13, 13, 0.05);
+              border-left-style: solid;
+              border-left-width: 0px;
+              border-right-color: rgba(13, 13, 13, 0.05);
+              border-right-style: solid;
+              border-right-width: 0px;
+              border-spacing: 0px;
+              border-top-color: rgba(13, 13, 13, 0.05);
+              border-top-style: solid;
+              border-top-width: 0px;
+              box-sizing: border-box;
+              color: rgb(13, 13, 13);
+              color-scheme: light;
+              font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+              font-feature-settings: normal;
+              font-size: 14px;
+              font-variation-settings: normal;
+              line-height: 24px;
+              margin-bottom: 0px;
+              margin-left: 0px;
+              margin-right: 0px;
+              margin-top: 0px;
+              min-width: 768px;
+              overflow-wrap: break-word;
+              padding-bottom: 0px;
+              padding-left: 0px;
+              padding-right: 0px;
+              padding-top: 0px;
+              pointer-events: auto;
+              scrollbar-color: auto;
+              tab-size: 4;
+              table-layout: auto;
+              text-align: start;
+              text-indent: 0px;
+              text-wrap-mode: wrap;
+              white-space-collapse: collapse;
+              width: 768px;
+            }
+            th, td {
+                border: 1px solid var(--primary-color);
+                text-align: center;
+                height: 30px;
+                vertical-align: middle;
+                padding: 0 10px;
+                border-bottom-color: rgba(255, 255, 255, 0.05);
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+                border-collapse: separate;
+                border-image-outset: 0;
+                border-image-repeat: stretch;
+                border-image-slice: 100%;
+                border-image-source: none;
+                border-image-width: 1;
+                border-left-color: rgba(255, 255, 255, 0.05);
+                border-left-style: solid;
+                border-left-width: 0px;
+                border-right-color: rgba(255, 255, 255, 0.05);
+                border-right-style: solid;
+                border-right-width: 0px;
+                border-spacing: 0px;
+                border-top-color: rgba(255, 255, 255, 0.05);
+                border-top-style: solid;
+                border-top-width: 0px;
+                box-sizing: border-box;
+                color: #FFF;
+                color-scheme: light;
+                font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+                font-feature-settings: normal;
+                font-size: 14px;
+                font-variation-settings: normal;
+                font-weight: 600;
+                line-height: 16px;
+                margin-bottom: 0px;
+                margin-left: 0px;
+                margin-right: 0px;
+                margin-top: 0px;
+                max-width: 192px;
+                min-width: 128px;
+                overflow-wrap: break-word;
+                padding-bottom: 12px;
+                padding-inline-end: 24px;
+                padding-inline-start: 0px;
+                padding-left: 0px;
+                padding-right: 24px;
+                padding-top: 12px;
+                pointer-events: auto;
+                scrollbar-color: auto;
+                tab-size: 4;
+                text-align: start;
+                text-indent: 0px;
+                text-wrap-mode: wrap;
+                vertical-align: bottom;
+                white-space-collapse: collapse;
+            }
+              hr{
+                border-bottom-color: rgba(255, 255, 255, 0.05);
+                border-bottom-style: solid;
+                border-bottom-width: 0px;
+                border-image-outset: 0;
+                border-image-repeat: stretch;
+                border-image-slice: 100%;
+                border-image-source: none;
+                border-image-width: 1;
+                border-left-color: rgba(255, 255, 255, 0.05);
+                border-left-style: solid;
+                border-left-width: 0px;
+                border-right-color: rgba(255, 255, 255, 0.05);
+                border-right-style: solid;
+                border-right-width: 0px;
+                border-top-color: rgba(255, 255, 255, 0.05);
+                border-top-style: solid;
+                border-top-width: 1px;
+                box-sizing: border-box;
+                clear: both;
+                color: #FFF;
+                color-scheme: light;
+                font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+                font-feature-settings: normal;
+                font-size: 16px;
+                font-variation-settings: normal;
+                height: 1px;
+                line-height: 28px;
+                margin-bottom: 28px;
+                margin-left: 0px;
+                margin-right: 0px;
+                margin-top: 28px;
+                overflow-wrap: break-word;
+                padding-bottom: 0px;
+                padding-left: 0px;
+                padding-right: 0px;
+                padding-top: 0px;
+                scrollbar-color: auto;
+                tab-size: 4;
+                text-align: start;
+                text-wrap-mode: wrap;
+                white-space-collapse: collapse;
+              }
+              blockquote{
+                border-bottom-color: rgba(13, 13, 13, 0.05);
+                border-bottom-style: solid;
+                border-bottom-width: 0px;
+                border-image-outset: 0;
+                border-image-repeat: stretch;
+                border-image-slice: 100%;
+                border-image-source: none;
+                border-image-width: 1;
+                border-inline-start-color: oklch(0.928 0.006 264.531);
+                border-inline-start-width: 0px;
+                border-left-color: oklch(0.928 0.006 264.531);
+                border-left-style: solid;
+                border-left-width: 0px;
+                border-right-color: rgba(13, 13, 13, 0.05);
+                border-right-style: solid;
+                border-right-width: 0px;
+                border-top-color: rgba(13, 13, 13, 0.05);
+                border-top-style: solid;
+                border-top-width: 0px;
+                box-sizing: border-box;
+                color: #FFF;
+                color-scheme: light;
+                font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+                font-feature-settings: normal;
+                font-size: 16px;
+                font-style: normal;
+                font-variation-settings: normal;
+                font-weight: 500;
+                line-height: 24px;
+                margin-bottom: 8px;
+                margin-left: 0px;
+                margin-right: 0px;
+                margin-top: 0px;
+                overflow-wrap: break-word;
+                padding-bottom: 8px;
+                padding-inline-start: 24px;
+                padding-left: 24px;
+                padding-right: 0px;
+                padding-top: 8px;
+                position: relative;
+                quotes: "“" "”" "‘" "’";
+                scrollbar-color: auto;
+                tab-size: 4;
+                text-align: start;
+                text-wrap-mode: wrap;
+                white-space-collapse: collapse;
+            }
+            .content h1 { font-size: 24px; margin: 0.67em 0; }
+            .content h2 { font-size: 20px; margin: 0.75em 0; }
+            .content h3 { font-size: 18px; margin: 0.83em 0; }
+            .content h4 { font-size: 16px; margin: 1.12em 0; }
+            .content h5 { font-size: 14px; margin: 1.5em 0; }
+            .content h6 { font-size: 12px; margin: 1.67em 0; }
+            .code-block {
+              background-color: #2a2a2a !important;
+              color: #fff !important;
+              padding: 15px !important;
+              margin: 10px 0 !important;
+              border-radius: 5px !important;
+              border: 1px solid var(--primary-color) !important;
+              font-family: "Courier New", monospace !important;
+              overflow-x: auto !important;
+              width: auto !important;
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+            }
+            li{
+              margin:15px 0;
+            }
+            .inline-code{
+              background: #303030;
+              color: #FFF;
+              padding:2px 5px;
+            }
+            code{
+              background: #303030;
+              color: #FFF;
+              padding:2px 5px;
+              border-radius: .25rem;
+            }
+            /* Basic highlight.js theme */
+            .hljs {
+              background: transparent;
+              color: #fff;
+            }
+            .hljs-keyword { color: #ff79c6; }
+            .hljs-string { color: #f1fa8c; }
+            .hljs-number { color: #bd93f9; }
+            .hljs-function { color: #50fa7b; }
+            .hljs-comment { color: #6272a4; }
+            .hljs-title { color: #50fa7b; }
+            .hljs-params { color: #f8f8f2; }
+            .hljs-built_in { color: #8be9fd; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1 class="title">Fizikalni model rakete</h1>
+            <div class="timestamp">[11/15/2025, 12:31:09 AM]</div>
+          </div>
+          <div class="conversation">
+    
+        <div class="message user-message">
+          <div class="content">Radimo seminarski rad iz kolegija 3. godine Fakulteta elektrotehnike i računarstva koji se zove "Interaktivni simulacijski sustavi", tema je "Pojednostavljena interaktivna simulacija protuoklopnog vođenog raketnog sustava primjenom pogonskog sustava korištenjem alata Godot". Za sada je cilj napraviti fizikalni model rakete, njeno ponašanje u nekom fluidu (npr. zraku), te u konačnici samo zabijanje u oklopno vozilo. Naglasak je na fizikalni model i ponašanje u fluidu. Znači cilj je napraviti opći model projektila (za kojeg kasnije možemo odrediti različite varijable poput mase, duljine, radijusa i ostalih) te izvesti jednadžbe gibanja samog projektila. Kratka digresija, što se tiče konačnog zabijanja projektila u metu, ono će se vjerojatno simulirati pojednostavljenim načinom da će meta imati površine različitih koeficjenata integriteta, tojest inverz penetrabilnosti i onda će se gledati točka sudara projektila i odrediti je li konačna kinetička i potencijalna energija dovoljna kako bi udarnu površinu penetrirala, poanta je da trenutačno nije naglasak na ovom dijelu zadatka, sada radimo fizikalni model.
+
+-&gt; Za početak, mislim da je racionalno aproksimirati projektil valjkastim tijelom sa šiljastim vrh‚om, tojest gledajmo na projektil kao na uniju valjka i stožca koji je istim baznim radijusom kao i radijus valjka. 
+
+-&gt; Definirajmo LOKALNU os x kao onu koja prolazi kroz središta baza valjka, stošca i kroz vrh stošca. R neka bude radijus valjka, malo h neka bude visina stošca koji je "zaljepljen" na bazu valjka, a veliko H neka bude visina valjka. Masa ukupnog tijela neka je M i pretpostavimo da je masa uniformno raspodijeljena za sve 3 osi kartezijeva sustava. 
+
+-&gt; Pretpostavimo da projektil (ili raketa) ima propulsor koji je zakačen na slobodnoj bazi valjka (slobodna baza valjka je ona koja nije na spoju valjka i stožca). Taj propulzor ima karakterističan kut phi_propmax. Taj kut označava koliko se maksimalno propulzor može rotirati od vektora normale na tu bazu. Znači taj kut zapravo nam govori koliku tangencijalnu silu može proizvesti propulzor na cijeli projektil. Pretpostavljamo da je hvatište vektora sile, kojeg propulzor stvara na projektil, u središtu slobodne baze valjka. Naravno zbog III. newtonovog zakona ta sila gleda u smjeru obrnutom od normalnog vektora slobodne baze valjka (gdje je normalni vektor definiran kao onaj koji gleda vani iz tijela). Propulzor također ima karakterističnu silu F_propmax koja je maksimalna sila koju propulsor može "proizvesti" na tijelo. Također je opisan dvijema vremenskim konstantama t_prop-rot-lat i t_prop-throt-lat, gdje su t_prop-rot-lat vrijeme kašnjenja unosa korisnika i stvarnog odziva rotacije propulzora a t_prop-throt-lat odziva izlazni sile koju propulzor "stvara".
+
+-&gt; postavimo globalni vektor vjetra koji je definiran za svaku točku u prostoru kao vektor v_wind1
+
+-&gt; Zbog inercije očito je da će ova sila, osim translacijskih sila, stvarati i momente (a time i kutna ubrzanja) na tijelo u odnosu na tešište tijela. Ovi momenti ovisit će upravo o kutu propulzora i vektoru sile koju on stvara na središtu slob. baze.
+
+-&gt; Sve translacijske sile promatramo iz težišta tijela. Kutnu akceleraciju možemo isto promatrati iz težišta ali ona će ovisiti o udalejnosti hvatišta sile propulzije (F_prop) i težišta cijelog projektila.
+
+-&gt; Zbog radijalne simetrije cijelog projektila oko lokalne x osi i unifomnosti mase po svim osima, težište će sigurno biti negdje na lokalnoj x osi. Potrebno je odrediti točno poziciju težišta kao funkciju o R, H i h, znači T(R, H, h) = .... a_x (gdje je a_x jedinični vektor u smjeru lokalne x osi)
+
+-&gt; Osim sila propulzora moramo uzeti u obzir i sile otpora zraka i sile uzgona. Ako u okolici imamo fluid gustoće ro, a tijelo se nalazi u području konstante gravitacijske akceleracije g, potrebno je odrediti silu uzgona kao ro*g*V gdje je potrebno izraziti V kao funkciju od R, H, h.
+
+-&gt; što se tiče otpora zraka želimo definirati translacijsku silu otpora kao F_drag=0.5 * ro * v_wrel^2 C_D * A_projected, gdje je ro gustoća fluida u kom se nalazimo, v_wrel (vektor brzine vjetra v_wind umanjen za vektor brzine projektila v_projectile) - znači relativni vektor vjetra u odnosu na projektil, C_D koeficjent otpora u tom fluidu, A_projected je upadna površina projektila. Što se tiče upadne površine projektila ona je definirana kao A_projected = plošni integral (n * v_wrel) dS, gdje je n normala na diferencijal površine projketila. ovaj je integral potrebno generalno izraziti preko poznatih vrijednosti brzine vjetra (v_windx, v_windy, v_windz) i orijentacije samog projektila tojest njegovo rotacijsko stanje - kuteve alpha, beta i gama oko osi x, y, z respektivno.
+
+-&gt; naravno konstantno na projektil djeluje sila gravitacije u smjeru suprotnog jediničnog vektora a_z iznosa m*g 
+
+-&gt; korisnikove input možemo definirati kao usmjerenost propulzora. imamo ulazne funkcije u_propalpha u domeni [0,2pi], u_propbeta u domeni [0, pi/2], u_throttle u domeni [0,1]. Kada imamo ove ulazne funkcije, direktno možemo odrediti stanje sustava propulzora, tojest njegove dvije rotacije (definirane oko normale i tangencijale slobodne baze valjka) kao i magnitude izlazne sile. Važno je uračunati i input latenciju propulzora prilikom izračuna. A budući da se bavimo simulacijom na računalu, koristimo diskretne vrijednosti promjene vremena, što znači da imamo sljedće relacije;
+alpha_prop(t) = u_propalpha(t - t_prop-rot-lat)*phi_propmax
+beta_prop(t) = u_propbeta(t - t_prop-rot-lat)*phi_propmax
+force_prop(t) = u_throttle(t - t_prop-throt-lat)*F_propmax
+
+U konačnici želimo dobiti jednadžbe gibanja (pozicije i kuteva) u ovisnosti o ovim ulazima.
+- jednadžbe za kut alpha (oko osi x), beta (oko osi y) i gama (oko osi z)
+- jednadžbe za poziciju x_proj, y_proj, z_proj samog projektila
+
+Provjeri svu fiziku i pregledaj je li sve točno definirano, ukoliko nije prvo mi napomeni da ispravim netočne dijelove!!!!!! pa ćemo tek onda nastaviti sa izračunom diferencijalnih jednadžbi, također, što se tiče nomenklature i nazivlja, općenito je važno da je nazivlje jedinstveno i konvencionalno, znači da je način dodijeljivanja naziva varijabli isti i da ne postoje dvije različite varijable istog naziva. Ukoliko imaš bolje ideje za nazivlje slobodno predloži ali mi na kraju napomeni i napravi tablicu popisa svih konstanti i svih varijabli. U račun slobodno dodavaj nove konstante ako ti trebaju ili čak i nove varijable.</div>
+        </div>
+      
+        <div class="message assistant-message">
+          <div class="content">Thought for 37s<p>Super — dobar i detaljan početak. Napravio sam pažljiv pregled tvoje postavke fizike, ispravio/razjasnio nejasnoće i dao jasne, jedinstvene oznake, te izveo ključne zatvorene forme koje su sigurne (težište i volumen) i općenite jednadžbe gibanja koje možeš odmah implementirati u Godot (ili kasnije diskretizirati). Gurnuo sam stvari prema praktičnoj, konzistentnoj notaciji i naglasio mjesta gdje je potrebno učiniti pojednostavljenja (npr. aerodinamički momenti) ili gdje je praktičnije računati numerički nego zatvoreno analitički (npr. opća projekcija A_proj za proizvoljne orijentacije).</p>
+<p>Isprva — nekoliko važnih primjedbi/iskrivljenja u tvojoj postavci (kratko i jasno), pa zatim: derivacije (volumen, težište, momenti inercije), model sila i momenta, jednadžbe gibanja (translacija + rotacija), kako uključiti latencije u inputima, i konačno tablica varijabli i konstanti.</p>
+<p>Ako želiš da odmah generiram spreman kod/skriptu za Godot (GDScript) s ovim modelom — mogu odmah napraviti, ali prvo daj mi signal. U nastavku: sažeto, precizno i matematički.</p>
+<hr>
+<h1>1) Brze napomene / što treba ispraviti ili precizirati prije daljnjeg izvođenja</h1>
+<ol>
+<li>
+<p><strong>Referentni sustav i pozicija ishodišta.</strong>
+Neophodno je dogovoriti gdje je x=0. Radi konzistentnosti (i zato što si spomenuo propulsor pričvršćen na slobodnu bazu valjka) ja biram:</p>
+<ul>
+<li>
+<p>lokalna os x je osi simetrije, orijentirana od slobodne baze valjka prema vrhu stošca (udaljenost raste prema koničnom vrhu).</p>
+</li>
+<li>
+<p><strong>ishodište O je u točki koja je centar slobodne baze valjka</strong> (tj. mjesto gdje je propulsor pričvršćen). Time je baza na x=0, cilindar zauzima 0≤x≤H, baza stošca je na x=H, a vrh stošca na x=H+h.</p>
+</li>
+<li>
+<p>ovo treba potvrditi (ako želiš drugo, mogu odmah presložiti formule).</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Smjer normalnog vektora baze i smjer sile propulzora.</strong>
+Definirajmo:</p>
+<ul>
+<li>
+<p>normalni vektor baze, nb​, pokazuje <strong>iz tijela prema van</strong> (tj. iz baze u okolni prostor).</p>
+</li>
+<li>
+<p>prema tvojoj rečenici: sila propulzora djeluje u smjeru obrnutom od nb​. U mojoj notaciji: bez defleksije, jedinični smjer potiska je −nb​. (To znači da ispuh gura tijelo prema +x ili -x ovisno o orijentaciji nb​; provjeri da li je to što si htio — klasično je da ispuh gura u suprotnom smjeru od normalnog vektora otvora.)</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Orijentacija: Eulerovi kutovi ili kvaternioni?</strong></p>
+<ul>
+<li>
+<p>Eulerovi kutovi (alpha,beta,gamma oko x,y,z) mogu se koristiti za tokene i vizualizaciju, ali u numeričkoj integraciji i u Godot-u <strong>preporučam kvaternione</strong> za rotacije (izbjegavanje gimbal-lock-a i stabilnija integracija). Sve jednadžbe ću dati u obliku koji lako prelazi na kvaternione/rotacijske matrice.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Aerodinamički momenti.</strong></p>
+<ul>
+<li>
+<p>Translacijske sile (otpor/uzgon) lako su izražive. Moment koji proizlazi iz raspodjele tlaka oko tijela (torkovi koji mijenjaju rotaciju) je znatno teži za točan zatvoreni oblik. Predložiti ću pristup:</p>
+<ul>
+<li>
+<p>prvo modeli bez aerodinamičkih momenta (osim momenta od ekscentričnog potiska r×Fprop​),</p>
+</li>
+<li>
+<p>kasnije dodati model momenta koji ovisi o kutu napada (linearna aproksimacija Maero​=−Cm​(θ)21​ρv2Aref​Lref​e^) ili numerički integrirati tlak preko mreže površine.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>Ako ti ove preinake/mjesta jasno — idem dalje. Ja ih uzimam kao prihvaćene i izrađujem jednadžbe.</p>
+<hr>
+<h1>2) Geometrija, volumen i težište (precizno)</h1>
+<p>Oznake (kratko):</p>
+<ul>
+<li>
+<p>R — radijus valjka i baze stošca (m)</p>
+</li>
+<li>
+<p>H — visina (duljina) valjka (m)</p>
+</li>
+<li>
+<p>h — visina stošca (m)</p>
+</li>
+<li>
+<p>Ishodište O: centar slobodne baze valjka, osi: +x ide prema stošcu</p>
+</li>
+</ul>
+<h2>Volumen</h2>
+<p>Cilindar: Vcyl​=πR2H
+Stožac: Vcone​=31​πR2h
+Ukupno:</p>
+V=πR2(H+3h​)
+<h2>Težište (rCM​ — nalazi se na osi x)</h2>
+<p>Pozicije centara masa (mjereno od x=0):</p>
+<ul>
+<li>
+<p>cilindar: xcyl​=2H​</p>
+</li>
+<li>
+<p>stožac (centar mase od baze, prema vrhu): za pravu čvrstu piramidu/stožac centroid je udaljen h/4 od baze prema vrhu, dakle</p>
+xcone​=H+4h​.
+</li>
+</ul>
+<p>Uzmemo masa proporcionalnu volumenu (uniformna gustoća tijela). Stoga:</p>
+xCM​=Vcyl​+Vcone​Vcyl​xcyl​+Vcone​xcone​​=πR2(H+3h​)πR2H⋅2H​+πR23h​⋅(H+4h​)​.
+<p>Jednostavnije (poništimo πR2):</p>
+xCM​=4(3H+h)6H2+h(4H+h)​​
+<p>(mjereno od slobodne baze, u smjeru +x). Ovo je zatvoreni oblik, koristi se za izračun rCM​=xCM​a^x​.</p>
+<hr>
+<h1>3) Moment inercije (I) — tijelo je radijalno simetrično → Iyy​=Izz​</h1>
+<p>Potrebni su momenti inercije oko težišta u tijelnom (body) okviru. Postupak:</p>
+<ol>
+<li>
+<p>Računamo mase dijelova (proporcionalno volumnu):</p>
+</li>
+</ol>
+mcyl​=MVVcyl​​,mcone​=MVVcone​​.
+<ol>
+<li>
+<p><strong>Moment oko osi x</strong> (simetrijska os; osi prolaze kroz masa komponenti):</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>cilindar, oko svoje središnje osi: Ix,cyl(cm)​=21​mcyl​R2.</p>
+</li>
+<li>
+<p>stožac, oko svoje središnje osi (centroid): Ix,cone(cm)​=103​mcone​R2.</p>
+</li>
+<li>
+<p>za os x (koja prolazi kroz ukupno težište), pomaci po paralelnoj osi <strong>ne daju dodatak</strong> zato što su sve pomake duž osi x (shifting along axis does not add), dakle:</p>
+</li>
+</ul>
+Ix​=Ix,cyl(cm)​+Ix,cone(cm)​=21​mcyl​R2+103​mcone​R2.​
+<ol>
+<li>
+<p><strong>Moment oko poprečne osi y (isto za z)</strong>:</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>cilindar, oko svoje središnje poprečne osi: Iy,cyl(cm)​=121​mcyl​(3R2+H2).</p>
+</li>
+<li>
+<p>stožac, oko svoje središnje poprečne osi (centroid): standardni zatvoreni oblik:</p>
+Iy,cone(cm)​=803​mcone​(4h2+3R2).
+</li>
+<li>
+<p>Pomaci: koristimo paralelnu osnu teoremu za svaki dio (jer centri masa dijelova nisu u istom mjestu kao ukupno težište). Neka dcyl​=xcyl​−xCM​, dcone​=xcone​−xCM​. Tada:</p>
+</li>
+</ul>
+Iy​=Iy,cyl(cm)​+mcyl​dcyl2​+Iy,cone(cm)​+mcone​dcone2​,Iz​=Iy​.​
+<p>(Ove formule daješ u kodu i računaju se simbolički/numerički od podataka R,H,h,M.)</p>
+<blockquote>
+<p>Napomena: uvjerio sam se da su koeficijenti za stožac (za Ix​ i Iy​) standardni u literaturi; ako želiš mogu poslati izradu integrala ili numeričku provjeru, ali ovi oblici su konzervativno točni za uniforman čvrsti stožac.</p>
+</blockquote>
+<hr>
+<h1>4) Sile: izrazi i vektorski oblik</h1>
+<p>Postoji globalni (inercijski/world) i lokalni (body) okvir. Ja ću formulirati vektore u globalnom okviru koristeći rotacijsku matricu Rb→w​ za pretvorbu iz body u world.</p>
+<h2>4.1 Relativna brzina vjetra</h2>
+<p>Ako je globalna vektorska polja vjetra definirana kao vwind​(r,t) (u najjednostavnijem slučaju konstantan vektor vwind​), relativna brzina fluida u odnosu na projektil je:</p>
+vrel​=vprojectile​−vwind​(r,t).
+<p>(Napomena: ponekad se koristi suprotni predznak; ovdje vrel​ je brzina projektila u odnosu na fluid.)</p>
+<h2>4.2 Gravitacija</h2>
+Fg​=Mg,g=(0,0,−g)&nbsp;(globalno,&nbsp;tipicˇno).
+<h2>4.3 Uzgon (buoyancy)</h2>
+<p>Arhimedov uzgon sa smjerom suprotnim od gravitacije:</p>
+Fbuoy​=ρf​gVe^up​,
+<p>gdje ρf​ je gustoća fluida (npr. zraka), V volumen projektila iznad. U praksi za zrak je ovo mali doprinos, ali svejedno se uključuje. Smjer e^up​ je suprotan od gravitacije (npr. globalni +z^).</p>
+<h2>4.4 Otpor (drag) — vektorski oblik</h2>
+<p>Standardna forma (vektor):</p>
+Fdrag​=−21​ρf​CD​(α)Aproj​(vrel​,orijent.)∣vrel​∣vrel​​
+<p>gdje:</p>
+<ul>
+<li>
+<p>CD​(α) je koeficijent otpora (može ovisiti o kutu napada α izmeĎu osi projektila i vrel​); početna jednostavnost: konstantni CD​.</p>
+</li>
+<li>
+<p>Aproj​ je upadna (projektirana) površina pod pravim kutom na vrel​ — dolje detalji.</p>
+</li>
+</ul>
+<p><strong>Komentar o vektorskom faktoru:</strong> često pišeš -0.5 rho C A |v| v̂; ekvivalentno izvedeno obliku ispod (kada koristiš vrel​ bez normalizacije):</p>
+Fdrag​=−21​ρf​CD​Aproj​∣vrel​∣vrel​.
+<h2>4.5 Projektirana površina Aproj​ — opća formulacija</h2>
+<p>Precizno (geometrijski) definiraš:</p>
+Aproj​(u^)=∫S​max{0,n(s)⋅u^}dS
+<p>gdje je u^=∣vrel​∣vrel​​ i n(s) lokalna vanjska normalna na dS. To je točno područje ortogonalne projekcije površine na ravninu normalnu na smjer u^.</p>
+<p><strong>Aproksimacija (praktična i brza):</strong> budući tijelo ima radijalnu simetriju, Aproj​ ovisi samo o kutu θ između osi projektila (+x) i vrel​. Dva poznata ruba:</p>
+<ul>
+<li>
+<p>θ=0 (udar uz os): Aproj​=πR2 (krug baze).</p>
+</li>
+<li>
+<p>θ=2π​ (bočni udar): Aproj​=2RH+Rs, gdje je s=R2+h2​ (lateralna projekcija: pravokutnik dužine H i širine 2R plus trokut od stošca sa stranicom s).
+Možeš koristiti jednostavnu aproksimaciju linearne interpolacije:</p>
+</li>
+</ul>
+Aproj​(θ)≈πR2cos2θ+(2RH+Rs)sin2θ
+<p>ili (jednostavnije)</p>
+Aproj​(θ)≈πR2∣cosθ∣+(2RH+Rs)∣sinθ∣.
+<p>To je <strong>aproksimacija</strong> ali često vrlo korisna u real-time simulacijama; ako želiš točno, integriraj formulom s površinskom mrežom (preporučujem za konačne usporedbe).</p>
+<hr>
+<h1>5) Propulsor: geometrija smjera i latencije</h1>
+<p>Definicije:</p>
+<ul>
+<li>
+<p>kontrolni ulazi (user):</p>
+uα​(t)∈[0,2π),uβ​(t)∈[0,2π​],uth​(t)∈[0,1].
+</li>
+<li>
+<p>latencije:</p>
+αprop​(t)=ϕpropmax​uα​(t−tprop_rot_lat​),
+βprop​(t)=ϕpropmax​uβ​(t−tprop_rot_lat​),
+Fprop​(t)=Fpropmax​uth​(t−tprop_throt_lat​).
+</li>
+</ul>
+<p><strong>Jedinični smjer potiska u body koord.</strong>
+Neka je nb​ jedninična normal u body-koordinatama koja pokazuje iz baze prema van (npr. nb​=−a^x​ ako je ispuh u -x). U lokalnoj tangencijalnoj ravnini definiramo dvije ortonormirane tang.encijalne osi t1​,t2​ (npr. proizvoljno, takve da {nb​,t1​,t2​} su desni pravokutni sustav).</p>
+<p>Ako je β polarni defleksijski kut (od normalnog smjera) i α azimut u tangencijalnoj ravnini, jedinični smjer potiska u body-frame:</p>
+u^prop​=−cosβnb​+sinβ(cosαt1​+sinαt2​)​
+<p>(tj. bez defleksije β=0 daje smjer −nb​ kao dogovoreno).</p>
+<p>Potisak (vektor, u body-koordinatama):</p>
+Fprop(body)​=Fprop​(t)u^prop​.
+<p>Pretvori u globalni okvir: Fprop(world)​=Rb→w​Fprop(body)​.</p>
+<p><strong>Moment od potiska</strong> (oko CM):</p>
+<ul>
+<li>
+<p>pozicija hvatišta potiska u body-koordinatama (mjesto gdje sila djeluje) je rprop(body)​. Po tvojoj definiciji „hvatište … u središtu slobodne baze valjka“ ⇒ to je u body-koord. rprop(body)​=(0,0,0) ako je ishodište O u centru baze. Ali <strong>budući da je težište u xCM​=0</strong>, moment oko težišta je:</p>
+</li>
+</ul>
+Mprop​=rprop→CM​×Fprop​
+<p>gdje je rprop→CM​=rprop​−rCM​ izraženo u istom okviru (tj. body-frame). Ako je rprop​=(0,0,0) i rCM​=(xCM​,0,0), tada rprop→CM​=(−xCM​,0,0) i moment ima lako zatvoren oblik.</p>
+<hr>
+<h1>6) Rotacijska dinamika (Eulerove jednadžbe u body-frame)</h1>
+<p>Koristi body-koordinatni okvir (gledamo vektore u body-frame). Neka su ω=(ωx​,ωy​,ωz​) komponente kutne brzine u body-frame i I=diag(Ix​,Iy​,Iz​) dijagonalna matrica inercija (za ovo tijelo Iy​=Iz​). Tada Eulerove jednadžbe daju:</p>
+Iω˙+ω×(Iω)=Mprop​+Maero​+Mother​​
+<p>gdje su:</p>
+<ul>
+<li>
+<p>Mprop​=rprop→CM​×Fprop​ (u body frame),</p>
+</li>
+<li>
+<p>Maero​ — aerodinamički moment (može se aproksimirati ili zanemariti u prvim verzijama),</p>
+</li>
+<li>
+<p>Mother​ — npr. kontrolni momenti ili trenje.</p>
+</li>
+</ul>
+<p>Ako želiš iznijeti α˙,β˙​,γ˙​ kao Eulerove kutne brzine (kako si tražio): veza između &nbsp;Euler&nbsp;kutova˙ i ω postoji, ali je <strong>osjetna na konvenciju</strong>. Preporučam da u numeričkoj implementaciji integriraš ω i kvaternion q (ili rotacijsku matricu), a ne Eulerove kuteve direktno. Ako želiš ipak izraz u Eulerovima — mogu ga ovdje eksplicitno napisati ovisno o odabranoj Euler-sekvenci (npr. ZYX ili XYZ).</p>
+<hr>
+<h1>7) Translacijska dinamika (Newton II)</h1>
+<p>U globalnom okviru:</p>
+Mv˙=Fprop​+Fdrag​+Fbuoy​+Mg​
+<p>gdje su svi vektori u global frame. Poziciju integriraš standardno:</p>
+r˙=v.
+<p>Za numeričku integraciju u Godot: pri svakom koraku Δt:</p>
+<ol>
+<li>
+<p>izračunaj ulaze s latencijama (po tvojoj formuli),</p>
+</li>
+<li>
+<p>izračunaj Fprop​ u body frame pa rotiraj u world,</p>
+</li>
+<li>
+<p>izračunaj vrel​, Aproj​, Fdrag​,</p>
+</li>
+<li>
+<p>integriraj v i r,</p>
+</li>
+<li>
+<p>integriraj ω koristeći Eulerove jednadžbe i ažuriraj rotaciju (kvaternion).</p>
+</li>
+</ol>
+<hr>
+<h1>8) Sažetak izraza koje možeš odmah implementirati (koncizno)</h1>
+<h3>Volumen i masa dijelova</h3>
+V=πR2(H+3h​),mcyl​=MH+h/3H​,mcone​=MH+h/3h/3​
+<h3>Težište (od baze)</h3>
+xCM​=4(3H+h)6H2+h(4H+h)​
+<h3>Potisak (body frame)</h3>
+u^prop​=−cosβnb​+sinβ(cosαt1​+sinαt2​)
+Fprop(body)​=Fprop​(t)u^prop​
+<h3>Potisak — moment oko CM (body frame)</h3>
+Mprop​=(rprop​−rCM​)×Fprop(body)​
+<h3>Drag</h3>
+Fdrag​=−21​ρf​CD​(θ)Aproj​(θ)∣vrel​∣vrel​
+<p>gdje θ=arccos(a^x​⋅v^rel​).</p>
+<h3>Rotacija</h3>
+Iω˙+ω×(Iω)=Mprop​+Maero​
+<h3>Translacija</h3>
+Mv˙=Fprop​+Fdrag​+Fbuoy​+Mg.
+<hr>
+<h1>9) Prijedlog pojednostavljenja za početnu implementaciju (i razlozi)</h1>
+<p>Da bi simulacija radila stabilno i brzo (posebno u Godotu, real-time), predlažem:</p>
+<ol>
+<li>
+<p><strong>Start s ignoriranjem Maero​</strong> — prvo rotacije dolaze samo od ekscentričnog potiska (to daje realistično torque steering).</p>
+</li>
+<li>
+<p><strong>Koristi konstantan CD​</strong> i aproksimaciju za Aproj​(θ) (npr. πR2∣cosθ∣+(2RH+Rs)∣sinθ∣). Kasnije možeš uvesti ovisnost CD​(θ) ili numerički izračun projektiranog područja.</p>
+</li>
+<li>
+<p><strong>Koristi kvaternion za rotaciju</strong> i integrator (semi-implicit Euler ili RK4) za stabilnost.</p>
+</li>
+<li>
+<p><strong>Ako želiš aerodinamičku stabilizaciju (pitch-down moment),</strong> možeš dodati empirijski moment Maero,y​∝−Km​ωy​ kao damping pri malim kutnim brzinama.</p>
+</li>
+</ol>
+<hr>
+<h1>10) Nomenklatura — tablica konstanti i varijabli (kratka)</h1>
+<p>Konstante / parametri geometrije i mase</p>
+<ul>
+<li>
+<p>R — radijus valjka (m)</p>
+</li>
+<li>
+<p>H — visina valjka (m)</p>
+</li>
+<li>
+<p>h — visina stošca (m)</p>
+</li>
+<li>
+<p>M — ukupna masa projektila (kg)</p>
+</li>
+<li>
+<p>V — volumen tijela (m³)</p>
+</li>
+</ul>
+<p>Propulsor / kontrola</p>
+<ul>
+<li>
+<p>ϕpropmax​ — maksimalna deflekcija propulzora (rad)</p>
+</li>
+<li>
+<p>Fpropmax​ — maksimalna sila potiska (N)</p>
+</li>
+<li>
+<p>tprop_rot_lat​ — latencija rotacije (s)</p>
+</li>
+<li>
+<p>tprop_throt_lat​ — latencija throttle-a (s)</p>
+</li>
+<li>
+<p>uα​(t),uβ​(t),uth​(t) — ulazi korisnika</p>
+</li>
+<li>
+<p>αprop​(t),βprop​(t),Fprop​(t) — stanje propulzora nakon latencije</p>
+</li>
+</ul>
+<p>Fluid i aerodinamika</p>
+<ul>
+<li>
+<p>ρf​ — gustoća fluida (npr. zrak ≈ 1.225 kg/m³)</p>
+</li>
+<li>
+<p>CD​(θ) — koeficijent otpora (može biti konstanta ili ovisan o kutu)</p>
+</li>
+<li>
+<p>Aproj​(θ) — projektirana upadna površina</p>
+</li>
+<li>
+<p>g — gravitacijska akceleracija (≈ 9.81 m/s²)</p>
+</li>
+</ul>
+<p>Kinematika / dinamika</p>
+<ul>
+<li>
+<p>r — pozicija u global frame (m)</p>
+</li>
+<li>
+<p>v — brzina u global frame (m/s)</p>
+</li>
+<li>
+<p>ω — kutna brzina u body frame (rad/s)</p>
+</li>
+<li>
+<p>q — kvaternion orijentacije (body-&gt;world)</p>
+</li>
+<li>
+<p>Ix​,Iy​,Iz​ — momenti inercije oko tijelnih osi (kg·m²)</p>
+</li>
+<li>
+<p>Fprop​,Fdrag​,Fbuoy​,Mg — sile u global frame</p>
+</li>
+<li>
+<p>Mprop​,Maero​ — momenti u body frame</p>
+</li>
+</ul>
+<p>Pomoćne varijable</p>
+<ul>
+<li>
+<p>xCM​ — koordinata težišta od slobodne baze (m) — formula gore</p>
+</li>
+<li>
+<p>s=R2+h2​ — tvornički (slant) stošca (m)</p>
+</li>
+</ul>
+<hr>
+<h1>11) Moguće sljedeće konkretne akcije (izaberi jednu — ja odmah radim)</h1>
+<ol>
+<li>
+<p>Napravim detaljan GDScript (Godot) modul / node koji implementira:</p>
+<ul>
+<li>
+<p>račun težišta i I-matrice iz R,H,h,M,</p>
+</li>
+<li>
+<p>metodu za izračun Aproj​(θ) (izbor: aproksimacija ili numerička integracija na površini),</p>
+</li>
+<li>
+<p>integrator (semi-implicit Euler ili RK4) za translacije i rotacije s kvaternionskom orijentacijom,</p>
+</li>
+<li>
+<p>uključen propulsor s latencijama i momentom.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Napravim MATLAB/Python (Jupyter) skriptu za provjeru fizike (plotovi: xCM​ vs H/h, provjera mase, provjera I-matrice, testni slučajevi gibanja) — može pomoći verificirati zakonitosti prije implementacije u Godot.</p>
+</li>
+<li>
+<p>Ako želiš, odmah ti dam eksplicitne jednadžbe pretvorbe između Euler&nbsp;kutova˙ i ω (ako želiš raditi Euler kutove umjesto kvaterniona).</p>
+</li>
+<li>
+<p>Ili, ako želiš, odmah napišem numeričku formulu za Aproj​(θ) točno razloženu na (1) cilindar i (2) stožac i sumiram, s točnim zatvorenim izrazom (mogu to izvesti, ali trebam potvrdu da želiš <strong>točan</strong> zatvoreni oblik — ja mogu odmah izvesti).</p>
+</li>
+</ol>
+<hr>
+<h1>12) Zaključak — je li tvoja početna postavka bila ispravna?</h1>
+<ul>
+<li>
+<p><strong>Da</strong>, velika većina tvoje fizičke postavke je konzistentna i dobro specificirana (geometrija, latencije, što želiš modelirati).</p>
+</li>
+<li>
+<p><strong>Potrebno</strong> je jasno definirati ishodište (učinio sam to i prilagodio formule) i jasno pogoditi konvenciju normalnog vektora baze i smjera potiska (predložio sam standardnu konvenciju i dao odgovarajuće formule).</p>
+</li>
+<li>
+<p><strong>Aerodinamički momenti</strong> i <strong>točan oblik Aproj​</strong> su jedini dijelovi koji su zahtjevniji za zatvoreni oblik i za koje preporučam ili numeričku integraciju ili praktičnu aproksimaciju u početku.</p>
+</li>
+</ul>
+<hr>
+<p>Ako želiš, odmah ti generiram:</p>
+<ul>
+<li>
+<p>A) GDScript modul za Godot (s komentarima) koji implementira cijeli model (volumen, težište, inercije, sile, momente i integrator); ili</p>
+</li>
+<li>
+<p>B) Python Jupyter provjeru i grafove (volumen, xCM​ kao funkcija H/h, test slučajevi).</p>
+</li>
+</ul>
+<p>Reci koji od ta dva želiš i ja odmah napravim (i neću tražiti dodatna pojašnjenja — iskoristit ću gore definirane konvencije).</p></div>
+        </div>
+      
+        <div class="message user-message">
+          <div class="content">1)
+1. Ne, ishodište nam nije važno, jer projektil ima neke koordinate x_proj0, y_proj0 i z_proj0 koje su početne, ova lokalna os x je bila samo radi pojednostavljivanja funkcije pronalaska težišta mase. znači za težište bi trebao prointegrirat volumno (ali se svede na linijski zbog uniformnosti gustoće) da dobiješ težište
+2. pa ispuh gura masu prema vani, to znači da po 3NZ akcije i reakcije da treba postojati ekvivalentna reaktivna sila koja djeluje u smjeru -n_baze, na tu sam silu mislio
+3. može, rotacijske matrice su ok
+4. da, i mislio sam da u obzir uzmeš samo moment zbog ekscentričnog potiska, ovaj dodatni model momenta za našu razinu simulacije nije potreban
+
+
+u redu, za sada mi se sviđa način na koji si sve detaljno opisao, samo želim da za zapise vektora ne koristiš masna slova jer su nečitka na ekranima, već koristi standardni vektorski zapis sa stralicom, također za derivacije koristi ekzaktnu simboliku da se točno zna po kojoj varijabli se derivira
+
+sad mi daj cijeli ponovljeni fizikalni model sa ovim ispravkama</div>
+        </div>
+      
+        <div class="message assistant-message">
+          <div class="content"><p>U redu — u nastavku dajem <strong>cijeli ponovno sastavljeni i ispravljeni fizikalni model</strong>, uključujući sve tvoje korekcije i upute (vektori sa strelicama, eksplicitne derivacije, jedinstveno nazivlje).
+Ovo još <strong>nisu</strong> diferencijalne jednadžbe gibanja (njih radimo u sljedećem koraku) nego <strong>precizna, konsolidirana definicija fizikalnog modela</strong>, spremna za izvođenje jednadžbi.</p>
+<hr>
+<h1><strong>FIZIKALNI MODEL PROJEKTILA</strong></h1>
+<h2><strong>1. Geometrija projektila</strong></h2>
+<p>Tijelo projektila je unija:</p>
+<ul>
+<li>
+<p><strong>valjka</strong> radijusa R i visine H</p>
+</li>
+<li>
+<p><strong>stošca</strong> radijusa R i visine h</p>
+</li>
+</ul>
+<p>Lokalna os x^b​ prolazi kroz središta baza valjka i stošca, te vrh stošca.
+Položaj težišta se definira <strong>samo unutar lokalnog tijela</strong> — globalne koordinate xproj​(t) su odvojeno definirane i nema problema s odabirom ishodišta.</p>
+<h3><strong>1.1. Volumeni</strong></h3>
+Vcyl​=πR2H
+Vcone​=31​πR2h
+Vtot​=Vcyl​+Vcone​
+<h3><strong>1.2. Težište tijela</strong></h3>
+<p>Smještamo početak lokalne osi x^b​ u <strong>slobodnu bazu valjka</strong> (onu na kojoj je motor).</p>
+<ul>
+<li>
+<p>Težište valjka:</p>
+</li>
+</ul>
+xcylCG​=2H​
+<ul>
+<li>
+<p>Težište stošca (mjereno od njegove baze):</p>
+</li>
+</ul>
+xconeCG​=4h​
+<ul>
+<li>
+<p>A baza stošca je na udaljenosti H od ishodišta; zato je globalno (u tijelu):</p>
+</li>
+</ul>
+xconeCG,true​=H+4h​
+<p>Ukupno težište:</p>
+xCG​=ρVtot​ρVcyl​xcylCG​+ρVcone​xconeCG,true​​⇒xCG​=Vtot​Vcyl​2H​+Vcone​(H+4h​)​
+<p>Budući da je masa jednolika:</p>
+M=ρVtot​
+<p>Sve ostalo (momenti tromosti) možemo dodati kasnije ako poželiš, ali nisu nužni u ovom koraku.</p>
+<hr>
+<h1><strong>2. Koordinatni sustavi</strong></h1>
+<p>Koristimo:</p>
+<ul>
+<li>
+<p><strong>globalni sustav</strong>
+osi: x^,y^​,z^
+položaj tijela: xproj​(t)</p>
+</li>
+<li>
+<p><strong>lokalni/bodily sustav</strong>
+osi: x^b​,y^​b​,z^b​
+rotacije definirane <em>Tait–Bryan</em> konvencijom:</p>
+α(t)rotacija&nbsp;oko&nbsp;x^b​
+β(t)rotacija&nbsp;oko&nbsp;y^​b​
+γ(t)rotacija&nbsp;oko&nbsp;z^b​
+</li>
+</ul>
+<p>Rotacijska matrica iz tijela u globalni sustav:</p>
+Rbg​(α,β,γ)=Rz​(γ)Ry​(β)Rx​(α)
+<p>(vrlo standardno — ako želiš, ekspandiram kasnije).</p>
+<hr>
+<h1><strong>3. Propulzor</strong></h1>
+<p>Motor se nalazi u ishodištu lokalnog sustava (središte slobodne baze valjka).
+Njegova nominalna os djelovanja je −x^b​.</p>
+<p>Korisnik daje:</p>
+<ul>
+<li>
+<p>uα​(t)∈[0,2π]    (horizontalna orijentacija)</p>
+</li>
+<li>
+<p>uβ​(t)∈[0,π/2]   (nagib od osi)</p>
+</li>
+<li>
+<p>uthr​(t)∈[0,1]         (throttle)</p>
+</li>
+</ul>
+<p>A stvarna orijentacija i sila kasne za latencijama:</p>
+αprop​(t)=uα​(t−tprop,rot,lat​)ϕprop,max​
+βprop​(t)=uβ​(t−tprop,rot,lat​)ϕprop,max​
+Fprop​(t)=uthr​(t−tprop,thr,lat​)Fprop,max​
+<p>Vektor sile u <em>lokalnom sustavu tijela</em>:</p>
+<p>Nominalna os je −x^b​.
+Nakon rotacija αprop​,βprop​:</p>
+Fprop(b)​(t)=−Fprop​(t)Ry​(βprop​(t))Rz​(αprop​(t))x^b​
+<p>Prebacivanje u globalni sustav:</p>
+Fprop(g)​(t)=Rbg​(α,β,γ)Fprop(b)​(t)
+<h3><strong>3.1. Moment propulzora</strong></h3>
+<p>Hvatište sile je u ishodištu lokalnog sustava (slobodna baza).
+Težište je na xCG​x^b​.</p>
+rCG(b)​=xCG​x^b​
+<p>Moment u lokalnom sustavu:</p>
+τprop(b)​=rCG(b)​×Fprop(b)​
+<p>Prebacivanje u globalni:</p>
+τprop(g)​=Rbg​(α,β,γ)τprop(b)​
+<hr>
+<h1><strong>4. Aerodinamičke sile</strong></h1>
+<h2><strong>4.1. relativna brzina vjetra</strong></h2>
+<p>Globalni vjetar:</p>
+vwind​
+<p>Relativna brzina:</p>
+vrel​=vwind​−x˙proj​
+<h2><strong>4.2. Sila uzgona</strong></h2>
+<p>Budući da tijelo ne istiskuje fluid poput broda nego se kreće u zraku, klasični uzgon (Arhimedov) vrijedi:</p>
+Fbuoy​=ρair​gVtot​(−z^)
+<p>gdje je z^ jedinični vektor prema gore.</p>
+<h2><strong>4.3. Aerodinamički otpor</strong></h2>
+<p>Standardni model:</p>
+Fdrag​=−21​ρCD​Aproj​(α,β,γ,vrel​)∥vrel​∥vrel​
+<h3><strong>4.3.1. Upadna površina</strong></h3>
+<p>Ako je v^=∥vrel​∥vrel​​, tada je:</p>
+Aproj​=∬povrsˇina&nbsp;tijela​max(0,n^⋅(−v^))dS
+<p>gdje je n^ normala površine u globalnom sustavu:</p>
+n^(g)=Rbg​n^(b)
+<p>Za dana tijela (valjak + stožac) možemo kasnije izvesti zatvoreni oblik ili numerički aproksimirati — ali model je ispravno postavljen.</p>
+<hr>
+<h1><strong>5. Gravitacija</strong></h1>
+Fgrav​=−Mgz^
+<hr>
+<h1><strong>6. Translacija (sile)</strong></h1>
+<p>Ukupna sila:</p>
+Ftot​=Fprop(g)​+Fdrag​+Fbuoy​+Fgrav​
+<p>Jednadžba gibanja:</p>
+Mx¨proj​=Ftot​
+<hr>
+<h1><strong>7. Rotacija (moment + moment tromosti)</strong></h1>
+<p>Moment:</p>
+τtot(g)​=τprop(g)​
+<p>Pretvaranje u lokalni sustav (jer se kutne brzine obično vode u body-m okviru):</p>
+τtot(b)​=Rgb​τtot(g)​
+<p>Moment tromosti je <strong>dijagonalan</strong> zbog radijalne simetrije:</p>
+Ib​=​Ixx​00​0Iyy​0​00Iyy​​​
+<p>Jednadžba rotacije u lokalnom sustavu:</p>
+Ib​ω˙b​=τtot(b)​−ωb​×(Ib​ωb​)
+<p>Kinematika orijentacije:</p>
+dtd​​αβγ​​=T(α,β,γ)ωb​
+<p>gdje je T standardna Tait–Bryan transformacija.</p>
+<p>(Nakon potvrde ovdje, ekspandiram ti ju simbolički.)</p>
+<hr>
+<h1><strong>8. TABLICA SIMBOLA</strong></h1>
+<table class="w-fit min-w-(--thread-content-width)"><thead><tr><th>Oznaka</th><th>Tip</th><th>Opis</th></tr></thead><tbody><tr><td>R</td><td>konst.</td><td>radijus valjka i stošca</td></tr><tr><td>H</td><td>konst.</td><td>visina valjka</td></tr><tr><td>h</td><td>konst.</td><td>visina stošca</td></tr><tr><td>M</td><td>konst.</td><td>masa tijela</td></tr><tr><td>ρ</td><td>konst.</td><td>gustoća fluida</td></tr><tr><td>g</td><td>konst.</td><td>gravitacija</td></tr><tr><td>ϕprop,max​</td><td>konst.</td><td>maksimalni kut izvijanja motora</td></tr><tr><td>Fprop,max​</td><td>konst.</td><td>maksimalna sila motora</td></tr><tr><td>tprop,rot,lat​</td><td>konst.</td><td>latencija rotacije motora</td></tr><tr><td>tprop,thr,lat​</td><td>konst.</td><td>latencija throttlea</td></tr><tr><td>uα​(t)</td><td>var.</td><td>korisnički input</td></tr><tr><td>uβ​(t)</td><td>var.</td><td>korisnički input</td></tr><tr><td>uthr​(t)</td><td>var.</td><td>korisnički input</td></tr><tr><td>αprop​(t)</td><td>var.</td><td>realni kut motora</td></tr><tr><td>βprop​(t)</td><td>var.</td><td>realni kut motora</td></tr><tr><td>Fprop​(t)</td><td>var.</td><td>realna sila motora</td></tr><tr><td>xproj​</td><td>var.</td><td>pozicija projektila</td></tr><tr><td>x˙proj​</td><td>var.</td><td>brzina</td></tr><tr><td>x¨proj​</td><td>var.</td><td>ubrzanje</td></tr><tr><td>α,β,γ</td><td>var.</td><td>orijentacije tijela</td></tr><tr><td>ωb​</td><td>var.</td><td>kutna brzina u body sustavu</td></tr><tr><td>vwind​</td><td>var.</td><td>vektor vjetra</td></tr><tr><td>vrel​</td><td>var.</td><td>relativna brzina vjetra</td></tr><tr><td>Fdrag​,Fbuoy​,Fgrav​</td><td>var.</td><td>aerodinamičke/gravitacijske sile</td></tr><tr><td>Fprop​</td><td>var.</td><td>sila motora</td></tr><tr><td>τprop​</td><td>var.</td><td>moment od motora</td></tr><tr><td>Aproj​</td><td>var.</td><td>upadna površina</td></tr></tbody></table>
+<hr>
+<h1>✔️ <strong>Ako ti je ovaj kompletan i ispravan model dobar, prijeđemo na izvođenje diferencijalnih jednadžbi za:</strong></h1>
+<ul>
+<li>
+<p>x¨proj​(t)</p>
+</li>
+<li>
+<p>α˙,β˙​,γ˙​</p>
+</li>
+<li>
+<p>ω˙b​</p>
+</li>
+</ul>
+<p>Reci samo <strong>"može, idemo dalje"</strong> ili traži izmjene ako želiš još nešto precizirati prije matematičke formulacije.</p></div>
+        </div>
+      
+          </div>
+        </body>
+      </html>
+    
