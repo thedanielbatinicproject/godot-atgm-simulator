@@ -11,5 +11,10 @@ config_version=5
 [application]
 
 config/name="Pojednostavljeni model protuoklopnog vođenog projektila"
+run/main_scene="uid://co0lmqnhq86p7"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[filesystem]
+
+import/blender/enabled=false

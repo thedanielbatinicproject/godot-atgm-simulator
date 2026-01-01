@@ -1,3 +1,43 @@
-[gd_scene format=3 uid="uid://co0lmqnhq86p7"]
+[gd_scene load_steps=6 format=3 uid="uid://co0lmqnhq86p7"]
 
-[node name="TestScene" type="Node2D"]
+[ext_resource type="PackedScene" uid="uid://d3atk2x5rcq63" path="res://assets/3D Assets/Vegetation/Tree01/Tree.fbx" id="1_n77mx"]
+[ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_rlkm5"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_rlkm5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
+albedo_color = Color(0.5, 0.5, 0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.8, 0, 0, 1)
+
+[node name="TestScene" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9303024, -0.3667935, 0, 0.3667935, 0.9303024, -2.4749527, 94.52351, 477.14294)
+current = true
+
+[node name="Ground" type="Node3D" parent="."]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+size = Vector3(200, 2, 200)
+material = SubResource("StandardMaterial3D_2")
+
+[node name="Tree" parent="Ground" instance=ExtResource("1_n77mx")]
+transform = Transform3D(10000, 0, 0, 0, 10000, 0, 0, 0, 10000, -68.73324, -4.752655, -76.18941)
+
+[node name="Projectile" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0)
+script = ExtResource("1_rlkm5")
+scenario_data = ExtResource("2_rlkm5")
+debug_enabled = true
+debug_interval = 1.0
+calculate_moments = false
+
+[node name="ProjectileVisual" type="CSGSphere3D" parent="Projectile"]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0)
+radius = 9.274
+material = SubResource("StandardMaterial3D_1")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -114.122574, 119.13259, -102.52523)

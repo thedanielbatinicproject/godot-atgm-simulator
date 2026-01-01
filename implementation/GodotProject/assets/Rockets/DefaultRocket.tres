@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="RocketData" load_steps=2 format=3 uid="uid://oih1w570e4a8"]
+
+[ext_resource type="Script" uid="uid://c6btekbi0in50" path="res://scripts/ProjectileModel/RocketData.gd" id="1_5qbo8"]
+
+[resource]
+script = ExtResource("1_5qbo8")
+metadata/_custom_type_script = "uid://c6btekbi0in50"

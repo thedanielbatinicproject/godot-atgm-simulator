@@ -1,0 +1,1007 @@
+\documentclass[a4paper,12pt]{article}
+
+% ---------------------------------------------------------
+% PACKAGES
+% ---------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[croatian]{babel}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{physics}
+\usepackage{hyperref}
+\usepackage{mathtools}
+
+
+\geometry{margin=2.5cm}
+
+% ---------------------------------------------------------
+% TITLE PAGE DATA
+% ---------------------------------------------------------
+\title{
+\vspace{3cm}
+\textbf{\Large Pojednostavljeni model protuoklopnog vođenog projektila}\\[0.3cm]
+\large Fizikalni model i priprema jednadžbi za simulaciju
+}
+
+\author{
+\textbf{Seminarski rad}\\[4pt]
+Kolegij: Interaktivni simulacijski sustavi\\[1.5cm]
+\textbf{Autori:}\\
+Daniel Batinić\\
+Leon Lužaić\\
+Ivan Periša\\
+Karim Krklec\\
+Nikola Simunić
+}
+
+\date{\vfill \today}
+
+
+
+% ---------------------------------------------------------
+\begin{document}
+% ---------------------------------------------------------
+
+\begin{titlepage}
+    \maketitle
+    \thispagestyle{empty}  % sakriva broj stranice
+\end{titlepage}
+
+
+\newpage
+
+% ---------------------------------------------------------
+\section{Uvod}
+% ---------------------------------------------------------
+Cilj ovog rada je izvesti detaljan fizikalni model pojednostavljenog protuoklopnog vođenog raketnog sustava, fokusiran na dinamiku projektila i interakciju s fluidom (zrakom). Model uključuje:
+
+\begin{itemize}
+    \item geometriju projektila,
+    \item izračun težišta,
+    \item tenzor momenta tromosti,
+    \item aerodinamičke sile i stabilizacijski moment,
+    \item potisak propulzora, njegovu orijentaciju i latencije na unos korisnika,
+    \item jednadžbe translacije i rotacije,
+    \item diskretne jednadžbe za računalnu simulaciju.
+\end{itemize}
+
+Primarna namjena modela je integracija u real-time interaktivnu simulaciju korištenjem alata Godot.
+
+\newpage
+% ---------------------------------------------------------
+\section{Geometrijski model projektila}
+% ---------------------------------------------------------
+
+Projektil se aproksimira kao kruto tijelo sastavljeno od valjka i stošca:
+
+\[
+V_{\text{valjak}} = \pi R^2 H, \qquad 
+V_{\text{stožac}} = \frac{1}{3}\pi R^2 h.
+\]
+
+
+Ukupni volumen:
+
+\[
+V_{\text{tot}} = \pi R^2\left(H + \frac{h}{3}\right).
+\]
+
+Ukupna masa:
+
+\[
+M = \rho V_{\text{tot}}.
+\]
+
+Lokalna os $x_{\text{loc}}$ definirana je tako da prolazi kroz središte slobodne baze valjka (ishodište), kroz spoj valjak–stožac i do vrha stožca.
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_default.png}
+    \caption{Pojednostavljeni model projektila sastavljen od valjka i stošca. Središte slobodne baze valjka postavljeno je u ishodište lokalnog koordinatnog sustava.}
+    \label{fig:projektil_model}
+\end{figure}
+
+H definiramo kao visinu valjka, h kao visinu stožca i R kao radijus baza valjka i stošca. Primjer na slici gore daje H=4, h=3 i R=1
+
+% ---------------------------------------------------------
+\section{Težište projektila}
+% ---------------------------------------------------------
+
+\subsection*{Točno izveden izraz sa simulaciju}
+
+Težište valjka (mjereno od baze valjka):
+
+\[
+x_{\text{CM,valjak}} = \frac{H}{2}.
+\]
+
+Težište stošca (mjereno od baze valjka):
+
+\[
+x_{\text{CM,sto\v zac}} = H + \frac{h}{4}.
+\]
+
+Ukupna masa:
+
+\[
+M = \rho \pi R^2 \left(H + \frac{h}{3}\right).
+\]
+
+Rezultat za ukupno težište (od baze valjka):
+
+\[
+x_{\text{CM,loc}} =
+\frac{\pi R^2 \rho\left( H\cdot \frac{H}{2}
++ \frac{h}{3}\left(H+\frac{h}{4}\right)\right)}
+{\pi R^2 \rho\left(H + \frac{h}{3}\right)}.
+\]
+
+Pojednostavljeno:
+
+\[
+\boxed{
+x_{\text{CM,loc}}
+= \frac{6H^2 + 4 H h + 3 h^2}{12 H + 4 h}
+}
+\]
+
+Udaljenost težišta od središta baze valjka koje je na slici gore smješteno u ishodištu.
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_teÅ¾iÅ¡te.png}
+    \caption{Prikaz težišta modela za vrijednosti početnog primjera.}
+    \label{fig:projektil_model}
+\end{figure}
+
+
+Za globalnu poziciju težišta imamo:
+
+\[
+\mathbf{r}_{\text{CM}} = 
+\mathbf{r}_{\text{proj}} + 
+R(\alpha_{\text{proj}},\beta_{\text{proj}},\gamma_{\text{proj}})
+\begin{bmatrix}
+x_{\text{CM,loc}}\\ 0\\ 0
+\end{bmatrix}.
+\]
+
+% ----------------------------------------------------
+% Jedinični vektor smjera projektila
+% ----------------------------------------------------
+\[
+\text{Smjer projektila definiran je lokalnom x-osom, pa vrijedi:}
+\]
+
+\[
+\hat{\mathbf{x}}_{\text{proj}}
+= R(\alpha,\beta,\gamma)
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}.
+\]
+
+\[
+\text{Budući da je potpuna rotacijska matrica } R(\alpha,\beta,\gamma) \text{ zadana s:}
+\]
+
+\[
+R(\alpha,\beta,\gamma) =
+\begin{bmatrix}
+\cos\beta \cos\gamma &
+\sin\alpha \sin\beta \cos\gamma - \cos\alpha \sin\gamma &
+\sin\alpha \sin\gamma + \cos\alpha \sin\beta \cos\gamma
+\\[2mm]
+\cos\beta \sin\gamma &
+\sin\alpha \sin\beta \sin\gamma + \cos\alpha \cos\gamma &
+\cos\alpha \sin\beta \sin\gamma - \sin\alpha \cos\gamma
+\\[2mm]
+-\sin\beta &
+\sin\alpha \cos\beta &
+\cos\alpha \cos\beta
+\end{bmatrix},
+\]
+
+\[
+\text{jedinični vektor smjera jednak je prvoj koloni matrice:}
+\]
+
+\[
+\hat{\mathbf{x}}_{\text{proj}} =
+\begin{bmatrix}
+\cos\beta \cos\gamma \\
+\cos\beta \sin\gamma \\
+-\sin\beta
+\end{bmatrix}
+\]
+
+pa imamo izraz za točnu poziciju težišta u globalnom sustavu
+\[
+\boxed{
+\mathbf{r}_{\text{CM}} = 
+\mathbf{r}_{\text{proj}} + x_{\text{CM,loc}}
+\begin{bmatrix}
+\cos\beta \cos\gamma \\
+\cos\beta \sin\gamma \\
+-\sin\beta
+\end{bmatrix}
+}
+\]
+
+\begin{equation*}
+\begin{aligned}
+& \text{gdje su kutevi $\alpha$, $\beta$, $\gamma$ kutevi pod kojima je vektor smjera projektila zaokrenut } \\
+& \text{oko osi x, y, z respektivno.} \\
+& \text{Dobili smo konačan zatvoreni izraz u sinusima i kosinusima Eulero­vih kuteva,} \\
+& \text{a $\mathbf{r}_{\text{proj}}$ predstavlja točnu poziciju točke središta slobodne baze valjka projektila.}
+\end{aligned}
+\end{equation*}
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_vektor_smjera.png}
+    \caption{Prikaz vektora smjera modela koji je uvijek kolinearan sa lokalnom osi x.}
+    \label{fig:projektil_model}
+\end{figure}
+
+
+% ---------------------------------------------------------
+\section{Tenzor tromosti}
+% ---------------------------------------------------------
+\subsection*{1. Relativne mase valjka i stošca}
+
+Ukupni volumen:
+\[
+V_\text{total} = \pi R^2 H + \frac{1}{3} \pi R^2 h = \pi R^2 \left(H + \frac{h}{3}\right)
+\]
+
+Volumni udio valjka:
+\[
+\alpha_v = \frac{\pi R^2 H}{\pi R^2 \left(H + \frac{h}{3}\right)} = \frac{H}{H + \frac{h}{3}}
+\]
+
+Volumni udio stošca:
+\[
+\alpha_s = 1 - \alpha_v = \frac{\frac{h}{3}}{H + \frac{h}{3}} = \frac{h}{3 H + h}
+\]
+
+Dakle, mase dijelova zbog jednolike raspodjele gustoće su:
+\[
+\boxed{
+M_v = \alpha_{v} M = \frac{H}{H + \frac{h}{3}} M, \quad M_{s} = \alpha_s M = \frac{h}{3 H + h} M
+}
+\]
+
+\subsection*{2. Moment tromosti oko osi x}
+
+Valjak (oko svoje osi):
+\[
+I_{xx}^{(v)} = \frac{1}{2} M_v R^2 = \frac{1}{2} \frac{H}{H + h/3} M R^2
+\]
+
+Stožac (oko svoje osi):
+\[
+I_{xx}^{(s)} = \frac{3}{10} M_s R^2 = \frac{3}{10} \frac{h}{3 H + h} M R^2
+\]
+
+Ukupni moment tromosti oko x-osi:
+\[
+I_{xx}^{\text{total}} = \frac{1}{2} \frac{H}{H + h/3} M R^2 + \frac{3}{10} \frac{h}{3H + h} M R^2
+\]
+
+\subsection*{3. Moment tromosti oko osi okomitih na x (y i z)}
+Valja primjetiti kako sbog simetrije modela imamo jednake momente tromosti oko osi y i z. Također primjenjujemo već pozate izraze za momente tromosti jednostavnih krutih tijela.
+
+Valjak (oko CM valjka):
+\[
+I_{yy}^{(v)} = I_{zz}^{(v)} = \frac{1}{12} M_v (3 R^2 + H^2) = \frac{1}{12} \frac{H}{H + h/3} M (3 R^2 + H^2)
+\]
+
+Stožac (oko CM stošca):
+\[
+I_{yy}^{(s)} = I_{zz}^{(s)} = \frac{3}{20} M_s (R^2 + 4 h^2) = \frac{3}{20} \frac{h}{3 H + h} M (R^2 + 4 h^2)
+\]
+
+Primjenjujemo Steinerov zakon za pomak do globalnog CM:
+\[
+I_{yy}^{\text{global}} = I_{yy}^{(v)} + M_v (x_{v,CM} - x_{CM})^2 + I_{yy}^{(s)} + M_s (x_{s,CM} - x_{CM})^2
+\]
+
+\[
+I_{zz}^{\text{global}} = I_{yy}^{\text{global}}
+\]
+
+\subsection*{4. Konačni tenzor tromosti u lokalnom koordinatnom sustavu s CM u ishodištu}
+
+\[
+\mathbf{I} =
+\begin{bmatrix}
+I_{xx}^{\text{total}} & 0 & 0 \\
+0 & I_{yy}^{\text{global}} & 0 \\
+0 & 0 & I_{yy}^{\text{global}}
+\end{bmatrix}
+\]
+
+gdje je
+\[
+\boxed{
+I_{xx}^{\text{total}} = \frac{1}{2} \frac{H}{H + h/3} M R^2 + \frac{3}{10} \frac{h}{3H + h} M R^2
+}
+\]
+
+
+\[
+\boxed{
+\begin{aligned}
+I_{yy}^{\text{global}} &= \frac{1}{12} \frac{H}{H + h/3} M (3 R^2 + H^2) 
++ \frac{H}{H + h/3} M \left(\frac{H}{2} - x_{CM,lok}\right)^2 \\
+&\quad + \frac{3}{20} \frac{h}{3 H + h} M (R^2 + 4 h^2) 
++ \frac{h}{3 H + h} M \left(H + \frac{h}{4} - x_{CM,lok}\right)^2
+\end{aligned}
+}
+\]
+
+
+
+
+% ---------------------------------------------------------
+\section{Model potisne sile}
+% ---------------------------------------------------------
+
+Propulzor se nalazi u ishodištu lokalnog sustava te gleda prema van. Korisnički ulazi su po definiciji:
+
+\[
+u_x(t), \quad u_y(t), \quad u_T(t)\in [0,1].
+\]
+Gdje je $u_T$ varijabla koja upravlja jačinom sile propulzije.
+Uvjet:
+
+\[
+u_x^2 + u_y^2 \le 1.
+\]
+
+% ---------------------------------------------------------
+\subsection{Orijentacija mlaznice}
+% ---------------------------------------------------------
+
+
+
+Upravljanje smjerom potiska definira se pomoću dvaju upravljačkih signala
+$u_x$ i $u_y$ koji pripadaju tangentnoj ravnini okomitoj na lokalnu os
+projektila. Njihova kombinacija određuje smjer i veličinu otklona mlaznice.
+
+\paragraph{Azimut otklona.}
+Kut azimuta određuje smjer otklona u ravnini okomitoj na os projektila
+i računa se pomoću funkcije \texttt{atan2}, koja uzima u obzir
+znakove oba argumenta i vraća kut u ispravnom kvadrantu:
+\[
+\alpha_{\text{prop}} = atan2(u_y,u_x)
+\]
+
+\paragraph{Magnituda otklona.}
+Apsolutna veličina otklona određuje se iz euklidske norme upravljačkog para:
+\[
+\|u\| = \sqrt{u_x^2 + u_y^2}.
+\]
+
+Za potrebe simulacije može se koristiti linearni model u kojem je
+otklon proporcionalan upravljačkom signalu:
+\[
+\beta_{\text{prop}}
+= \phi_{\text{prop,max}}\, \sqrt{u_x^2 + u_y^2},
+\]
+gdje je $\phi_{\text{prop,max}}$ maksimalni dopušteni kut otklona mlaznice.
+
+\paragraph{Napomena o nelinearnom modelu.}
+Fizikalno točniji model određuje kut otklona kao
+\[
+\beta_{\text{prop}} = \arcsin\!\left(\min\left(1,\sqrt{u_x^2+u_y^2}\right)\right),
+\]
+uz ograničenje
+\[
+\beta_{\text{prop}} \le \phi_{\text{prop,max}}.
+\]
+U ovom radu koristi se linearni model radi jednostavnosti i lakše
+integracije u simulacijski sustav.
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.7\textwidth]{model_propulzije3.png}
+    \caption{Prikaz domene vektora propulzije.}
+    \label{fig:projektil_model}
+\end{figure}
+
+Vektor potiska u lokalnom sustavu:
+
+\[
+\boxed{
+\mathbf{F}_{\text{prop,loc}} =
+F_{\text{prop}}(t)
+\begin{bmatrix}
+\cos\beta_{\text{prop}} \\
+\sin\beta_{\text{prop}}\cos\alpha_{\text{prop}} \\
+\sin\beta_{\text{prop}}\sin\alpha_{\text{prop}}
+\end{bmatrix}.
+}
+\]
+
+Ali sila djeluje prema {\bf suprotnoj} strani od mlaza:
+
+\[
+\boxed{
+\mathbf{F}_{\text{loc}} = -\mathbf{F}_{\text{prop,loc}}.
+}
+\]
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.5\textwidth]{model_propulzija_primjerUI.png}
+    \caption{Prikaz primjera korisničkog unosa za $u_x$=0, $u_y$=1.}
+    \label{fig:projektil_model}
+\end{figure}
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_propulzor.png}
+    \caption{Prikaz smjera vektora $F_{prop}$ te korisničkog unosa (žuta točka prikazana na kružnici baze valjka koju smo namjestili da je jedinična, vrijedi $\phi_{\text{prop,max}}$=$30^\circ$.)}
+    \label{fig:projektil_model}
+\end{figure}
+
+Za male $\phi_{\text{prop,max}}$ naša aproksimacija ali za $\phi_{\text{prop,max}} \ge$ $30^\circ$ naša aproksimacija više nije dovoljno prihvatljiva. 
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_losa_aproks.png}
+    \caption{Za $\phi_{\text{prop,max}}$ = $50^\circ$ vektor propulzije prelazi zadane rubove.}
+    \label{fig:projektil_model}
+\end{figure}
+
+\begin{figure}[H]  % H osigurava da se slika pojavi točno ovdje
+    \centering
+    \includegraphics[width=0.8\textwidth]{model_reakcijska_sila.png}
+    \caption{Prikaz sa reakcijskom silom $\mathbf{F}_{\text{prop,loc}}$ koja zapravo djeluje na tijelo.}
+    \label{fig:projektil_model}
+\end{figure}
+
+Latencija unosa throttle-a korisnika:
+
+\[
+F_{\text{prop}}(t) = F_{\text{prop,max}} \, u_T(t - t_{\text{prop,throt,lat}}).
+\]
+
+Latencija orijentacije propulzora:
+
+\[
+\beta_{\text{prop,eff}}(t) = \beta_{\text{prop}}\left(t - t_{\text{prop,rot,lat}}\right).
+\]
+
+\[
+\alpha_{\text{prop,eff}}(t) = \alpha_{\text{prop}}\left(t - t_{\text{prop,rot,lat}}\right).
+\]
+
+
+% ---------------------------------------------------------
+\section{Aerodinamičke sile}
+% ---------------------------------------------------------
+
+\subsection{Gravitacija}
+\[
+\boxed{
+\mathbf{F}_g = 
+\begin{bmatrix}
+0\\0\\-Mg
+\end{bmatrix}.
+}
+\]
+
+\subsection{Uzgon}
+\[
+\boxed{
+\mathbf{F}_{\text{uzgon}} = 
+\begin{bmatrix}
+0\\0\\\rho g V_{\text{TOTAL}}
+\end{bmatrix}.
+}
+\]
+
+\subsection{Otpor zraka}
+
+Definiramo relativnu brzinu projektila u odnosu fluid u okolini:
+
+\[
+\boxed{
+\mathbf{v}_{\text{rel}} = \mathbf{v}_{\text{proj}} - \mathbf{v}_{\text{wind}}.
+}
+\]
+
+Poznata formula za projeciranu površinu:
+
+\[
+A_{\text{proj}} = 
+\left|
+\iint_S 
+(\hat{\mathbf{u}}\cdot \hat{\mathbf{n}})\, dA
+\right|,
+\]
+
+gdje je $\hat{\mathbf{u}} = -\hat{\mathbf{v}}_{\text{rel}}$ tojest jedinični vektor $\mathbf{v}_{\text{rel}}$.
+
+Za tijelo rotacijske simetrije poznato je rješenje ovog plošnog integrala:
+
+\[
+\boxed{
+A_{\text{proj}} = \pi R^2 |\cos\theta| + R(2H + h) |\sin\theta|
+}
+\]
+
+gdje je $\theta$ kut između osi projektila (vektora smjera projektila) i relativne brzine $\mathbf{v}_{\text{rel}}$. Vidimo da je formula smislena, kada se projektil translacijski giba u smjeru u kojem je orijentiran onda prevladava komponenta presjeka baze, a kada je orijentiran savršeno okomito onda prevladava komponenta presjeka boka (silueta pravokutnika i trokuta)
+
+Konačno silu otpora imamo kao:
+
+\[
+\boxed{
+\mathbf{F}_{\text{drag}}
+= -\frac{1}{2}\rho_f C_D(\mathbf{v}_{\text{rel}}) A_{\text{proj}}
+|\mathbf{v}_{\text{rel}}|\mathbf{v}_{\text{rel}}.
+}
+\]
+
+
+\subsection{Model za koeficijent otpora ($C_D$)}
+
+Koeficijent $C_D$ nije samo broj, nego je zapravo složena funkcija. Da bismo dobili točnu vrijednost, u teoriji bismo morali uzeti u obzir sve ovo:
+
+\begin{itemize}
+    \item \textbf{Geometriju tijela} (poznati $R$, $H$, $h$).
+    \item \textbf{Orijentaciju} (kut $\theta$).
+    \item \textbf{Kompresibilnost fluida} (Broj Macha, $Ma$).
+    \item \textbf{Viskoznost fluida} (Broj Reynoldsa, $Re$).
+\end{itemize}
+
+U formuli za $\mathbf{F}_{\text{drag}}$, oznaka $C_D(\mathbf{v}_{\text{rel}})$ je zapravo skraćeni zapis. Ona nam govori da $C_D$ ovisi o brzini, ali to radi preko dva ključna bezdimenzionalna broja: Macha i Reynoldsa.
+
+\subsubsection{Machov broj (Ma) i Reynoldsov broj (Re) }
+
+\textbf{Broj Macha ($Ma$)} nam govori koliko smo brzi u odnosu na brzinu zvuka ($a$) u fluidu:
+\[
+Ma = \frac{|\mathbf{v}_{\text{rel}}|}{a}
+\]
+(Uzimamo $a \approx 340 \text{ m/s}$ pri tlu).
+
+\textbf{Broj Reynoldsa ($Re$)} uspoređuje koliko je strujanje "jako" (inercija) u odnosu na to koliko je fluid "ljepljiv" (viskoznost):
+\[
+Re = \frac{\rho_f |\mathbf{v}_{\text{rel}}| L}{\mu}
+\]
+Ovdje je $L$ neka "karakteristična" duljina -- za aksijalno gibanje, prema konvenciji uzimamo promjer $L=2R$. $\mu$ je dinamička viskoznost fluida.
+
+
+\textbf{Dinamička viskoznost ($\mu$)} zraka ovisi primarno o temperaturi. Za našu simulaciju u subsoničnom režimu i pod pretpostavkom konstantne temperature zraka (oko $20^\circ\text{C}$), možemo uzeti konstantnu vrijednost:
+\[
+\boxed{
+\mu \approx 1.8 \times 10^{-5} \, \frac{\text{kg}}{\text{m} \cdot \text{s}}
+}
+\]
+
+\subsubsection{Aproksimacija (za $Ma < 0.8$)}
+
+Najveći problem je što $C_D$ postane nelinearan i naglo skoči kada se približimo brzini zvuka (transonični režim, $Ma \approx 1$) i pri velikim brzinama (supersonični režim).
+
+Da bismo pojednostavili simulaciju, mi ćemo se ograničiti samo na \textbf{subsonični režim} ($Ma < 0.8$). U tom području $C_D$ je puno stabilniji.
+
+Ako dodatno pretpostavimo da projektil leti uglavnom "ravno", tj. da je napadni kut mali ($\theta \approx 0$), možemo koristiti standardni poznati model. Model koji ćemo koristiti zbraja dvije vrste otpora i ovisi o $Re$ broju:
+\[
+C_D(Re) \approx C_{D,0} + \frac{k}{Re}
+\]
+
+$C_{D,0}$ i $k$ su konstante poznate i popisane u literaturi:
+\begin{itemize}
+    \item $C_{D,0}$ je glavni dio otpora, tj. "otpor oblika" (form drag). To je vrijednost koju $C_D$ ima kad je $Re$ jako velik. Za šiljasti projektil poput onog kojeg smo modelirali, $C_{D,0}$ se uzima da je u rasponu od \textbf{$0.15$ do $0.3$}. Za daljnje modeliranje uzmimo $\boxed{C_{D,0} = 0.2}$.
+    \item $k$ predstavlja utjecaj "trenja" fluida (viskozni otpor). Kao grubu aproksimaciju, $\boxed{k \approx 10 000}$.
+\end{itemize}
+
+Uvršavanjem u definiciju za $Re$ (s $L=2R$), konačno dobijemo $C_D$ kao funkciju brzine i svojstava fluida, što smo i tražili:
+
+\[
+\boxed{
+C_D(\mathbf{v}_{\text{rel}}) \approx C_{D,0} + \frac{k \mu}{\rho |\mathbf{v}_{\text{rel}}| (2R)}
+}
+\]
+
+\subsubsection{Važna ograničenja ovog modela}
+
+Aproksimacija vrijedi samo pod uvjetima koje smo postavili:
+\begin{enumerate}
+    \item \textbf{Subsonične brzine:} Model dobro aproksimira dok je brzina dosta ispod brzine zvuka ($Ma < 0.8$). Formula je potpuno pogrešna blizu ili iznad brzine zvuka (transonični i supersonični režim), jer tamo $C_D$ naglo skače.
+    \item \textbf{Mali kut $\theta$:} Pretpostavili smo da je $\theta \approx 0$ tojest da većinu vremena smjer u kojem je projektil okrenut da je to i smjer translacijske brzine projektila. Ako se projektil u letu "nagne" pa $\theta$ poraste, $A_{\text{proj}}$ se mijenja (što imamo u formuli), ali raste i $C_{D,0}$, što ovaj jednostavni model ne uzima u obzir.
+    \item \textbf{Najjednostavnija aproksimacija (Veliki $Re$):} U praksi, za brze objekte u zraku, $Re$ je skoro uvijek ogroman ($>10^5$). Tada je član $\frac{k}{Re}$ dovoljno malen da ga možemo zanemariti. U tom slučaju, za cijeli subsonični režim možemo $C_D$ aproksimirati kao \textbf{jednu konstantu}:
+    \[
+    \boxed{
+    C_D \approx C_{D,0} \approx 0.2 \quad (\text{za } Ma < 0.8 \text{ i } \theta \approx 0)
+    }
+    \]
+\end{enumerate}
+
+
+
+% ---------------------------------------------------------
+\section{Stabilizacijski aerodinamički moment}
+% ---------------------------------------------------------
+
+Definira se kut odstupanja smjera translacijskog gibanja od smjera projektila (koji je definiran kao jedinični vektor na lokalnoj x osi):
+
+\[
+\Delta\theta = \angle(\hat{\mathbf{x}}_{\text{proj}}, \hat{\mathbf{v}}_{\text{rel}})
+\]
+\[
+\boxed{
+\Delta\theta = \arccos\left(\hat{\mathbf{x}}_{\text{proj}} \cdot \hat{\mathbf{v}}_{\text{rel}}\right)
+}
+\]
+\noindent gdje je $\mathbf{x}_{\text{proj}}$ vektor smjera projektila u globalnom sustavu, a $\mathbf{v}_{\text{rel}}$ relativna brzina koja je definirana ranije u modelu.
+
+\vspace{1em}
+
+Stabilizacijski moment $\mathbf{M}_{\text{stab}}$ želi ispraviti smjer projektila u smjer relativne brzine. Nakon zamjene referentnih duljina ($A_{\text{ref}} = \pi R^2$, $L_{\text{ref}} = 2R$) i uvrštavanja konstantne vrijednosti $C_{M,\alpha} = 2.0$, formula izvedena do poznatih varijabli glasi:
+
+\[
+\boxed{
+\mathbf{M}_{\text{stab}} = -2.0 \cdot \pi R^3 \rho |\mathbf{v}_{\text{rel}}|^2 \sin\Delta\theta \, \hat{\mathbf{n}}_{\perp}
+}
+\]
+
+\vspace{1em}
+
+\noindent \textbf{Varijable za unos u simulaciju:}
+\begin{itemize}
+    \item $R$: Polumjer projektila.
+    \item $\rho$: Gustoća fluida (npr. zraka).
+    \item $|\mathbf{v}_{\text{rel}}|$: Magnituda vektora relativne brzine.
+\item $\sin\Delta\theta$: Sinus kuta odstupanja.
+\[
+\boxed{
+\begin{array}{c}
+\text{Računalno se dobiva kao} \\
+\sin\left(\arccos(\hat{\mathbf{x}}_{\text{proj}} \cdot \hat{\mathbf{v}}_{\text{rel}})\right)
+\end{array}
+}
+\]
+    \item $\hat{\mathbf{n}}_{\perp}$: Jedinični vektor momenta. Mora se izračunati pomoću vektorskog produkta:
+    \[
+    \boxed{
+    \hat{\mathbf{n}}_{\perp} = \frac{\hat{\mathbf{x}}_{\text{proj}} \times \hat{\mathbf{v}}_{\text{rel}}}{|\hat{\mathbf{x}}_{\text{proj}} \times \hat{\mathbf{v}}_{\text{rel}}|}
+    }
+    \]
+\end{itemize}
+
+
+\section{Ukupne sile i momenti}
+% ---------------------------------------------------------
+
+\subsection{Ukupna sila}
+
+Ukupna vanjska sila koja djeluje na centar mase projektila je:
+
+\[
+\boxed{
+\mathbf{F}_{\text{tot}} = 
+\mathbf{F}_{\text{prop,glob}} 
++ \mathbf{F}_g + \mathbf{F}_{\text{uzgon}}
++ \mathbf{F}_{\text{drag}}
+}
+\]
+
+\noindent gdje je $\mathbf{F}_{\text{prop,glob}}$ translacijska sila potiska prevedena iz lokalnog u globalni sustav (znači komponenta sile projecirana na lokalnu x os prevedena u globalni sustav), a $\mathbf{F}_{\text{uzgon}}$ je sila uzgona (bočna sila) koja se generira zbog kuta $\Delta\theta \neq 0$.
+
+\subsection{Ukupan moment}
+
+Moment od potiska se računa:
+
+\[
+\mathbf{M}_{\text{prop}} =
+\mathbf{r}_{\text{prop}} \times \mathbf{F}_{\text{prop,glob}}.
+\]
+
+Ukupan moment oko centra mase:
+
+\[
+\boxed{
+\mathbf{M}_{\text{tot}} =
+\mathbf{M}_{\text{prop}} + \mathbf{M}_{\text{stab}}
+}
+\]
+\noindent \textit{Napomena:} U ovom modelu zanemareni su momenti prigušenja (damping moments).
+
+
+%UNOS U RAČUNALO:
+% ---------------------------------------------------------
+\section{Jednadžbe gibanja}
+% ---------------------------------------------------------
+
+Potpune jednadžbe gibanja projektila.  
+Orijentacija projektila opisana je Eulerovim kutovima $(\alpha,\beta,\gamma)$, a rotacijsko gibanje opisuje se vektorom kutne brzine u lokalnom koordinatnom sustavu.
+
+% ---------------------------------------------------------
+\subsection{Translacija}
+% ---------------------------------------------------------
+
+Translacijsko gibanje centra mase projektila u globalnom koordinatnom sustavu opisano je Newtonovim drugim zakonom:
+
+\[
+\boxed{
+M \ddot{\mathbf{r}}_{\text{proj}} = \mathbf{F}_{\text{tot}}
+}
+\]
+
+gdje je:
+\begin{itemize}
+    \item $\mathbf{r}_{\text{proj}}$ globalna pozicija projektila (središte baze),
+    \item $M$ ukupna masa projektila,
+    \item $\mathbf{F}_{\text{tot}}$ ukupna vanjska sila definirana u sekciji 8.1.
+\end{itemize}
+
+% ---------------------------------------------------------
+\subsection{Rotacija (Eulerove jednadžbe krutog tijela)}
+% ---------------------------------------------------------
+
+Rotacijsko gibanje projektila opisano je Eulerovim jednadžbama u lokalnom (Body) koordinatnom sustavu, u kojem je tenzor tromosti dijagonaliziran.
+
+Vektor kutne brzine u lokalnom sustavu je:
+\[
+\boldsymbol{\omega}_{\text{loc}} =
+\begin{bmatrix}
+\omega_x \\ \omega_y \\ \omega_z
+\end{bmatrix}.
+\]
+
+Eulerove jednadžbe gibanja glase:
+
+\[
+\boxed{
+\dot{\boldsymbol{\omega}}_{\text{loc}} =
+\mathbf{I}_{\text{loc}}^{-1}
+\left(
+\mathbf{M}_{\text{tot,loc}}
+-
+\boldsymbol{\omega}_{\text{loc}} \times
+\mathbf{I}_{\text{loc}} \boldsymbol{\omega}_{\text{loc}}
+\right)
+}
+\]
+
+gdje su:
+\begin{itemize}
+    \item $\mathbf{I}_{\text{loc}} = \mathrm{diag}(I_xx,I_yy,I_yy)$ glavni momenti tromosti,
+    \item $\mathbf{M}_{\text{tot,loc}}$ ukupni moment u lokalnom sustavu.
+\end{itemize}
+
+% ---------------------------------------------------------
+\subsection{Kinematičke jednadžbe (Eulerovi kutovi)}
+% ---------------------------------------------------------
+
+Orijentacija projektila opisana je Eulerovim kutovima:
+\[
+(\alpha,\beta,\gamma)
+\]
+koji predstavljaju rotacije oko osi $x$, $y$ i $z$ respektivno.
+
+Veza između derivacija Eulerovih kutova i lokalnih komponenti kutne brzine dana je kinematičkim relacijama:
+
+\[
+\boxed{
+\begin{bmatrix}
+\omega_x \\ \omega_y \\ \omega_z
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 0 & -\sin\beta \\
+0 & \cos\alpha & \sin\alpha \cos\beta \\
+0 & -\sin\alpha & \cos\alpha \cos\beta
+\end{bmatrix}
+\begin{bmatrix}
+\dot{\alpha} \\ \dot{\beta} \\ \dot{\gamma}
+\end{bmatrix}
+}
+\]
+
+Invertiranjem ove relacije dobivamo izraze pogodne za numeričku integraciju:
+
+\[
+\boxed{
+\begin{aligned}
+\dot{\alpha} &= \omega_x + \tan\beta \left(\omega_y \sin\alpha + \omega_z \cos\alpha\right) \\
+\dot{\beta}  &= \omega_y \cos\alpha - \omega_z \sin\alpha \\
+\dot{\gamma} &= \frac{\omega_y \sin\alpha + \omega_z \cos\alpha}{\cos\beta}
+\end{aligned}
+}
+\]
+
+\noindent \textbf{Napomena o stabilnosti:}  
+Zbog aerodinamičke stabilizacije projektila i malih kutova nagiba ($|\beta| \ll 90^\circ$), singularnost pri $\cos\beta = 0$ se u ovom modelu ne pojavljuje u praksi.
+
+% ---------------------------------------------------------
+\subsection{Rotacijska matrica i vektor smjera}
+% ---------------------------------------------------------
+
+
+
+Jedinični vektor smjera projektila (lokalna $x$-os) u globalnom sustavu jednak je prvoj koloni matrice $R$:
+
+\[
+\boxed{
+\hat{\mathbf{x}}_{\text{proj}} =
+\begin{bmatrix}
+\cos\beta \cos\gamma \\
+\cos\beta \sin\gamma \\
+-\sin\beta
+\end{bmatrix}
+}
+\]
+
+
+%KRAJ DOKUMENTA
+
+% ---------------------------------------------------------
+\section{Diskretne jednadžbe za simulaciju (zaključak)}
+% ---------------------------------------------------------
+
+Za numeričku simulaciju koristi se vremenski korak $\Delta t$ i metoda eksplicitnog Eulera.  
+Sve varijable u trenutku $k+1$ računaju se iz poznatih vrijednosti u trenutku $k$.
+
+% ---------------------------------------------------------
+\subsection{Translacija}
+% ---------------------------------------------------------
+
+Trenutna akceleracija centra mase:
+
+\[
+\boxed{
+\mathbf{a}(k) = \frac{\mathbf{F}_{\text{tot}}(k)}{M}
+}
+\]
+
+Ažuriranje brzine:
+
+\[
+\boxed{
+\mathbf{v}(k+1) = \mathbf{v}(k) + \mathbf{a}(k)\Delta t
+}
+\]
+
+Ažuriranje pozicije:
+
+\[
+\boxed{
+\mathbf{r}_{\text{proj}}(k+1) =
+\mathbf{r}_{\text{proj}}(k) + \mathbf{v}(k)\Delta t
+}
+\]
+
+% ---------------------------------------------------------
+\subsection{Rotacija (kutna brzina)}
+% ---------------------------------------------------------
+
+Diskretizirane Eulerove jednadžbe u komponentnom obliku:
+
+\[
+\boxed{
+\begin{aligned}
+\omega_x(k+1) &= \omega_x(k)
++ \left(
+\frac{M_x}{I_x}
+- \frac{I_z - I_y}{I_x}\,\omega_y(k)\omega_z(k)
+\right)\Delta t \\[1mm]
+\omega_y(k+1) &= \omega_y(k)
++ \left(
+\frac{M_y}{I_y}
+- \frac{I_x - I_z}{I_y}\,\omega_z(k)\omega_x(k)
+\right)\Delta t \\[1mm]
+\omega_z(k+1) &= \omega_z(k)
++ \left(
+\frac{M_z}{I_z}
+- \frac{I_y - I_x}{I_z}\,\omega_x(k)\omega_y(k)
+\right)\Delta t
+\end{aligned}
+}
+\]
+
+% ---------------------------------------------------------
+\subsection{Orijentacija (Eulerovi kutovi)}
+% ---------------------------------------------------------
+
+Derivacije Eulerovih kutova računaju se iz trenutnih komponenti kutne brzine:
+
+\[
+\boxed{
+\begin{aligned}
+\dot{\alpha}(k) &= \omega_x(k)
++ \tan\beta(k)\left(\omega_y(k)\sin\alpha(k)
++ \omega_z(k)\cos\alpha(k)\right) \\[1mm]
+\dot{\beta}(k) &= \omega_y(k)\cos\alpha(k)
+- \omega_z(k)\sin\alpha(k) \\[1mm]
+\dot{\gamma}(k) &= \frac{\omega_y(k)\sin\alpha(k)
++ \omega_z(k)\cos\alpha(k)}{\cos\beta(k)}
+\end{aligned}
+}
+\]
+
+Diskretno ažuriranje orijentacije:
+
+\[
+\boxed{
+\begin{aligned}
+\alpha(k+1) &= \alpha(k) + \dot{\alpha}(k)\Delta t \\
+\beta(k+1)  &= \beta(k)  + \dot{\beta}(k)\Delta t \\
+\gamma(k+1) &= \gamma(k) + \dot{\gamma}(k)\Delta t
+\end{aligned}
+}
+\]
+
+\noindent \textbf{Napomena:}  
+Zbog malih kutova nagiba i aerodinamičke stabilizacije, Eulerov opis orijentacije ostaje numerički stabilan i fizikalno konzistentan za potrebe real-time simulacije.
+
+
+
+
+
+
+
+
+% ---------------------------------------------------------
+\section{Popis varijabli}
+% ---------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+\textbf{Varijabla} & \textbf{Opis} \\ \midrule
+
+\multicolumn{2}{l}{\textbf{A. Konstante i konfiguracija (specifično za model projektila)}} \\ \midrule
+$R$ & Radijus baze modela projektila \\
+$H$ & Visina cilindričnog dijela modela projektila \\
+$h$ & Visina stošca modela projektila \\
+$M$ & Ukupna masa projektila \\
+$V_{\text{tot}}$ & Ukupni volumen modela projektila \\
+$x_{\text{CM,loc}}$ & Udaljenost težišta od središta slobodne baze modela duž lokalne $x$-osi \\
+$\mathbf{I}_{\text{loc}}$ & Lokalni tenzor tromosti projektila (dijagonalna matrica) \\
+$k_{\text{stab}}$ & Koeficijent aerodinamičke stabilizacije (za $\mathbf{M}_{\text{stab}}$) \\
+$F_{\text{prop,max}}$ & Maksimalna vrijednost potiska \\
+$\phi_{\text{prop,max}}$ & Maksimalni kut defleksije mlaznice \\
+$t_{\text{prop,rot,lat}}$ & Latencija promjene orijentacije mlaznice \\
+$t_{\text{prop,throt,lat}}$ & Latencija promjene razine potiska \\
+$\mathbf{v}_{\text{wind}}$ & Vektor brzine vjetra u globalnom koordinatnom sustavu \\
+$\rho$ & Gustoća fluida (zrak) \\
+$\Delta t$ & Vremenski korak numeričke simulacije \\
+
+\midrule
+\multicolumn{2}{l}{\textbf{B. Varijable stanja (integriraju se tijekom simulacije)}} \\ \midrule
+$\mathbf{r}_{\text{proj}}$ & Globalna pozicija referentne točke projektila \\
+$\mathbf{v}$ & Globalna brzina referentne točke projektila \\
+$\boldsymbol{\omega}_{\text{loc}}$ & Vektor kutne brzine u lokalnom koordinatnom sustavu $(\omega_x,\omega_y,\omega_z)$ \\
+$\alpha,\beta,\gamma$ & Eulerovi kutovi orijentacije projektila u odnosu na globalni koordinatni sustav \\
+
+\midrule
+\multicolumn{2}{l}{\textbf{C. Pomoćne varijable i ulazi}} \\ \midrule
+$\mathbf{F}_{\text{tot}}$ & Ukupna vanjska sila koja djeluje na projektil \\
+$\mathbf{M}_{\text{tot,loc}}$ & Ukupni moment sila izražen u lokalnom sustavu \\
+$\mathbf{F}_{\text{drag}}$ & Aerodinamička sila otpora \\
+$\mathbf{M}_{\text{stab}}$ & Aerodinamički stabilizacijski moment \\
+$R(\alpha,\beta,\gamma)$ & Rotacijska matrica za transformaciju iz lokalnog u globalni sustav \\
+$\hat{\mathbf{x}}_{\text{proj}}$ & Jedinični vektor smjera projektila u globalnom sustavu \\
+$u_x,u_y,u_T$ & Upravljački ulazi za orijentaciju mlaznice i razinu potiska \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\end{document}

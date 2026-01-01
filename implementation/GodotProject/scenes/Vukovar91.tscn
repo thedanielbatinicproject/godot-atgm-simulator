@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://dor48irirauda"]
+
+[ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_wp7fd"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_xfrrf"]
+
+[node name="Vukovar91" type="Node3D"]
+
+[node name="TERRAIN" type="Node" parent="."]
+
+[node name="LIGHT" type="Node" parent="."]
+
+[node name="SCENARIO_MANAGER" type="Node" parent="."]
+
+[node name="Projectile" type="Node3D" parent="SCENARIO_MANAGER"]
+script = ExtResource("1_wp7fd")
+scenario_data = ExtResource("2_xfrrf")
+debug_enabled = true
+debug_interval = 1.0
+calculate_moments = false
+metadata/_custom_type_script = "uid://b25tkb068a363"
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="SCENARIO_MANAGER/Projectile"]
+transform = Transform3D(1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 0)
+radius = 7.829
+
+[node name="Camera3D" type="Camera3D" parent="SCENARIO_MANAGER"]
+transform = Transform3D(-0.99943805, 0, -0.033521485, 0, 1, 0, 0.033521485, 0, -0.99943805, -0.5265808, -30.264172, -174.85788)
