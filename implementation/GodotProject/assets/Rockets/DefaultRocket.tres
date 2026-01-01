@@ -1,0 +1,16 @@
+[gd_resource type="RocketData" format=3]
+
+radius = 0.05
+cylinder_height = 0.3
+cone_height = 0.2
+mass = 2.0
+max_thrust = 500.0
+max_thrust_angle = 0.5236
+thrust_latency = 0.01
+gimbal_latency = 0.02
+drag_coefficient_form = 0.2
+drag_coefficient_viscous_factor = 10000.0
+stabilization_moment_coefficient = 2.0
+air_density = 1.225
+air_viscosity = 1.8e-05
+gravity = 9.81
