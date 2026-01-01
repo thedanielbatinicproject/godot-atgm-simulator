@@ -31,8 +31,26 @@ func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_ti
 	"""
 	potisna sila sa defleksijom i latencijama.
 	guidance_input = (u_T, u_x, u_y)
+	Vraća globalnu silu.
 	"""
 	if not rocket_data or not utils:
+		return Vector3.ZERO
+	
+	# izračunaj lokalnu silu
+	var thrust_local = calculate_thrust_local(state, guidance_input, current_time)
+	
+	# transformacija u globalni sustav
+	var rotation_matrix = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
+	var thrust_global = -rotation_matrix * thrust_local
+	
+	return thrust_global
+
+func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
+	"""
+	potisna sila u lokalnom sustavu, bez transformacije.
+	Koristi se za kalkulaciju momenta.
+	"""
+	if not rocket_data:
 		return Vector3.ZERO
 	
 	var _u_T = guidance_input.x
@@ -63,11 +81,7 @@ func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_ti
 		sin(gimbal_angle) * sin(gimbal_azimuth)
 	)
 	
-	# transformacija u globalni sustav
-	var rotation_matrix = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
-	var thrust_global = -rotation_matrix * thrust_local
-	
-	return thrust_global
+	return thrust_local
 
 func calculate_drag(state: StateVariables) -> Vector3:
 	"""

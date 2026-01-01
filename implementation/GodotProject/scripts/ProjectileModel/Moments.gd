@@ -3,27 +3,97 @@ class_name Moments
 
 # KONFIGURACIJA
 var rocket_data: Resource
+var environment: ModelEnvironment
+var utils: Utils
 
 # INICIJALIZACIJA
 
-func _init(p_rocket_data: Resource = null):
+func _init(p_rocket_data: Resource = null, p_environment = null, p_utils = null):
 	rocket_data = p_rocket_data
+	environment = p_environment
+	utils = p_utils
 
 # MOMENTI
 
-func calculate_thrust_moment(_state: StateVariables, _thrust_force: Vector3) -> Vector3:
-	"""moment od asimetrične potisne sile - implementacija u fazi 3."""
-	return Vector3.ZERO
+func calculate_thrust_moment(_state: StateVariables, thrust_force_local: Vector3) -> Vector3:
+	"""
+	moment od asimetrične potisne sile.
+	M = r × F gdje je r pomak centra mase od propulzora.
+	Sve varijable u lokalnom sustavu.
+	"""
+	if not rocket_data or not utils:
+		return Vector3.ZERO
+	
+	# pomak centra mase od propulzora (ishodišta) duž lokalne x-osi
+	var xcm_local = rocket_data.compute_center_of_mass_local()
+	var r_cm = Vector3(xcm_local, 0.0, 0.0)
+	
+	# moment: M = r × F (vektorski umnožak)
+	var moment_local = r_cm.cross(thrust_force_local)
+	
+	return moment_local
 
-func calculate_stabilization_moment(_state: StateVariables, _wind_velocity: Vector3) -> Vector3:
-	"""aerodinamički stabilizacijski moment - implementacija u fazi 3."""
-	return Vector3.ZERO
+func calculate_stabilization_moment(state: StateVariables, _environment_ref: Resource = null) -> Vector3:
+	"""
+	aerodinamički stabilizacijski moment.
+	Sve varijable u lokalnom sustavu.
+	"""
+	if not rocket_data or not environment or not utils:
+		return Vector3.ZERO
+	
+	# relativna brzina: v_rel_global = v_proj - v_wind
+	var wind_velocity = environment.get_wind_at_position(state.position)
+	var v_rel_global = state.velocity - wind_velocity
+	var v_rel_mag = v_rel_global.length()
+	
+	# ako je relativna brzina vrlo mala, nema momenta
+	if v_rel_mag < 0.1:
+		return Vector3.ZERO
+	
+	# transformiraj relativnu brzinu u lokalni sustav
+	var v_rel_local = utils.transform_global_to_local(v_rel_global, state.alpha, state.beta, state.gamma)
+	var v_rel_unit_local = v_rel_local / v_rel_mag
+	
+	# smjer projektila u lokalnom sustavu je x-os
+	var x_proj_local = Vector3(1.0, 0.0, 0.0)
+	
+	# cos(delta theta) = x_proj * v_rel
+	var cos_delta_theta = x_proj_local.dot(v_rel_unit_local)
+	
+	# sin(delta theta) = sqrt(1 - cos^2(delta theta))
+	var sin_delta_theta_sq = 1.0 - cos_delta_theta * cos_delta_theta
+	if sin_delta_theta_sq < 0.0:
+		sin_delta_theta_sq = 0.0
+	var sin_delta_theta = sqrt(sin_delta_theta_sq)
+	
+	# ako je sin(delta theta) ≈ 0, nema momenta (projektil je usmjeren prema brzini)
+	if sin_delta_theta < 1e-6:
+		return Vector3.ZERO
+	
+	# n_⊥ = (x_proj × v_rel) / |x_proj × v_rel|
+	var cross_prod = x_proj_local.cross(v_rel_unit_local)
+	var cross_mag = cross_prod.length()
+	
+	# ako je vektorski produkt nula, nema momenta
+	if cross_mag < 1e-6:
+		return Vector3.ZERO
+	
+	var n_perp_local = cross_prod / cross_mag
+	
+	# M_stab = -2.0 * π * R^2 * ρ * |v_rel|^2 * sin(delta theta) * n_normal
+	var R = rocket_data.radius
+	var rho = environment.air_density
+	
+	var moment_mag = -2.0 * PI * R * R * R * rho * v_rel_mag * v_rel_mag * sin_delta_theta
+	var moment_local = moment_mag * n_perp_local
+	
+	return moment_local
 
 # UKUPAN MOMENT
 
-func calculate_total(state: StateVariables, thrust_force: Vector3, wind_velocity: Vector3 = Vector3.ZERO) -> Vector3:
+func calculate_total(state: StateVariables, thrust_force_local: Vector3, _wind_velocity: Vector3 = Vector3.ZERO) -> Vector3:
 	"""kombinira sve momente oko centra mase (lokalni sustav)."""
-	var m_thrust = calculate_thrust_moment(state, thrust_force)
-	var m_stab = calculate_stabilization_moment(state, wind_velocity)
+	var m_thrust = calculate_thrust_moment(state, thrust_force_local)
+	var m_stab = calculate_stabilization_moment(state)
 	
 	return m_thrust + m_stab
