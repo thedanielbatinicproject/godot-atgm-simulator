@@ -24,21 +24,21 @@ func _init(p_wind_func: Callable = Callable(), p_air_density: float = 1.225,
 # SETTERI
 
 func set_wind_function(wind_func: Callable):
-	"""postavlja vjetarsku funkciju."""
+	"""postavlja wind funkciju."""
 	wind_function = wind_func
 
 func set_air_density(density: float):
 	"""postavlja gustoću zraka (kg/m³)."""
-	air_density = max(0.1, density)
+	air_density = max(0.01, density)
 
 func set_gravity(g: float):
 	"""postavlja gravitacijsku akceleraciju (m/s²)."""
-	gravity = max(0.1, g)
+	gravity = max(0.01, g)
 
 # GETTERI
 
 func get_wind_at_position(position: Vector3) -> Vector3:
-	"""evaluira vjetarsku funkciju na danoj poziciji."""
+	"""evaluira wind funkciju na zadanoj poziciji."""
 	return wind_function.call(position)
 
 func get_air_density() -> float:

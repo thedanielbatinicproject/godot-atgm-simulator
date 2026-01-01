@@ -11,6 +11,3 @@ gimbal_latency = 0.02
 drag_coefficient_form = 0.2
 drag_coefficient_viscous_factor = 10000.0
 stabilization_moment_coefficient = 2.0
-air_density = 1.225
-air_viscosity = 1.8e-05
-gravity = 9.81

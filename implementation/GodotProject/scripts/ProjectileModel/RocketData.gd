@@ -67,11 +67,6 @@ func compute_center_of_mass_local() -> float:
 @export var drag_coefficient_viscous_factor: float = 10000.0
 @export var stabilization_moment_coefficient: float = 2.0
 
-# KONSTANTE OKOLINE
-@export var air_density: float = 1.225
-@export var air_viscosity: float = 1.8e-5
-@export var gravity: float = 9.81
-
 # INICIJALIZACIJA
 
 func _init(p_radius: float, p_cyl_h: float, p_cone_h: float, 
@@ -122,11 +117,6 @@ Aerodinamika:
   C_D0:                    %.2f
   k:                       %.0f
   C_M,α:                   %.2f
-  
-Okolina:
-  Gustoća zraka:           %.4f kg/m³
-  Viskoznost:              %.2e kg/(m·s)
-  Gravitacija:             %.2f m/s²
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """ % [
 		radius, cylinder_height, cone_height, volume,
@@ -134,8 +124,7 @@ Okolina:
 		compute_center_of_mass_local(),
 		max_thrust, rad_to_deg(max_thrust_angle),
 		thrust_latency, gimbal_latency,
-		drag_coefficient_form, drag_coefficient_viscous_factor, stabilization_moment_coefficient,
-		air_density, air_viscosity, gravity
+		drag_coefficient_form, drag_coefficient_viscous_factor, stabilization_moment_coefficient
 	]
 	
 	return info

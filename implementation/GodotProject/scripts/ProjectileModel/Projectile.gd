@@ -29,7 +29,7 @@ func _ready():
 		return
 	
 	state = StateVariables.new(rocket_data)
-	forces = Forces.new(rocket_data)
+	forces = Forces.new(rocket_data, environment)
 	moments = Moments.new(rocket_data)
 	guidance = Guidance.new()
 	environment = ModelEnvironment.new(scenario_data.wind_function, 
