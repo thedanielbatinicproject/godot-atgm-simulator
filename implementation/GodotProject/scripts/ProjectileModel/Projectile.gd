@@ -68,9 +68,17 @@ func _physics_process(delta: float):
 # SETTERI ZA UPRAVLJANJE
 
 func set_control_input(throttle: float, gimbal_x: float, gimbal_y: float):
-	"""postavlja upravljačke ulaze."""
-	if guidance:
-		guidance.set_control_input(throttle, gimbal_x, gimbal_y)
+	"""postavlja upravljačke ulaze i ažurira vremenske žigove za latencije."""
+	if not guidance or not state:
+		return
+	
+	guidance.set_control_input(throttle, gimbal_x, gimbal_y)
+	
+	# ažuriramo zadnje ulaze i vrijeme primanja
+	state.last_thrust_input = throttle
+	state.last_thrust_time = elapsed_time
+	state.last_gimbal_input = Vector2(gimbal_x, gimbal_y)
+	state.last_gimbal_time = elapsed_time
 
 func set_initial_state(pos: Vector3, vel: Vector3, 
                        alpha: float = 0.0, beta: float = 0.0, gamma: float = 0.0):
