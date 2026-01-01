@@ -12,11 +12,11 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export var level_scene: PackedScene
 
 # KONFIGURACIJA PROJEKTILA
-@export var rocket_data: Resource
+@export var rocket_data: RocketData
 
-# POČETNE VARIJABLE STANJA
+# POČETNE VARIJABLE STANJA (Y je gore u Godotu)
 @export var initial_position: Vector3 = Vector3.ZERO
-@export var initial_velocity: Vector3 = Vector3(0, 0, 100.0)
+@export var initial_velocity: Vector3 = Vector3(100, 0, 0)
 @export var initial_alpha: float = 0.0
 @export var initial_beta: float = 0.0
 @export var initial_gamma: float = 0.0
@@ -40,7 +40,7 @@ var wind_function: Callable = func(_pos: Vector3) -> Vector3:
 # INICIJALIZACIJA
 
 func _init(p_name: String = "DefaultScenario", p_level: PackedScene = null, 
-           p_rocket: Resource = null, p_wind_func: Callable = Callable()):
+		   p_rocket: Resource = null, p_wind_func: Callable = Callable()):
 	scenario_name = p_name
 	level_scene = p_level
 	rocket_data = p_rocket
@@ -55,7 +55,7 @@ func setup_wind_for_scenario():
 		"constant":
 			wind_function = wind_profile.constant_wind(wind_base_vector)
 		"altitude_gradient":
-			wind_function = wind_profile.linear_altitude_wind(wind_base_vector, wind_gradient.z)
+			wind_function = wind_profile.linear_altitude_wind(wind_base_vector, wind_gradient.y)
 		"sinusoidal":
 			wind_function = wind_profile.sinusoidal_wind(wind_amplitudes, wind_frequencies)
 		"vortex":
@@ -86,9 +86,21 @@ func get_info() -> String:
 	var rocket_name = "NIJE UČITAN" if rocket_data == null else rocket_data.get_class()
 	var level_name = "NIJE UČITAN" if level_scene == null else level_scene.resource_path
 	
-	var info = """
-Scenario - ScenarioData
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+	var pos_x = "%.3f" % initial_position.x
+	var pos_y = "%.3f" % initial_position.y
+	var pos_z = "%.3f" % initial_position.z
+	var vel_x = "%.3f" % initial_velocity.x
+	var vel_y = "%.3f" % initial_velocity.y
+	var vel_z = "%.3f" % initial_velocity.z
+	var alpha_deg = "%.2f" % rad_to_deg(initial_alpha)
+	var beta_deg = "%.2f" % rad_to_deg(initial_beta)
+	var gamma_deg = "%.2f" % rad_to_deg(initial_gamma)
+	var dens_str = "%.4f" % air_density
+	var grav_str = "%.2f" % gravity
+	var visc_str = "%.6f" % air_viscosity
+	
+	var info = """Scenario - ScenarioData
+===================================
 Naziv:                       %s
 Opis:                        %s
 
@@ -99,27 +111,27 @@ Projektil:
   Model:                     %s
   
 Početno stanje:
-  Pozicija:                  (%.3f, %.3f, %.3f) m
-  Brzina:                    (%.3f, %.3f, %.3f) m/s
+  Pozicija:                  (%s, %s, %s) m
+  Brzina:                    (%s, %s, %s) m/s
   Eulerovi kutovi:
-    α (roll):                %.2f°
-    β (pitch):               %.2f°
-    γ (yaw):                 %.2f°
+    roll:                    %s deg
+    pitch:                   %s deg
+    yaw:                     %s deg
   
 Okoljni parametri:
-  Gustoća zraka:             %.4f kg/m³
-  Gravitacija:               %.2f m/s²
-  Viskoznost zraka:          %.2e kg/(m·s)
+  Gustoća zraka:             %s kg/m^3
+  Gravitacija:               %s m/s^2
+  Viskoznost zraka:          %s kg/(m*s)
   Vjetarsko polje:           Prilagođena funkcija
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+===================================
 """ % [
 		scenario_name, scenario_description,
 		level_name,
 		rocket_name,
-		initial_position.x, initial_position.y, initial_position.z,
-		initial_velocity.x, initial_velocity.y, initial_velocity.z,
-		rad_to_deg(initial_alpha), rad_to_deg(initial_beta), rad_to_deg(initial_gamma),
-		air_density, gravity, air_viscosity
+		pos_x, pos_y, pos_z,
+		vel_x, vel_y, vel_z,
+		alpha_deg, beta_deg, gamma_deg,
+		dens_str, grav_str, visc_str
 	]
 	
 	return info

@@ -35,15 +35,21 @@ func get_input_info() -> String:
 	var gimbal_magnitude = sqrt(gimbal_x_input * gimbal_x_input + gimbal_y_input * gimbal_y_input)
 	var gimbal_angle = atan2(gimbal_y_input, gimbal_x_input)
 	
+	var throttle_str = "%.3f" % throttle_input
+	var gimbal_x_str = "%.3f" % gimbal_x_input
+	var gimbal_y_str = "%.3f" % gimbal_y_input
+	var gimbal_mag_str = "%.3f" % gimbal_magnitude
+	var gimbal_az_str = "%.2f" % rad_to_deg(gimbal_angle)
+	
 	var info = """
 Upravljački ulazi:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Throttle (u_T):          %.3f [0, 1]
-Gimbal X (u_x):          %.3f [-1, 1]
-Gimbal Y (u_y):          %.3f [-1, 1]
-Gimbal magnitude:        %.3f
-Gimbal azimut:           %.2f °
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-""" % [throttle_input, gimbal_x_input, gimbal_y_input, gimbal_magnitude, rad_to_deg(gimbal_angle)]
+===================================
+Throttle (u_T):          %s [0, 1]
+Gimbal X (u_x):          %s [-1, 1]
+Gimbal Y (u_y):          %s [-1, 1]
+Gimbal magnitude:        %s
+Gimbal azimut:           %s deg
+===================================
+""" % [throttle_str, gimbal_x_str, gimbal_y_str, gimbal_mag_str, gimbal_az_str]
 	
 	return info

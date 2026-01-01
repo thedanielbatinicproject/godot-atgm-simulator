@@ -2,13 +2,13 @@ extends Node
 class_name Forces
 
 # KONFIGURACIJA
-var rocket_data: Resource
+var rocket_data: RocketData
 var environment: ModelEnvironment
 var utils: Utils
 
 # INICIJALIZACIJA
 
-func _init(p_rocket_data: Resource = null, p_environment: ModelEnvironment = null, p_utils: Utils = null):
+func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = null, p_utils: Utils = null):
 	rocket_data = p_rocket_data
 	environment = p_environment
 	utils = p_utils
@@ -16,16 +16,16 @@ func _init(p_rocket_data: Resource = null, p_environment: ModelEnvironment = nul
 # SILE
 
 func calculate_gravity(_state: StateVariables) -> Vector3:
-	"""gravitacijska sila (globalni sustav)."""
+	"""gravitacijska sila (globalni sustav). Y je gore, pa je sila negativna (prema dolje)."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
-	return Vector3(0, 0, -rocket_data.mass * environment.gravity)
+	return Vector3(0, -rocket_data.mass * environment.gravity, 0)
 
 func calculate_buoyancy(_state: StateVariables) -> Vector3:
-	"""uzgonska sila (globalni sustav)."""
+	"""uzgonska sila (globalni sustav). Y je gore, pa je sila pozitivna (prema gore)."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
-	return Vector3(0, 0, environment.air_density * environment.gravity * rocket_data.volume)
+	return Vector3(0, environment.air_density * environment.gravity * rocket_data.volume, 0)
 
 func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
 	"""
@@ -41,7 +41,7 @@ func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_ti
 	
 	# transformacija u globalni sustav
 	var rotation_matrix = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
-	var thrust_global = -rotation_matrix * thrust_local
+	var thrust_global = rotation_matrix * (-thrust_local)
 	
 	return thrust_global
 
@@ -67,7 +67,7 @@ func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, curr
 	var gimbal_azimuth = 0.0
 	if current_time - state.last_gimbal_time >= rocket_data.gimbal_latency:
 		var gimbal_magnitude = sqrt(state.last_gimbal_input.x * state.last_gimbal_input.x + 
-		                            state.last_gimbal_input.y * state.last_gimbal_input.y)
+									state.last_gimbal_input.y * state.last_gimbal_input.y)
 		gimbal_angle = rocket_data.max_thrust_angle * gimbal_magnitude
 		gimbal_azimuth = atan2(state.last_gimbal_input.y, state.last_gimbal_input.x)
 	

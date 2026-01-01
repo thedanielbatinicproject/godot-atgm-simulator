@@ -1,3 +1,38 @@
-[gd_scene format=3 uid="uid://co0lmqnhq86p7"]
+[gd_scene load_steps=5 format=3 uid="uid://co0lmqnhq86p7"]
 
-[node name="TestScene" type="Node2D"]
+[ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_rlkm5"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_rlkm5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
+albedo_color = Color(0.5, 0.5, 0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.8, 0, 0, 1)
+
+[node name="TestScene" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4749527, 604.8959, 923.3425)
+current = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.408248, 0.57735, 0, 0.816497, 0.57735, -1, -0.408248, 0.57735, 100, 100, 100)
+
+[node name="Ground" type="Node3D" parent="."]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+size = Vector3(200, 2, 200)
+material = SubResource("StandardMaterial3D_2")
+
+[node name="Projectile" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0)
+script = ExtResource("1_rlkm5")
+scenario_data = ExtResource("2_rlkm5")
+debug_enabled = true
+debug_interval = 1.0
+
+[node name="ProjectileVisual" type="CSGSphere3D" parent="Projectile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0)
+radius = 9.274
+material = SubResource("StandardMaterial3D_1")

@@ -13,9 +13,9 @@ var volume: float:
 	get:
 		return PI * radius * radius * (cylinder_height + cone_height / 3.0)
 
-# MOMENTI TROMOSTI
-@export var moment_of_inertia_xx: float
-@export var moment_of_inertia_yy: float
+# MOMENTI TROMOSTI (izračunavaju se automatski iz geometrije)
+var moment_of_inertia_xx: float = 0.0
+var moment_of_inertia_yy: float = 0.0
 
 var inertia_computed: bool = false
 
@@ -42,11 +42,13 @@ func compute_inertia():
 	iyy_cylinder += mass_cylinder * (xcm_cylinder - xcm_total) * (xcm_cylinder - xcm_total)
 	
 	var iyy_cone = (3.0 / 20.0) * mass_cone * (radius * radius + 4.0 * cone_height * cone_height)
-    #u modelu je zadano H + h/4 - x_cm_total, međutim xcm_cone = H + h/4
+	#u modelu je zadano H + h/4 - x_cm_total, međutim xcm_cone = H + h/4
 	iyy_cone += mass_cone * (xcm_cone - xcm_total) * (xcm_cone - xcm_total)
 	
 	moment_of_inertia_yy = iyy_cylinder + iyy_cone
 	inertia_computed = true
+	
+	print("DEBUG: compute_inertia() - I_xx=%.8f, I_yy=%.8f, mass=%.2f, R=%.3f, H=%.3f, h=%.3f" % [moment_of_inertia_xx, moment_of_inertia_yy, mass, radius, cylinder_height, cone_height])
 
 func compute_center_of_mass_local() -> float:
 	"""pozicija težišta duž lokalne x-osi: (6H² + 4Hh + 3h²) / (12H + 4h)."""
@@ -65,12 +67,12 @@ func compute_center_of_mass_local() -> float:
 # AERODINAMIKA
 @export var drag_coefficient_form: float = 0.2
 @export var drag_coefficient_viscous_factor: float = 10000.0
-@export var stabilization_moment_coefficient: float = 2.0
+@export var stabilization_moment_coefficient: float = 2.0  # C_M,α - direktno iz model.latex (linija 650)
 
 # INICIJALIZACIJA
 
-func _init(p_radius: float, p_cyl_h: float, p_cone_h: float, 
-           p_mass: float, p_max_thrust: float):
+func _init(p_radius: float = 0.05, p_cyl_h: float = 0.3, p_cone_h: float = 0.2, 
+		   p_mass: float = 2.0, p_max_thrust: float = 500.0):
 	radius = p_radius
 	cylinder_height = p_cyl_h
 	cone_height = p_cone_h
@@ -91,7 +93,7 @@ func get_info() -> String:
 	
 	var info = """
 Projektil - RocketData
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+===============================
 Geometrija:
   Radijus (R):             %.4f m
   Visina valjka (H):       %.4f m
@@ -117,7 +119,7 @@ Aerodinamika:
   C_D0:                    %.2f
   k:                       %.0f
   C_M,α:                   %.2f
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+===============================
 """ % [
 		radius, cylinder_height, cone_height, volume,
 		mass, moment_of_inertia_xx, moment_of_inertia_yy,

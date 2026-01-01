@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ScenarioData" load_steps=2 format=3 uid="uid://d3mpkse8pdcj"]
+
+[ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_jvxtn"]
+
+[resource]
+script = ExtResource("1_jvxtn")
+scenario_name = "Freefall No Thrust"
+scenario_description = "Test: Samo gravitacija, bez vjetra"
+initial_position = Vector3(0, 500, 0)
+metadata/_custom_type_script = "uid://0mnruf4ps0g6"

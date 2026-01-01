@@ -15,7 +15,7 @@ var gravity: float = 9.81
 # INICIJALIZACIJA
 
 func _init(p_wind_func: Callable = Callable(), p_air_density: float = 1.225, 
-           p_gravity: float = 9.81):
+		   p_gravity: float = 9.81):
 	if p_wind_func.is_valid():
 		wind_function = p_wind_func
 	air_density = p_air_density
@@ -70,14 +70,17 @@ func get_air_properties_at_altitude(_altitude: float) -> Dictionary:
 # DEBUG
 
 func get_environment_info() -> String:
-	var info = """
-Okoline - ModelEnvironment
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Vjetarsko polje:         Prilagođena funkcija
-Gustoća zraka:           %.4f kg/m³
-Viskoznost:              %.2e kg/(m·s)
-Gravitacija:             %.2f m/s²
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-""" % [air_density, air_viscosity, gravity]
+	var density_str = "%.4f" % air_density
+	var viscosity_str = "%.6f" % air_viscosity
+	var gravity_str = "%.2f" % gravity
+	
+	var info = """Okoline - ModelEnvironment
+===================================
+Vektorsko polje vjetra:  Prilagođena funkcija
+Gustoća zraka:           %s kg/m^3
+Viskoznost:              %s kg/(m*s)
+Gravitacija:             %s m/s^2
+===================================
+""" % [density_str, viscosity_str, gravity_str]
 	
 	return info

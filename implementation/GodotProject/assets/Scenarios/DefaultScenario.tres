@@ -3,7 +3,7 @@
 script = ExtResource("res://scripts/ScenarioModel/ScenarioData.gd")
 scenario_name = "DefaultScenario"
 scenario_description = "Osnovni scenarij sa sinusoidnim vjetrom"
-rocket_data = ExtResource("res://assets/Rockets/GenericRocket.tres")
+rocket_data = ExtResource("res://assets/Rockets/DefaultRocket.tres")
 initial_position = Vector3(0, 50, 0)
 initial_velocity = Vector3(100, 0, 0)
 initial_alpha = 0.0

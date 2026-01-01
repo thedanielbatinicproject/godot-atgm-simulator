@@ -1,16 +1,19 @@
 extends Node
 class_name StateVariables
 
-var rocket_data: Resource
+var rocket_data: RocketData
 
 # VARIJABLE STANJA - TRANSLACIJA
 var position: Vector3 = Vector3.ZERO
 var velocity: Vector3 = Vector3.ZERO
 
 # VARIJABLE STANJA - ROTACIJA
-var angular_velocity: Vector3 = Vector3.ZERO
+var angular_velocity: Vector3 = Vector3.ZERO  # Kutna brzina u lokalnom sustavu projekitila
 
-# Eulerovi kutovi (ZYX konvencija)
+# Rotacijska matrica (lokalno -> globalno)
+var rotation_basis: Basis = Basis.IDENTITY
+
+# Eulerovi kutovi (α=roll, β=pitch, γ=yaw) - izvedeni iz rotation_basis
 var alpha: float = 0.0
 var beta: float = 0.0
 var gamma: float = 0.0
@@ -34,6 +37,7 @@ func reset():
 	position = Vector3.ZERO
 	velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
+	rotation_basis = Basis.IDENTITY
 	alpha = 0.0
 	beta = 0.0
 	gamma = 0.0
@@ -46,27 +50,44 @@ func reset():
 
 func get_state_info() -> String:
 	"""vraća formatiran string s trenutnim stanjem."""
+	var roll_deg = "%.2f" % rad_to_deg(alpha)
+	var pitch_deg = "%.2f" % rad_to_deg(beta)
+	var yaw_deg = "%.2f" % rad_to_deg(gamma)
+	var pos_x = "%.3f" % position.x
+	var pos_y = "%.3f" % position.y
+	var pos_z = "%.3f" % position.z
+	var vel_x = "%.3f" % velocity.x
+	var vel_y = "%.3f" % velocity.y
+	var vel_z = "%.3f" % velocity.z
+	var vel_mag = "%.3f" % velocity.length()
+	var omega_x = "%.4f" % angular_velocity.x
+	var omega_y = "%.4f" % angular_velocity.y
+	var omega_z = "%.4f" % angular_velocity.z
+	var alpha_rad = "%.4f" % alpha
+	var beta_rad = "%.4f" % beta
+	var gamma_rad = "%.4f" % gamma
+	
 	var info = """
 Stanje projektila:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Pozicija:                (%.3f, %.3f, %.3f) m
-Brzina:                  (%.3f, %.3f, %.3f) m/s
-Brzina (magnitude):      %.3f m/s
+===================================
+Pozicija:                (%s, %s, %s) m
+Brzina:                  (%s, %s, %s) m/s
+Brzina (magnitude):      %s m/s
 
-Kutna brzina:            (%.4f, %.4f, %.4f) rad/s
+Kutna brzina:            (%s, %s, %s) rad/s
 Eulerovi kutovi:
-  α (roll):              %.2f ° (%.4f rad)
-  β (pitch):             %.2f ° (%.4f rad)
-  γ (yaw):               %.2f ° (%.4f rad)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  roll:                  %s deg (%s rad)
+  pitch:                 %s deg (%s rad)
+  yaw:                   %s deg (%s rad)
+===================================
 """ % [
-		position.x, position.y, position.z,
-		velocity.x, velocity.y, velocity.z,
-		velocity.length(),
-		angular_velocity.x, angular_velocity.y, angular_velocity.z,
-		rad_to_deg(alpha), alpha,
-		rad_to_deg(beta), beta,
-		rad_to_deg(gamma), gamma
+		pos_x, pos_y, pos_z,
+		vel_x, vel_y, vel_z,
+		vel_mag,
+		omega_x, omega_y, omega_z,
+		roll_deg, alpha_rad,
+		pitch_deg, beta_rad,
+		yaw_deg, gamma_rad
 	]
 	return info
 

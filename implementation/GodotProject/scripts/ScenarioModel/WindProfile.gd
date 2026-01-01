@@ -8,11 +8,11 @@ static func constant_wind(wind_vector: Vector3) -> Callable:
 	return func(_pos: Vector3) -> Vector3:
 		return wind_vector
 
-# VJETAR SA GRADIJENTOM PO VISINI (Z-OS)
+# VJETAR SA GRADIJENTOM PO VISINI (Y-OS u Godotu)
 static func linear_altitude_wind(base_wind: Vector3, altitude_gradient: float) -> Callable:
-	"""vjetar jači što je viša pozicija: wind += altitude_gradient * z."""
+	"""vjetar jači što je viša pozicija: wind += altitude_gradient * y (Godot Y je gore)."""
 	return func(pos: Vector3) -> Vector3:
-		return base_wind + Vector3(0, 0, altitude_gradient) * pos.z
+		return base_wind + Vector3(0, altitude_gradient, 0) * pos.y
 
 # SINUSOIDNI VJETAR SA VIŠE FREKVENCIJA
 static func sinusoidal_wind(amplitudes: Vector3, frequencies: Vector3) -> Callable:
