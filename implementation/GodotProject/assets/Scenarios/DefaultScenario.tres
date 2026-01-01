@@ -1,0 +1,19 @@
+[gd_resource type="ScenarioData" format=3]
+
+script = ExtResource("res://scripts/ScenarioModel/ScenarioData.gd")
+scenario_name = "DefaultScenario"
+scenario_description = "Osnovni scenarij sa sinusoidnim vjetrom"
+rocket_data = ExtResource("res://assets/Rockets/DefaultRocket.tres")
+initial_position = Vector3(0, 50, 0)
+initial_velocity = Vector3(100, 0, 0)
+initial_alpha = 0.0
+initial_beta = 0.0
+initial_gamma = 0.0
+air_density = 1.225
+gravity = 9.81
+air_viscosity = 1.8e-05
+wind_type = "sinusoidal"
+wind_base_vector = Vector3(0, 0, 0)
+wind_amplitudes = Vector3(5.0, 3.0, 2.0)
+wind_frequencies = Vector3(0.05, 0.03, 0.04)
+wind_gradient = Vector3(0, 0, 0)
