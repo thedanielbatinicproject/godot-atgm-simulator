@@ -1,22 +1,34 @@
 extends Node
 class_name StateVariables
 
+# ============================================================================
+# GODOT KOORDINATNI SUSTAV (NATIVNI)
+# ============================================================================
+# X = desno, Y = gore, Z = naprijed (nos projektila)
+# 
+# Eulerovi kutovi:
+#   α (alpha) = pitch - rotacija oko X (nos gore/dolje)
+#   β (beta)  = yaw   - rotacija oko Y (nos lijevo/desno)
+#   γ (gamma) = roll  - rotacija oko Z (rotacija oko nosa)
+# ============================================================================
+
 var rocket_data: RocketData
 
-# VARIJABLE STANJA - TRANSLACIJA
+# VARIJABLE STANJA - TRANSLACIJA (Godot: X=desno, Y=gore, Z=naprijed)
 var position: Vector3 = Vector3.ZERO
 var velocity: Vector3 = Vector3.ZERO
 
 # VARIJABLE STANJA - ROTACIJA
-var angular_velocity: Vector3 = Vector3.ZERO  # Kutna brzina u lokalnom sustavu projekitila
+var angular_velocity: Vector3 = Vector3.ZERO  # Kutna brzina u lokalnom sustavu
 
 # Rotacijska matrica (lokalno -> globalno)
 var rotation_basis: Basis = Basis.IDENTITY
 
-# Eulerovi kutovi (α=roll, β=pitch, γ=yaw) - izvedeni iz rotation_basis
-var alpha: float = 0.0
-var beta: float = 0.0
-var gamma: float = 0.0
+# Eulerovi kutovi (Godot konvencija)
+# α = pitch (oko X), β = yaw (oko Y), γ = roll (oko Z)
+var alpha: float = 0.0  # pitch
+var beta: float = 0.0   # yaw
+var gamma: float = 0.0  # roll
 
 # POMOĆNE VARIJABLE - ULAZI SA VREMENSKIM KAŠNJENJEM
 # Pending = čeka na primjenu nakon latencije

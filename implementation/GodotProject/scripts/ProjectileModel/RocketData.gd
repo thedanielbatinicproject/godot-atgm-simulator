@@ -1,6 +1,16 @@
 extends Resource
 class_name RocketData
 
+# ============================================================================
+# GODOT KOORDINATNI SUSTAV (NATIVNI)
+# ============================================================================
+# X = desno, Y = gore, Z = naprijed (nos projektila)
+# 
+# Momenti tromosti (za osnosimetrično tijelo):
+#   I_xx = I_yy (veći) - pitch/yaw (oko osi okomitih na nos)
+#   I_zz (manji) - roll (oko osi nosa/Z)
+# ============================================================================
+
 # GEOMETRIJA PROJEKTILA
 @export var radius: float = 0.05
 @export var cylinder_height: float = 0.3
@@ -14,13 +24,20 @@ var volume: float:
 		return PI * radius * radius * (cylinder_height + cone_height / 3.0)
 
 # MOMENTI TROMOSTI (izračunavaju se automatski iz geometrije)
-var moment_of_inertia_xx: float = 0.0
-var moment_of_inertia_yy: float = 0.0
+# Godot sustav: Z = nos, pa I_zz je roll (manji), I_xx = I_yy su pitch/yaw (veći)
+var moment_of_inertia_xx: float = 0.0  # pitch (oko X)
+var moment_of_inertia_yy: float = 0.0  # yaw (oko Y), = I_xx za osnosimetrično
+var moment_of_inertia_zz: float = 0.0  # roll (oko Z/nosa, manji)
 
 var inertia_computed: bool = false
 
 func compute_inertia():
-	"""Izračunaj momente tromosti iz geometrije prema modelu."""
+	"""Izračunaj momente tromosti iz geometrije.
+	
+	Za Godot sustav (Z = nos):
+	- I_zz = moment oko osi simetrije (roll) - MANJI
+	- I_xx = I_yy = moment oko poprečnih osi - VEĆI
+	"""
 	if inertia_computed:
 		return
 	
@@ -30,28 +47,39 @@ func compute_inertia():
 	var mass_cylinder = alpha_v * mass
 	var mass_cone = alpha_s * mass
 	
-	var ixx_cylinder = 0.5 * mass_cylinder * radius * radius
-	var ixx_cone = 0.3 * mass_cone * radius * radius
+	# I_zz = moment oko osi simetrije (roll oko Z/nosa)
+	# Za valjak: (1/2) * m * R²
+	# Za stožac: (3/10) * m * R²
+	var izz_cylinder = 0.5 * mass_cylinder * radius * radius
+	var izz_cone = 0.3 * mass_cone * radius * radius
+	moment_of_inertia_zz = izz_cylinder + izz_cone
+	
+	# Pozicija težišta duž Z osi (nos)
+	var zcm_cylinder = cylinder_height / 2.0
+	var zcm_cone = cylinder_height + cone_height / 4.0
+	var zcm_total = compute_center_of_mass_local()
+	
+	# I_xx = I_yy = moment oko poprečnih osi (pitch/yaw)
+	# Koristi paralelne osi teorem
+	var ixx_cylinder = (1.0 / 12.0) * mass_cylinder * (3.0 * radius * radius + cylinder_height * cylinder_height)
+	ixx_cylinder += mass_cylinder * (zcm_cylinder - zcm_total) * (zcm_cylinder - zcm_total)
+	
+	# Za stožac: (3/80) * m * (4R² + h²) je točnije, ali model koristi (3/20)
+	var ixx_cone = (3.0 / 20.0) * mass_cone * (radius * radius + 4.0 * cone_height * cone_height)
+	ixx_cone += mass_cone * (zcm_cone - zcm_total) * (zcm_cone - zcm_total)
+	
 	moment_of_inertia_xx = ixx_cylinder + ixx_cone
+	moment_of_inertia_yy = moment_of_inertia_xx  # osnosimetrija: I_xx = I_yy
 	
-	var xcm_cylinder = cylinder_height / 2.0
-	var xcm_cone = cylinder_height + cone_height / 4.0
-	var xcm_total = compute_center_of_mass_local()
-	
-	var iyy_cylinder = (1.0 / 12.0) * mass_cylinder * (3.0 * radius * radius + cylinder_height * cylinder_height)
-	iyy_cylinder += mass_cylinder * (xcm_cylinder - xcm_total) * (xcm_cylinder - xcm_total)
-	
-	var iyy_cone = (3.0 / 20.0) * mass_cone * (radius * radius + 4.0 * cone_height * cone_height)
-	#u modelu je zadano H + h/4 - x_cm_total, međutim xcm_cone = H + h/4
-	iyy_cone += mass_cone * (xcm_cone - xcm_total) * (xcm_cone - xcm_total)
-	
-	moment_of_inertia_yy = iyy_cylinder + iyy_cone
 	inertia_computed = true
 	
-	print("DEBUG: compute_inertia() - I_xx=%.8f, I_yy=%.8f, mass=%.2f, R=%.3f, H=%.3f, h=%.3f" % [moment_of_inertia_xx, moment_of_inertia_yy, mass, radius, cylinder_height, cone_height])
+	print("DEBUG: compute_inertia() - I_xx=%.8f, I_yy=%.8f, I_zz=%.8f" % [
+		moment_of_inertia_xx, moment_of_inertia_yy, moment_of_inertia_zz])
 
 func compute_center_of_mass_local() -> float:
-	"""pozicija težišta duž lokalne x-osi: (6H² + 4Hh + 3h²) / (12H + 4h)."""
+	"""Pozicija težišta duž lokalne Z osi (nos).
+	Formula: (6H² + 4Hh + 3h²) / (12H + 4h)
+	"""
 	var H = cylinder_height
 	var h = cone_height
 	return (6.0 * H * H + 4.0 * H * h + 3.0 * h * h) / (12.0 * H + 4.0 * h)
@@ -100,12 +128,13 @@ Geometrija:
   Visina stošca (h):       %.4f m
   Volumen:                 %.6f m³
   
-Masa i tromosti:
+Masa i tromosti (Godot: Z=nos):
   Masa (M):                %.2f kg
-  Ixx:                     %.6f kg·m²
-  Iyy:                     %.6f kg·m²
+  I_xx (pitch):            %.6f kg·m²
+  I_yy (yaw):              %.6f kg·m²
+  I_zz (roll):             %.6f kg·m²
   
-Težište (lokalno):         %.4f m
+Težište (lokalno Z):       %.4f m
   
 Potisna sila:
   Maksimalna sila:         %.1f N
@@ -122,7 +151,7 @@ Aerodinamika:
 ===============================
 """ % [
 		radius, cylinder_height, cone_height, volume,
-		mass, moment_of_inertia_xx, moment_of_inertia_yy,
+		mass, moment_of_inertia_xx, moment_of_inertia_yy, moment_of_inertia_zz,
 		compute_center_of_mass_local(),
 		max_thrust, rad_to_deg(max_thrust_angle),
 		thrust_latency, gimbal_latency,

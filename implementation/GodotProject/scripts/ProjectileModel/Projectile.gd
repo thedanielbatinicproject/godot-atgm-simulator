@@ -1,6 +1,21 @@
 extends Node3D
 class_name Projectile
 
+# ============================================================================
+# GODOT KOORDINATNI SUSTAV (NATIVNI)
+# ============================================================================
+# X = desno, Y = gore, Z = naprijed (nos projektila)
+# 
+# Eulerovi kutovi:
+#   α (alpha) = pitch - rotacija oko X (nos gore/dolje)
+#   β (beta)  = yaw   - rotacija oko Y (nos lijevo/desno)
+#   γ (gamma) = roll  - rotacija oko Z (rotacija oko nosa)
+#
+# Momenti tromosti:
+#   I_xx = I_yy (veći) - pitch/yaw
+#   I_zz (manji) - roll
+# ============================================================================
+
 # KONFIGURACIJA
 @export var scenario_data: ScenarioData
 @export var debug_enabled: bool = false
@@ -20,6 +35,7 @@ var elapsed_time: float = 0.0
 var debug_timer: float = 0.0
 
 func normalize_angle(angle: float) -> float:
+	"""Normalizira kut u raspon [-π, π]."""
 	var normalized = angle
 	while normalized > PI:
 		normalized -= TAU
@@ -27,10 +43,12 @@ func normalize_angle(angle: float) -> float:
 		normalized += TAU
 	return normalized
 
+# ============================================================================
 # INICIJALIZACIJA
+# ============================================================================
 
 func _ready():
-	"""inicijalizira sve komponente projektila iz scenarija."""
+	"""Inicijalizira sve komponente projektila iz scenarija."""
 	if not scenario_data:
 		print("ERROR: No ScenarioData assigned to Projectile!")
 		return
@@ -40,72 +58,64 @@ func _ready():
 		print("ERROR: ScenarioData has no RocketData!")
 		return
 	
-	# Izračunaj momente tromosti ako nisu već izračunati
+	# Izračunaj momente tromosti
 	rocket_data.compute_inertia()
+	print("DEBUG: I_xx=%.6f, I_yy=%.6f, I_zz=%.6f" % [
+		rocket_data.moment_of_inertia_xx, 
+		rocket_data.moment_of_inertia_yy,
+		rocket_data.moment_of_inertia_zz
+	])
 	
-	# Debug ispis momenta inercije
-	print("DEBUG: compute_inertia() završio - I_xx=%.6f, I_yy=%.6f" % [rocket_data.moment_of_inertia_xx, rocket_data.moment_of_inertia_yy])
-	if rocket_data.moment_of_inertia_xx <= 0.0 or rocket_data.moment_of_inertia_yy <= 0.0:
-		push_error("ERROR: Moment of inertia failed to compute! I_xx=%f, I_yy=%f" % [rocket_data.moment_of_inertia_xx, rocket_data.moment_of_inertia_yy])
-	
-	# inicijalizira environment i utils prvo
-	environment = ModelEnvironment.new(scenario_data.wind_function, 
-										scenario_data.air_density, 
-										scenario_data.gravity)
+	# Inicijaliziraj komponente
+	environment = ModelEnvironment.new(
+		scenario_data.wind_function, 
+		scenario_data.air_density, 
+		scenario_data.gravity
+	)
 	utils = Utils.new(rocket_data)
-	
-	# sada inicijalizira komponente koje trebaju environment i utils
 	state = StateVariables.new(rocket_data)
 	forces = Forces.new(rocket_data, environment, utils)
 	moments = Moments.new(rocket_data, environment, utils)
 	guidance = Guidance.new()
 	
-	# Dodaj guidance kao child da bi mogao koristiti scene tree
+	# Dodaj guidance kao child
 	guidance.name = "Guidance"
 	add_child(guidance)
 	
+	# Setup wind
 	scenario_data.setup_wind_for_scenario()
 	environment.set_wind_function(scenario_data.wind_function)
 	
-	# Početni uvjeti iz ScenarioData su u GODOT koordinatama (iz editora)
-	# Konvertiramo ih u MODEL koordinate za internu fiziku
+	# Početni uvjeti - DIREKTNO u Godot koordinatama (nema konverzije!)
 	var initial_state = scenario_data.get_initial_state()
-	state.position = Utils.godot_to_model(initial_state["position"])
-	state.velocity = Utils.godot_to_model(initial_state["velocity"])
+	state.position = initial_state["position"]
+	state.velocity = initial_state["velocity"]
 	state.alpha = initial_state["alpha"]
 	state.beta = initial_state["beta"]
 	state.gamma = initial_state["gamma"]
-	# Inicijalizuj rotation_basis iz Eulerovih kutova
 	state.rotation_basis = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
 	elapsed_time = 0.0
 
 	if debug_enabled:
 		print(rocket_data.get_info())
 		print(state.get_state_info())
-		print(guidance.get_input_info())
-		print(environment.get_environment_info())
-		print(scenario_data.get_info())
 
+# ============================================================================
 # SIMULACIJSKA PETLJA
+# ============================================================================
 
 func _physics_process(delta: float):
-	"""glavna simulacijska petlja - eksplicitni Euler."""
+	"""Glavna simulacijska petlja - eksplicitni Euler."""
 	if not scenario_data or not scenario_data.rocket_data or not state:
-		debug_timer += delta
-		if debug_timer >= debug_interval:
-			print("DEBUG: Missing data - scenario_data=%s, rocket_data=%s, state=%s" % [scenario_data, scenario_data.rocket_data if scenario_data else null, state])
-			debug_timer = 0.0
 		return
 	
 	elapsed_time += delta
 	var rocket_data = scenario_data.rocket_data
 	
-	# ========== TRANSLACIJA ==========
-	
-	# Izračunaj sve vanjske sile (globalni sustav)
+	# ========== LATENCY SUSTAV ==========
 	var current_guidance = guidance.get_control_input()
 	
-	# Ažuriraj state sa trenutnim inputom SAMO ako se promijenio (za latency sustav)
+	# Ažuriraj pending input
 	if abs(state.pending_thrust_input - current_guidance.x) > 0.001:
 		state.pending_thrust_input = current_guidance.x
 		state.pending_thrust_time = elapsed_time
@@ -115,68 +125,51 @@ func _physics_process(delta: float):
 		state.pending_gimbal_input = new_gimbal
 		state.pending_gimbal_time = elapsed_time
 	
-	# Primijeni pending input ako je prošla latencija
+	# Primijeni nakon latencije
 	if elapsed_time - state.pending_thrust_time >= rocket_data.thrust_latency:
 		state.active_thrust_input = state.pending_thrust_input
 	
 	if elapsed_time - state.pending_gimbal_time >= rocket_data.gimbal_latency:
 		state.active_gimbal_input = state.pending_gimbal_input
 	
+	# ========== TRANSLACIJA ==========
 	var f_total = forces.calculate_total(state, current_guidance, elapsed_time)
-	
-	# Akceleracija centra mase: a = F / M
 	var acceleration = f_total / rocket_data.mass
 	
-	if elapsed_time < 0.1:  # Debug samo prva 0.1s
-		print("DEBUG: t=%.4f, F_total=[%.2f, %.2f, %.2f], a=[%.2f, %.2f, %.2f], delta=%.6f" % [elapsed_time, f_total.x, f_total.y, f_total.z, acceleration.x, acceleration.y, acceleration.z, delta])
-		print("DEBUG: v_old=[%.2f, %.2f, %.2f]" % [state.velocity.x, state.velocity.y, state.velocity.z])
-	
-	# Ažuriranje brzine: v(k+1) = v(k) + a(k)*Delta t
+	# Euler integracija
 	state.velocity = state.velocity + acceleration * delta
-	
-	# Ažuriranje pozicije: r(k+1) = r(k) + v(k)*Delta t (koristi STARU brzinu)
 	state.position = state.position + state.velocity * delta
 	
-	if elapsed_time < 0.1:  # Debug samo prva 0.1s
-		print("DEBUG: v_new=[%.2f, %.2f, %.2f], pos_new=[%.2f, %.2f, %.2f]" % [state.velocity.x, state.velocity.y, state.velocity.z, state.position.x, state.position.y, state.position.z])
-	
 	# ========== ROTACIJA ==========
-	
-	# Izračunaj lokalnu silu potiska (trebam je za moment)
 	var thrust_local = forces.calculate_thrust_local(state, current_guidance, elapsed_time)
-	
-	# Izračunaj sve momente (lokalni sustav) - samo ako je toggle uključen
 	var m_total = Vector3.ZERO
 	if calculate_moments:
 		m_total = moments.calculate_total(state, thrust_local)
 	
-	# ========== ROTACIJA PREMA MODEL.LATEX (linije 880-910) ==========
-	# Eulerove jednadžbe za krutu tijelo sa substeps za stabilnost
-	
-	var I_x = rocket_data.moment_of_inertia_xx
-	var I_y = rocket_data.moment_of_inertia_yy
-	var I_z = rocket_data.moment_of_inertia_xx  # I_zz = I_xx (osnosimetrija)
+	# Momenti tromosti (Godot sustav)
+	# I_xx = I_yy (veći, pitch/yaw), I_zz (manji, roll)
+	var I_x = rocket_data.moment_of_inertia_xx  # pitch
+	var I_y = rocket_data.moment_of_inertia_yy  # yaw (= I_xx)
+	var I_z = rocket_data.moment_of_inertia_zz  # roll
 	
 	if I_x <= 0.0 or I_y <= 0.0 or I_z <= 0.0:
-		if debug_enabled:
-			push_error("ERROR: Moment of inertia is zero or negative!")
+		push_error("ERROR: Invalid moment of inertia!")
 		return
 	
-	# Substeps za numeričku stabilnost giroskopskih članova
+	# Substeps za stabilnost
 	var rotation_substeps = 10
 	var sub_dt = delta / float(rotation_substeps)
 	
-	var M_x = m_total.x
-	var M_y = m_total.y
-	var M_z = m_total.z
+	var M_x = m_total.x  # pitch moment
+	var M_y = m_total.y  # yaw moment
+	var M_z = m_total.z  # roll moment
 	
 	for _substep in range(rotation_substeps):
 		var omega_x = state.angular_velocity.x
 		var omega_y = state.angular_velocity.y
 		var omega_z = state.angular_velocity.z
 		
-		# Eulerove jednadžbe (model.latex linije 885-910):
-		# ω_x(k+1) = ω_x(k) + (M_x/I_x - (I_z-I_y)/I_x * ω_y*ω_z) * Δt
+		# Eulerove jednadžbe krutog tijela
 		var omega_x_dot = (M_x / I_x) - ((I_z - I_y) / I_x) * omega_y * omega_z
 		var omega_y_dot = (M_y / I_y) - ((I_x - I_z) / I_y) * omega_z * omega_x
 		var omega_z_dot = (M_z / I_z) - ((I_y - I_x) / I_z) * omega_x * omega_y
@@ -185,61 +178,50 @@ func _physics_process(delta: float):
 		state.angular_velocity.y += omega_y_dot * sub_dt
 		state.angular_velocity.z += omega_z_dot * sub_dt
 	
-	# Sigurnosni clamp na kutnu brzinu
-	var max_angular_vel = 20.0  # rad/s
+	# Clamp kutne brzine
+	var max_angular_vel = 20.0
 	state.angular_velocity.x = clampf(state.angular_velocity.x, -max_angular_vel, max_angular_vel)
 	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_angular_vel, max_angular_vel)
 	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_angular_vel, max_angular_vel)
 	
-	# ========== ORIJENTACIJA PREMA MODEL.LATEX (linije 920-945) ==========
-	# Derivacije Eulerovih kutova iz kutne brzine
-	
+	# ========== ORIJENTACIJA ==========
 	var omega_x = state.angular_velocity.x
 	var omega_y = state.angular_velocity.y
 	var omega_z = state.angular_velocity.z
 	
 	var sin_alpha = sin(state.alpha)
 	var cos_alpha = cos(state.alpha)
-	var sin_beta = sin(state.beta)
 	var cos_beta = cos(state.beta)
 	var tan_beta = tan(state.beta)
 	
+	# Kinematičke relacije: ω → (α̇, β̇, γ̇)
 	var alpha_dot = omega_x + tan_beta * (omega_y * sin_alpha + omega_z * cos_alpha)
 	var beta_dot = omega_y * cos_alpha - omega_z * sin_alpha
-	
-	# Sigurnosna provjera za gimbal lock (cos(β) ≈ 0)
 	var gamma_dot = 0.0
 	if abs(cos_beta) > 0.001:
 		gamma_dot = (omega_y * sin_alpha + omega_z * cos_alpha) / cos_beta
-	else:
-		# Gimbal lock - nema rotacije u yaw
-		gamma_dot = 0.0
 	
-	# Diskretno ažuriranje Eulerovih kutova (model.latex linije 933-943)
+	# Ažuriraj Eulerove kutove
 	state.alpha = normalize_angle(state.alpha + alpha_dot * delta)
 	state.beta = normalize_angle(state.beta + beta_dot * delta)
 	state.gamma = normalize_angle(state.gamma + gamma_dot * delta)
 	
-	# Ažuriranje rotation_basis iz Eulerovih kutova za vizualizaciju
+	# Ažuriraj rotation_basis
 	state.rotation_basis = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
 	
-	# Renormalizacija rotation_basis (sigurnost zbog numeričkih grešaka)
-	var x_axis = state.rotation_basis.x.normalized()
-	var z_axis = (x_axis.cross(state.rotation_basis.y)).normalized()
-	var y_axis = z_axis.cross(x_axis).normalized()
+	# Renormalizacija (numerička stabilnost)
+	var z_axis = state.rotation_basis.z.normalized()
+	var y_axis = state.rotation_basis.y.normalized()
+	var x_axis = y_axis.cross(z_axis).normalized()
+	y_axis = z_axis.cross(x_axis).normalized()
 	state.rotation_basis = Basis(x_axis, y_axis, z_axis)
 	
-	# ========== AŽURIRANJE SCENE (KONVERZIJA MODEL → GODOT) ==========
+	# ========== AŽURIRANJE SCENE ==========
+	# NEMA KONVERZIJE - sve je već u Godot koordinatama!
+	position = state.position
+	basis = state.rotation_basis
 	
-	# Konvertira poziciju iz Model.latex (X naprijed, Y desno, Z gore) 
-	# u Godot (X desno, Y gore, Z naprijed)
-	position = Utils.model_to_godot(state.position)
-	
-	# Konvertira rotaciju iz Model.latex u Godot
-	basis = Utils.model_basis_to_godot(state.rotation_basis)
-	
-	# ========== DEBUG ISPIS ==========
-	
+	# ========== DEBUG ==========
 	if debug_enabled:
 		debug_timer += delta
 		if debug_timer >= debug_interval:

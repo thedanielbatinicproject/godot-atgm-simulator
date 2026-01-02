@@ -1,26 +1,7 @@
-[gd_resource type="Resource" script_class="ControlConfig" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ControlConfig" load_steps=2 format=3 uid="uid://bghewffyp0tbg"]
 
-[ext_resource type="Script" path="res://scripts/Controls/ControlConfig.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="1_config"]
 
 [resource]
 script = ExtResource("1_config")
-stick_radius = 150.0
-cursor_radius = 10.0
-center_dot_radius = 3.0
-return_animation_duration = 0.3
 return_animation_trans = 4
-return_animation_ease = 1
-throttle_increment_per_second = 1.0
-throttle_default = 0.0
-throttle_min = 0.0
-throttle_max = 1.0
-deadzone_joystick = 0.1
-deadzone_mouse = 5.0
-enable_mouse_input = true
-enable_keyboard_input = true
-enable_gamepad_input = true
-background_color = Color(0.5, 0.5, 0.5, 0.3)
-cursor_color = Color(1, 0.2, 0.2, 1)
-center_dot_color = Color(1, 1, 1, 0.8)
-border_color = Color(1, 1, 1, 0.5)
-border_width = 2.0

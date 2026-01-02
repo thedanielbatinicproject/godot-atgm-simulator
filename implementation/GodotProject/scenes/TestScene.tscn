@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://co0lmqnhq86p7"]
+[gd_scene load_steps=8 format=3 uid="uid://co0lmqnhq86p7"]
 
 [ext_resource type="PackedScene" uid="uid://c4urpl8s6i362" path="res://assets/3D Assets/Vegetation/Tree01/Tree.fbx" id="1_n77mx"]
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_rlkm5"]
 [ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_rlkm5"]
 [ext_resource type="PackedScene" uid="uid://cq1lexg1np6nf" path="res://assets/UI/input_manager.tscn" id="4_nb1wl"]
+[ext_resource type="PackedScene" uid="uid://3bte2dhfjpx6" path="res://assets/3D Assets/Props/Tank01/Tiger_I.fbx" id="5_m5dm6"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
 albedo_color = Color(0.5, 0.5, 0.5, 1)
@@ -21,25 +22,37 @@ size = Vector3(200, 2, 200)
 material = SubResource("StandardMaterial3D_2")
 
 [node name="Projectile" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0.065)
+rotation_order = 5
 script = ExtResource("1_rlkm5")
 scenario_data = ExtResource("2_rlkm5")
 debug_enabled = true
 debug_interval = 1.0
+calculate_moments = false
 
 [node name="Camera3D" type="Camera3D" parent="Projectile"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.71048164, 16.248253, -0.40437222)
+transform = Transform3D(-1, 0, 1.509958e-07, 0, 1, 0, -1.509958e-07, 0, -1, 0, 0, 0.485)
 current = true
 
 [node name="ProjectileVisual" type="CSGSphere3D" parent="Projectile"]
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0)
-radius = 9.274
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0)
+radius = 0.4
 material = SubResource("StandardMaterial3D_1")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -114.122574, 119.13259, -102.52523)
 
 [node name="Tree" parent="." instance=ExtResource("1_n77mx")]
-transform = Transform3D(3000, 0, 0, 0, 3000, 0, 0, 0, 3000, -3.255745, -6.2871094, -5.2782364)
+transform = Transform3D(1500, 0, 0, 0, 1500, 0, 0, 0, 1500, 38.572952, -6.2871094, -14.242706)
+
+[node name="Tree3" parent="." instance=ExtResource("1_n77mx")]
+transform = Transform3D(1500, 0, 0, 0, 1500, 0, 0, 0, 1500, 9.26185, -6.2871094, 29.654663)
 
 [node name="InputManager" parent="." instance=ExtResource("4_nb1wl")]
+
+[node name="Tiger_I" parent="." instance=ExtResource("5_m5dm6")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -7.742468, 1.7153625, -4.6101923)
+
+[node name="PERSON" type="CSGSphere3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.85, 0, 0, 0, 1, 0, 1.7920542, 0)
+radius = 1.0

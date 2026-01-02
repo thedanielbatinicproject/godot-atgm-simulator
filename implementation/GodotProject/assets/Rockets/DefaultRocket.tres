@@ -4,4 +4,5 @@
 
 [resource]
 script = ExtResource("1_5qbo8")
+max_thrust = 200.0
 metadata/_custom_type_script = "uid://c6btekbi0in50"
