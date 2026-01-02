@@ -1,37 +1,70 @@
 extends Resource
 class_name ScenarioData
 
-# BIBLIOTEKA VJETRA
+# ============================================================================
+# SCENARIO CONFIGURATION
+# ============================================================================
+# Defines initial conditions, environment, and wind for a simulation scenario.
+# Coordinate system: Godot native (X=right, Y=up, Z=forward)
+# ============================================================================
+
+# Wind profile library
 var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 
-# SCENARIO IDENTIFIKACIJA
-@export var scenario_name: String = "DefaultScenario"
-@export var scenario_description: String = ""
+# ============================================================================
+# EXPORTED PROPERTIES
+# ============================================================================
 
-# 3D OKRUZENJE
+@export_category("Scenario")
+
+@export_group("Identification")
+## Unique name for this scenario.
+@export var scenario_name: String = "Default Scenario"
+## Description of what this scenario tests or demonstrates.
+@export_multiline var scenario_description: String = ""
+
+@export_group("Scene")
+## The 3D level/environment scene to load for this scenario.
 @export var level_scene: PackedScene
 
-# KONFIGURACIJA PROJEKTILA
+@export_group("Projectile")
+## Reference to the RocketData resource defining projectile properties.
 @export var rocket_data: RocketData
 
-# POČETNE VARIJABLE STANJA (Godot koordinate - Y je gore, -Z je naprijed)
-# Ovo se automatski konvertira u Model koordinate (X naprijed, Z gore) u Projectile.gd
+@export_group("Initial Position")
+## Starting position in meters (Godot: X=right, Y=up, Z=forward).
 @export var initial_position: Vector3 = Vector3.ZERO
-@export var initial_velocity: Vector3 = Vector3(0, 0, -100)  # -Z = naprijed u Godotu = X u Modelu
-@export var initial_alpha: float = 0.0
-@export var initial_beta: float = 0.0
-@export var initial_gamma: float = 0.0
 
-# OKOLJNE KONSTANTE
-@export var air_density: float = 1.225
-@export var gravity: float = 9.81
+@export_group("Initial Velocity")
+## Starting velocity in m/s (Godot: X=right, Y=up, Z=forward).
+@export var initial_velocity: Vector3 = Vector3(0, 0, 100)
+
+@export_group("Initial Orientation")
+## Initial pitch angle. Positive = nose up.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_alpha: float = 0.0
+## Initial yaw angle. Positive = nose right.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_beta: float = 0.0
+## Initial roll angle. Positive = clockwise when viewed from behind.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_gamma: float = 0.0
+
+@export_group("Environment")
+## Air density in kg/m³. Sea level standard: 1.225
+@export_range(0.1, 2.0, 0.001, "suffix:kg/m³") var air_density: float = 1.225
+## Gravitational acceleration in m/s².
+@export_range(0.0, 20.0, 0.01, "suffix:m/s²") var gravity: float = 9.81
+## Dynamic viscosity of air in kg/(m·s).
 @export var air_viscosity: float = 1.8e-5
 
-# KONFIGURACIJA VJETRA
-@export var wind_type: String = "sinusoidal"  # constant, altitude_gradient, sinusoidal, vortex, combined
+@export_group("Wind Configuration")
+## Type of wind field to generate.
+@export_enum("constant", "altitude_gradient", "sinusoidal", "vortex", "full_gradient") var wind_type: String = "sinusoidal"
+## Base wind vector for constant/gradient wind types (m/s).
 @export var wind_base_vector: Vector3 = Vector3.ZERO
+## Amplitude of wind oscillations for sinusoidal wind (m/s).
 @export var wind_amplitudes: Vector3 = Vector3(5.0, 3.0, 2.0)
+## Frequency of wind oscillations for sinusoidal wind (Hz).
 @export var wind_frequencies: Vector3 = Vector3(0.05, 0.03, 0.04)
+## Wind gradient vector for gradient-based wind types.
 @export var wind_gradient: Vector3 = Vector3.ZERO
 
 # VJETAR KAO VEKTORSKO POLJE

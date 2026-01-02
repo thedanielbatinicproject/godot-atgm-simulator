@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://c4urpl8s6i362" path="res://assets/3D Assets/Vegetation/Tree01/Tree.fbx" id="1_n77mx"]
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_rlkm5"]
-[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_rlkm5"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/DefaultScenario.tres" id="2_rlkm5"]
 [ext_resource type="PackedScene" uid="uid://cq1lexg1np6nf" path="res://assets/UI/input_manager.tscn" id="4_nb1wl"]
 [ext_resource type="PackedScene" uid="uid://3bte2dhfjpx6" path="res://assets/3D Assets/Props/Tank01/Tiger_I.fbx" id="5_m5dm6"]
 
@@ -17,7 +17,7 @@ albedo_color = Color(0.8, 0, 0, 1)
 [node name="Ground" type="Node3D" parent="."]
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+transform = Transform3D(15.828995, 0, 0, 0, 1, 0, 0, 0, 13.892006, 0, -1, 0)
 size = Vector3(200, 2, 200)
 material = SubResource("StandardMaterial3D_2")
 
@@ -51,7 +51,7 @@ transform = Transform3D(1500, 0, 0, 0, 1500, 0, 0, 0, 1500, 9.26185, -6.2871094,
 [node name="InputManager" parent="." instance=ExtResource("4_nb1wl")]
 
 [node name="Tiger_I" parent="." instance=ExtResource("5_m5dm6")]
-transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -7.742468, 1.7153625, -4.6101923)
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -7.742468, 0.023287535, -4.6101923)
 
 [node name="PERSON" type="CSGSphere3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1.85, 0, 0, 0, 1, 0, 1.7920542, 0)

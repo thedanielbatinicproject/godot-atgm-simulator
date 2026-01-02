@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dor48irirauda"]
 
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_wp7fd"]
-[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TestScenario1.tres" id="2_xfrrf"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/DefaultScenario.tres" id="2_xfrrf"]
 
 [node name="Vukovar91" type="Node3D"]
 

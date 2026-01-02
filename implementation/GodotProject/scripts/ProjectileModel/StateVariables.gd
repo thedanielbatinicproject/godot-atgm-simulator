@@ -81,9 +81,9 @@ func reset():
 
 func get_state_info() -> String:
 	"""vraća formatiran string s trenutnim stanjem."""
-	var roll_deg = "%.2f" % rad_to_deg(alpha)
-	var pitch_deg = "%.2f" % rad_to_deg(beta)
-	var yaw_deg = "%.2f" % rad_to_deg(gamma)
+	var pitch_deg = "%.2f" % rad_to_deg(alpha)  # alpha = pitch
+	var yaw_deg = "%.2f" % rad_to_deg(beta)     # beta = yaw
+	var roll_deg = "%.2f" % rad_to_deg(gamma)   # gamma = roll
 	var pos_x = "%.3f" % position.x
 	var pos_y = "%.3f" % position.y
 	var pos_z = "%.3f" % position.z
@@ -107,17 +107,17 @@ Brzina (magnitude):      %s m/s
 
 Kutna brzina:            (%s, %s, %s) rad/s
 Eulerovi kutovi:
-  roll:                  %s deg (%s rad)
-  pitch:                 %s deg (%s rad)
-  yaw:                   %s deg (%s rad)
+  pitch (α):             %s deg (%s rad)
+  yaw (β):               %s deg (%s rad)
+  roll (γ):              %s deg (%s rad)
 ===================================
 """ % [
 		pos_x, pos_y, pos_z,
 		vel_x, vel_y, vel_z,
 		vel_mag,
 		omega_x, omega_y, omega_z,
-		roll_deg, alpha_rad,
-		pitch_deg, beta_rad,
+		pitch_deg, alpha_rad,
+		yaw_deg, beta_rad,
 		yaw_deg, gamma_rad
 	]
 	return info

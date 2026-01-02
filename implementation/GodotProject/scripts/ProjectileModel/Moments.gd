@@ -108,8 +108,7 @@ func calculate_total(state: StateVariables, thrust_force_local: Vector3, _wind_v
 	var m_stab = calculate_stabilization_moment(state)
 	
 	# Rotacijsko prigušenje (aerodinamičko) - proporcionalno kutnoj brzini
-	# Ovo stabilizira simulaciju i sprečava divergenciju
-	var b_rotational = 0.05  # N·m·s/rad
-	var m_rotational_drag = -b_rotational * state.angular_velocity
+	# M_drag = -b * ω (suprotstavlja se rotaciji)
+	var m_rotational_drag = -rocket_data.rotational_damping_coefficient * state.angular_velocity
 	
-	return m_thrust #+ m_rotational_drag + m_stab
+	return m_thrust + m_stab + m_rotational_drag
