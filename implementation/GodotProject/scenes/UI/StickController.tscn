@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3 uid="uid://cat1fshrcqsdf"]
+
+[ext_resource type="Script" uid="uid://6wixwvm2of5c" path="res://scripts/Controls/StickController.gd" id="1_stick"]
+[ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="2_config"]
+[ext_resource type="Texture2D" uid="uid://dbire1mv0fx0f" path="res://assets/UI/ControlsUI/stick_background.png" id="3_bg"]
+[ext_resource type="Texture2D" uid="uid://bs4bf55x5i6n1" path="res://assets/UI/ControlsUI/stick_cursor.png" id="4_cursor"]
+[ext_resource type="Texture2D" uid="uid://cfra5p64xukv5" path="res://assets/UI/ControlsUI/stick_center.png" id="5_center"]
+
+[sub_resource type="Resource" id="Resource_config"]
+script = ExtResource("2_config")
+return_animation_trans = 4
+
+[node name="StickController" type="Control"]
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -210.0
+offset_right = 210.0
+offset_bottom = -10.0
+grow_vertical = 0
+pivot_offset = Vector2(97, 99)
+script = ExtResource("1_stick")
+config = SubResource("Resource_config")
+background_texture = ExtResource("3_bg")
+cursor_texture = ExtResource("4_cursor")
+center_texture = ExtResource("5_center")
+viewport_size_ratio = 0.5

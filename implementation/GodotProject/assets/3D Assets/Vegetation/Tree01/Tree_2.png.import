@@ -2,16 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://t1qwswh1yy54"
-path="res://.godot/imported/DB2X2_L01.png-ef5032ce0641d74a401539623b71dada.ctex"
+uid="uid://dudmm6ho2sneh"
+path="res://.godot/imported/Tree_2.png-422be5618935927a351c15aff9692d7d.ctex"
 metadata={
 "vram_texture": false
+}
+generator_parameters={
+"md5": "91e244bb56199029e7e7ba3821fa5ddc"
 }
 
 [deps]
 
-source_file="res://assets/3D Assets/Vegetation/Tree01/Tree.fbm/DB2X2_L01.png"
-dest_files=["res://.godot/imported/DB2X2_L01.png-ef5032ce0641d74a401539623b71dada.ctex"]
+source_file="res://assets/3D Assets/Vegetation/Tree01/Tree_2.png"
+dest_files=["res://.godot/imported/Tree_2.png-422be5618935927a351c15aff9692d7d.ctex"]
 
 [params]
 
@@ -23,7 +26,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

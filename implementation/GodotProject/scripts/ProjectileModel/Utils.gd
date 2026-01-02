@@ -1,6 +1,31 @@
 extends Node
 class_name Utils
 
+# ============================================================================
+# KOORDINATNI SUSTAVI
+# ============================================================================
+# 
+# MODEL.LATEX (aerospace konvencija):
+#   X = naprijed (nos projektila)
+#   Y = desno
+#   Z = gore
+#
+# GODOT (Y-up konvencija):
+#   X = desno
+#   Y = gore  
+#   Z = naprijed (ali prema kameri, dakle -Z je "naprijed" u sceni)
+#
+# KONVERZIJA: Model → Godot
+#   model_x → -godot_z  (naprijed)
+#   model_y →  godot_x  (desno)
+#   model_z →  godot_y  (gore)
+#
+# KONVERZIJA: Godot → Model
+#   godot_x →  model_y
+#   godot_y →  model_z
+#   godot_z → -model_x
+# ============================================================================
+
 # KONFIGURACIJA
 var rocket_data: RocketData
 
@@ -9,12 +34,40 @@ var rocket_data: RocketData
 func _init(p_rocket_data: RocketData = null):
 	rocket_data = p_rocket_data
 
+# ============================================================================
+# KONVERZIJE KOORDINATNIH SUSTAVA
+# ============================================================================
+
+static func model_to_godot(v: Vector3) -> Vector3:
+	"""Konvertira vektor iz Model.latex sustava u Godot sustav."""
+	# model(x,y,z) → godot(-z, y, x) ... wait, let me think again
+	# model_x (naprijed) → godot -Z
+	# model_y (desno) → godot X  
+	# model_z (gore) → godot Y
+	return Vector3(v.y, v.z, -v.x)
+
+static func godot_to_model(v: Vector3) -> Vector3:
+	"""Konvertira vektor iz Godot sustava u Model.latex sustav."""
+	# godot(x,y,z) → model(-z, x, y)
+	# godot_x (desno) → model_y
+	# godot_y (gore) → model_z
+	# godot_z (naprijed) → -model_x
+	return Vector3(-v.z, v.x, v.y)
+
+static func model_basis_to_godot(b: Basis) -> Basis:
+	"""Konvertira Basis iz Model sustava u Godot sustav."""
+	var x = model_to_godot(b.x)
+	var y = model_to_godot(b.y)
+	var z = model_to_godot(b.z)
+	return Basis(x, y, z)
+
+# ============================================================================
 # ROTACIJSKA MATRICA
+# ============================================================================
 
 func euler_to_rotation_matrix(alpha: float, beta: float, gamma: float) -> Basis:
-	"""konvertira Eulerove kutove u rotacijsku matricu (lokalno -> globalno).
-	TRANSFORMACIJA: Model koristi Z kao gore, Godot koristi Y kao gore.
-	Transformacija: Model(X,Y,Z) → Godot(X,Z,Y)
+	"""konvertira Eulerove kutove u rotacijsku matricu (lokalno -> globalno) u MODEL koordinatama.
+	Koristi se u svim fizičkim izračunima (sile, momenti).
 	"""
 	var cos_a = cos(alpha)
 	var sin_a = sin(alpha)
@@ -23,45 +76,46 @@ func euler_to_rotation_matrix(alpha: float, beta: float, gamma: float) -> Basis:
 	var cos_g = cos(gamma)
 	var sin_g = sin(gamma)
 	
-	# Rotacijska matrica iz modela (Z gore)
-	var x_axis_model = Vector3(
+	# Rotacijska matrica u Model koordinatama (X=naprijed, Y=desno, Z=gore)
+	var x_axis = Vector3(
 		cos_b * cos_g,
 		cos_b * sin_g,
 		-sin_b
 	)
 	
-	var y_axis_model = Vector3(
+	var y_axis = Vector3(
 		sin_a * sin_b * cos_g - cos_a * sin_g,
 		sin_a * sin_b * sin_g + cos_a * cos_g,
 		sin_a * cos_b
 	)
 	
-	var z_axis_model = Vector3(
+	var z_axis = Vector3(
 		sin_a * sin_g + cos_a * sin_b * cos_g,
 		cos_a * sin_b * sin_g - sin_a * cos_g,
 		cos_a * cos_b
 	)
 	
-	# Transformacija iz modela u Godot: (X,Y,Z) → (X,Z,Y)
-	var x_axis = Vector3(x_axis_model.x, x_axis_model.z, x_axis_model.y)
-	var y_axis = Vector3(y_axis_model.x, y_axis_model.z, y_axis_model.y)
-	var z_axis = Vector3(z_axis_model.x, z_axis_model.z, z_axis_model.y)
-	
 	return Basis(x_axis, y_axis, z_axis)
+
+func euler_to_rotation_matrix_godot(alpha: float, beta: float, gamma: float) -> Basis:
+	"""konvertira Eulerove kutove u rotacijsku matricu za GODOT prikaz.
+	Koristi se samo za vizualizaciju u Godot sceni.
+	"""
+	var model_basis = euler_to_rotation_matrix(alpha, beta, gamma)
+	return model_basis_to_godot(model_basis)
 
 # TRANSFORMACIJE
 
 func get_direction_vector(_alpha: float, beta: float, gamma: float) -> Vector3:
-	"""jedinični vektor smjera projektila (lokalna x-os) u globalnom sustavu.
-	TRANSFORMACIJA: Model(X,Y,Z) → Godot(X,Z,Y)
+	"""jedinični vektor smjera projektila (lokalna x-os) u globalnom Model sustavu.
+	Vraća smjer u Model koordinatama (X=naprijed, Y=desno, Z=gore).
 	"""
-	var dir_model = Vector3(
+	# Ovo je smjer u Model koordinatama - X je naprijed
+	return Vector3(
 		cos(beta) * cos(gamma),
 		cos(beta) * sin(gamma),
 		-sin(beta)
 	)
-	# Transformacija (X,Y,Z) → (X,Z,Y)
-	return Vector3(dir_model.x, dir_model.z, dir_model.y)
 
 func get_center_of_mass_position(ref_position: Vector3, alpha: float, beta: float, gamma: float) -> Vector3:
 	"""globalna pozicija težišta iz pozicije baze valjka."""

@@ -19,9 +19,20 @@ var beta: float = 0.0
 var gamma: float = 0.0
 
 # POMOĆNE VARIJABLE - ULAZI SA VREMENSKIM KAŠNJENJEM
+# Pending = čeka na primjenu nakon latencije
+var pending_thrust_input: float = 0.0
+var pending_thrust_time: float = -999.0  # Negativno da se odmah primijeni prvi input
+
+var pending_gimbal_input: Vector2 = Vector2.ZERO
+var pending_gimbal_time: float = -999.0
+
+# Active = trenutno aktivni inputi (nakon latencije)
+var active_thrust_input: float = 0.0
+var active_gimbal_input: Vector2 = Vector2.ZERO
+
+# Legacy varijable (za kompatibilnost)
 var last_thrust_input: float = 0.0
 var last_thrust_time: float = 0.0
-
 var last_gimbal_input: Vector2 = Vector2.ZERO
 var last_gimbal_time: float = 0.0
 
@@ -41,6 +52,14 @@ func reset():
 	alpha = 0.0
 	beta = 0.0
 	gamma = 0.0
+	# Latency sustav
+	pending_thrust_input = 0.0
+	pending_thrust_time = -999.0
+	pending_gimbal_input = Vector2.ZERO
+	pending_gimbal_time = -999.0
+	active_thrust_input = 0.0
+	active_gimbal_input = Vector2.ZERO
+	# Legacy
 	last_thrust_input = 0.0
 	last_thrust_time = 0.0
 	last_gimbal_input = Vector2.ZERO

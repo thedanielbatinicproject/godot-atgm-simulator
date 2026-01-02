@@ -14,9 +14,10 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 # KONFIGURACIJA PROJEKTILA
 @export var rocket_data: RocketData
 
-# POČETNE VARIJABLE STANJA (Y je gore u Godotu)
+# POČETNE VARIJABLE STANJA (Godot koordinate - Y je gore, -Z je naprijed)
+# Ovo se automatski konvertira u Model koordinate (X naprijed, Z gore) u Projectile.gd
 @export var initial_position: Vector3 = Vector3.ZERO
-@export var initial_velocity: Vector3 = Vector3(100, 0, 0)
+@export var initial_velocity: Vector3 = Vector3(0, 0, -100)  # -Z = naprijed u Godotu = X u Modelu
 @export var initial_alpha: float = 0.0
 @export var initial_beta: float = 0.0
 @export var initial_gamma: float = 0.0

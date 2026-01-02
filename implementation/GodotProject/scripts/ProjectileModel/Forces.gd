@@ -16,16 +16,20 @@ func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = n
 # SILE
 
 func calculate_gravity(_state: StateVariables) -> Vector3:
-	"""gravitacijska sila (globalni sustav). Y je gore, pa je sila negativna (prema dolje)."""
+	"""gravitacijska sila (Model koordinatni sustav). Z je gore u modelu, pa je sila negativna u Z."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
-	return Vector3(0, -rocket_data.mass * environment.gravity, 0)
+	# Model sustav: X=naprijed, Y=desno, Z=gore
+	# Gravitacija djeluje prema dolje, tj. -Z smjer
+	return Vector3(0, 0, -rocket_data.mass * environment.gravity)
 
 func calculate_buoyancy(_state: StateVariables) -> Vector3:
-	"""uzgonska sila (globalni sustav). Y je gore, pa je sila pozitivna (prema gore)."""
+	"""uzgonska sila (Model koordinatni sustav). Z je gore u modelu, pa je sila pozitivna u Z."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
-	return Vector3(0, environment.air_density * environment.gravity * rocket_data.volume, 0)
+	# Model sustav: X=naprijed, Y=desno, Z=gore
+	# Uzgon djeluje prema gore, tj. +Z smjer
+	return Vector3(0, 0, environment.air_density * environment.gravity * rocket_data.volume)
 
 func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
 	"""
@@ -49,27 +53,18 @@ func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, curr
 	"""
 	potisna sila u lokalnom sustavu, bez transformacije.
 	Koristi se za kalkulaciju momenta.
+	Koristi active_ varijable koje su već prošle kroz latency sustav.
 	"""
 	if not rocket_data:
 		return Vector3.ZERO
 	
-	var _u_T = guidance_input.x
-	var _u_x = guidance_input.y
-	var _u_y = guidance_input.z
+	# Koristi aktivne inpute (već prošli latenciju u Projectile._physics_process)
+	var thrust_magnitude = rocket_data.max_thrust * state.active_thrust_input
 	
-	# provjera latencije za throttle
-	var thrust_magnitude = 0.0
-	if current_time - state.last_thrust_time >= rocket_data.thrust_latency:
-		thrust_magnitude = rocket_data.max_thrust * state.last_thrust_input
-	
-	# provjera latencije za gimbal
-	var gimbal_angle = 0.0
-	var gimbal_azimuth = 0.0
-	if current_time - state.last_gimbal_time >= rocket_data.gimbal_latency:
-		var gimbal_magnitude = sqrt(state.last_gimbal_input.x * state.last_gimbal_input.x + 
-									state.last_gimbal_input.y * state.last_gimbal_input.y)
-		gimbal_angle = rocket_data.max_thrust_angle * gimbal_magnitude
-		gimbal_azimuth = atan2(state.last_gimbal_input.y, state.last_gimbal_input.x)
+	# Gimbal iz aktivnog inputa
+	var gimbal_magnitude = state.active_gimbal_input.length()
+	var gimbal_angle = rocket_data.max_thrust_angle * gimbal_magnitude
+	var gimbal_azimuth = atan2(state.active_gimbal_input.y, state.active_gimbal_input.x)
 	
 	# limit na maksimalni kut
 	gimbal_angle = min(gimbal_angle, rocket_data.max_thrust_angle)
@@ -85,14 +80,19 @@ func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, curr
 
 func calculate_drag(state: StateVariables) -> Vector3:
 	"""
-	aerodinamička sila otpora.
+	aerodinamička sila otpora u Model koordinatama.
 	relativna brzina računa se: v_rel = v_proj - v_wind
+	Wind funkcija vraća vjetar u Godot koordinatama, treba konvertirati u Model koordinate.
 	"""
 	if not rocket_data or not environment or not utils:
 		return Vector3.ZERO
 	
 	# relativna brzina
-	var wind_velocity = environment.get_wind_at_position(state.position)
+	# Pozicija za wind lookup treba biti u Godot koordinatama
+	var position_godot = Utils.model_to_godot(state.position)
+	var wind_velocity_godot = environment.get_wind_at_position(position_godot)
+	# Konvertiraj wind u Model koordinate
+	var wind_velocity = Utils.godot_to_model(wind_velocity_godot)
 	var v_rel = state.velocity - wind_velocity
 	var v_rel_mag = v_rel.length()
 	

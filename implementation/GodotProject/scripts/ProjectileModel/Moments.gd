@@ -30,14 +30,21 @@ func calculate_thrust_moment(_state: StateVariables, thrust_force_local: Vector3
 	
 	# moment: M = r × F (vektorski umnožak)
 	var moment_local = r_cm.cross(thrust_force_local)
+	#print("DEBUG thrust_moment: r_cm=(%.3f, %.3f, %.3f), F=(%.3f, %.3f, %.3f), M=(%.3f, %.3f, %.3f)" % [r_cm.x, r_cm.y, r_cm.z, thrust_force_local.x, thrust_force_local.y, thrust_force_local.z, moment_local.x, moment_local.y, moment_local.z])
 	
 	return moment_local
 
 func calculate_stabilization_moment(state: StateVariables, _environment_ref: Resource = null) -> Vector3:
+	"""Aerodinamički stabilizacijski moment u Model koordinatama."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
 	
-	var wind_velocity = environment.get_wind_at_position(state.position)
+	# Konvertira poziciju u Godot za wind lookup
+	var position_godot = Utils.model_to_godot(state.position)
+	var wind_velocity_godot = environment.get_wind_at_position(position_godot)
+	# Konvertira wind u Model koordinate
+	var wind_velocity = Utils.godot_to_model(wind_velocity_godot)
+	
 	var v_rel_global = state.velocity - wind_velocity
 	var v_rel_mag = v_rel_global.length()
 	
@@ -72,6 +79,11 @@ func calculate_stabilization_moment(state: StateVariables, _environment_ref: Res
 func calculate_total(state: StateVariables, thrust_force_local: Vector3, _wind_velocity: Vector3 = Vector3.ZERO) -> Vector3:
 	var m_thrust = calculate_thrust_moment(state, thrust_force_local)
 	var m_stab = calculate_stabilization_moment(state)
-	var b_rotational = 0.2
+	
+	# Rotacijski otpor (aerodinamički) - proporcionalan kutnoj brzini
+	# b treba biti dovoljno velik da priguši giroskopske efekte
+	# Za malu raketu sa I ~ 0.002, b ~ 0.01-0.1 je razumno
+	var b_rotational = 0.05  # N·m·s/rad
 	var m_rotational_drag = -b_rotational * state.angular_velocity
-	return m_thrust + m_stab + m_rotational_drag
+	
+	return m_thrust + m_rotational_drag  # + m_stab kad bude stabilan

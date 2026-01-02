@@ -28,7 +28,7 @@ debug_enabled = true
 debug_interval = 1.0
 
 [node name="Camera3D" type="Camera3D" parent="Projectile"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.71048164, 16.248253, -0.40437222)
+transform = Transform3D(1, 0, 0, 0, -1, -8.742278e-08, 0, 8.742278e-08, -1, -0.71048164, 16.248253, -0.40437222)
 current = true
 
 [node name="ProjectileVisual" type="CSGSphere3D" parent="Projectile"]

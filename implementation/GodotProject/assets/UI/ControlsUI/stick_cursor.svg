@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="cursor_grad" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#ff6666"/>
+      <stop offset="50%" stop-color="#ff3333"/>
+      <stop offset="100%" stop-color="#cc0000"/>
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer glow -->
+  <circle cx="32" cy="32" r="24" fill="#ff3333" opacity="0.3" filter="url(#glow)"/>
+  
+  <!-- Main cursor -->
+  <circle cx="32" cy="32" r="18" fill="url(#cursor_grad)"/>
+  
+  <!-- Highlight -->
+  <ellipse cx="28" cy="26" rx="8" ry="6" fill="white" opacity="0.3"/>
+  
+  <!-- Border -->
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#ff6666" stroke-width="2"/>
+</svg>

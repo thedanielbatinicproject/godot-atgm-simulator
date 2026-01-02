@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://t1qwswh1yy54"
-path="res://.godot/imported/DB2X2_L01.png-ef5032ce0641d74a401539623b71dada.ctex"
+uid="uid://bs4bf55x5i6n1"
+path="res://.godot/imported/stick_cursor.png-4a6e71a87cc16297b7ba99d8c079a5b8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/3D Assets/Vegetation/Tree01/Tree.fbm/DB2X2_L01.png"
-dest_files=["res://.godot/imported/DB2X2_L01.png-ef5032ce0641d74a401539623b71dada.ctex"]
+source_file="res://assets/UI/ControlsUI/stick_cursor.png"
+dest_files=["res://.godot/imported/stick_cursor.png-4a6e71a87cc16297b7ba99d8c079a5b8.ctex"]
 
 [params]
 
