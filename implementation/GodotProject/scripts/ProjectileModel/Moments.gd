@@ -86,4 +86,4 @@ func calculate_total(state: StateVariables, thrust_force_local: Vector3, _wind_v
 	var b_rotational = 0.05  # N·m·s/rad
 	var m_rotational_drag = -b_rotational * state.angular_velocity
 	
-	return m_thrust + m_rotational_drag  # + m_stab kad bude stabilan
+	return m_thrust + m_rotational_drag  + m_stab# kad bude stabilan

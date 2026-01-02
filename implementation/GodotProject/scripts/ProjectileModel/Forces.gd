@@ -16,20 +16,20 @@ func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = n
 # SILE
 
 func calculate_gravity(_state: StateVariables) -> Vector3:
-	"""gravitacijska sila (Model koordinatni sustav). Z je gore u modelu, pa je sila negativna u Z."""
+	"""gravitacijska sila."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
 	# Model sustav: X=naprijed, Y=desno, Z=gore
 	# Gravitacija djeluje prema dolje, tj. -Z smjer
-	return Vector3(0, 0, -rocket_data.mass * environment.gravity)
+	return Vector3(0, -rocket_data.mass * environment.gravity, 0)
 
 func calculate_buoyancy(_state: StateVariables) -> Vector3:
-	"""uzgonska sila (Model koordinatni sustav). Z je gore u modelu, pa je sila pozitivna u Z."""
+	"""sila uzgona"""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
 	# Model sustav: X=naprijed, Y=desno, Z=gore
 	# Uzgon djeluje prema gore, tj. +Z smjer
-	return Vector3(0, 0, environment.air_density * environment.gravity * rocket_data.volume)
+	return Vector3(0, environment.air_density * environment.gravity * rocket_data.volume, 0)
 
 func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
 	"""
@@ -40,12 +40,12 @@ func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_ti
 	if not rocket_data or not utils:
 		return Vector3.ZERO
 	
-	# izračunaj lokalnu silu
+	# izračunaj lokalnu silu (reakcijska sila potiska - gura projektil naprijed)
 	var thrust_local = calculate_thrust_local(state, guidance_input, current_time)
 	
-	# transformacija u globalni sustav
+	# transformacija u globalni sustav (bez negacije jer thrust_local je već reakcijska sila)
 	var rotation_matrix = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
-	var thrust_global = rotation_matrix * (-thrust_local)
+	var thrust_global = rotation_matrix * thrust_local
 	
 	return thrust_global
 
@@ -59,7 +59,7 @@ func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, curr
 		return Vector3.ZERO
 	
 	# Koristi aktivne inpute (već prošli latenciju u Projectile._physics_process)
-	var thrust_magnitude = rocket_data.max_thrust * state.active_thrust_input
+	var thrust_magnitude = rocket_data.max_thrust * minf(state.active_thrust_input, 1.0)
 	
 	# Gimbal iz aktivnog inputa
 	var gimbal_magnitude = state.active_gimbal_input.length()
@@ -69,7 +69,7 @@ func calculate_thrust_local(state: StateVariables, guidance_input: Vector3, curr
 	# limit na maksimalni kut
 	gimbal_angle = min(gimbal_angle, rocket_data.max_thrust_angle)
 	
-	# vektor sile u lokalnom sustavu (propulzor gleda prema bazi, tako je sila u suprotnom smjeru)
+	# Reakcijska sila potiska u lokalnom sustavu
 	var thrust_local = thrust_magnitude * Vector3(
 		cos(gimbal_angle),
 		sin(gimbal_angle) * cos(gimbal_azimuth),
