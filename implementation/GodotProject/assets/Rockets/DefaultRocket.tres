@@ -4,5 +4,7 @@
 
 [resource]
 script = ExtResource("1_5qbo8")
+cylinder_height = 0.2
+mass = 100.0
 max_thrust = 200.0
 metadata/_custom_type_script = "uid://c6btekbi0in50"

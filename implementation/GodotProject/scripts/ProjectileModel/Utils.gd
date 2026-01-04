@@ -42,12 +42,16 @@ func euler_to_rotation_matrix(alpha: float, beta: float, gamma: float) -> Basis:
 	"""
 	Konvertira Eulerove kutove u rotacijsku matricu (lokalno -> globalno).
 	
-	Redoslijed rotacija: Z-Y-X (roll-yaw-pitch)
-	  1. Roll (γ) oko Z osi
-	  2. Yaw (β) oko Y osi  
-	  3. Pitch (α) oko X osi
+	KONVENCIJA (standardna matematička rotacija - pravilo desne ruke):
+	  - α (pitch) oko X osi: α > 0 rotira Z prema -Y (nos DOLJE)
+	  - β (yaw) oko Y osi: β > 0 rotira Z prema +X (nos DESNO)  
+	  - γ (roll) oko Z osi: γ > 0 rotira X prema +Y
 	
-	Ovo daje matricu R = Rx(α) * Ry(β) * Rz(γ)
+	ZA PROJEKTIL KOJI GLEDA GORE: koristi α = -90° (ili +270°)
+	ZA PROJEKTIL KOJI GLEDA DOLJE: koristi α = +90°
+	
+	Redoslijed primjene: R = Rx(α) * Ry(β) * Rz(γ)
+	(prvo roll, pa yaw, pa pitch - gledano s desna na lijevo)
 	"""
 	var cos_a = cos(alpha)  # pitch
 	var sin_a = sin(alpha)
@@ -91,10 +95,13 @@ func get_direction_vector(alpha: float, beta: float, _gamma: float) -> Vector3:
 	Jedinični vektor smjera projektila (lokalna Z os = nos) u globalnom sustavu.
 	
 	Ovo je treća kolona rotacijske matrice (Z os).
-	Za nos projektila koji gleda u +Z:
-	  - beta=0, alpha=0: nos gleda u +Z (naprijed)
-	  - beta>0: nos skreće udesno (+X)
-	  - alpha>0: nos ide gore (+Y)
+	
+	KONVENCIJA (standardna matematička):
+	  - alpha=0, beta=0: nos gleda u +Z (naprijed)
+	  - beta > 0: nos skreće DESNO (+X smjer)
+	  - alpha > 0: nos ide DOLJE (-Y smjer) - matematički pozitivna rotacija oko X
+	  
+	ZA NOS GORE: koristi alpha < 0 (npr. alpha = -90° = nos vertikalno gore)
 	"""
 	var cos_a = cos(alpha)
 	var sin_a = sin(alpha)
@@ -102,8 +109,8 @@ func get_direction_vector(alpha: float, beta: float, _gamma: float) -> Vector3:
 	var sin_b = sin(beta)
 	
 	return Vector3(
-		sin_b,           # X komponenta (yaw utječe)
-		-sin_a * cos_b,  # Y komponenta (pitch utječe)
+		sin_b,           # X komponenta (yaw: beta>0 = nos desno)
+		-sin_a * cos_b,  # Y komponenta (pitch: alpha>0 = nos dolje!)
 		cos_a * cos_b    # Z komponenta (naprijed)
 	)
 

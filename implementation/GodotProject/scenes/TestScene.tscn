@@ -1,5 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://co0lmqnhq86p7"]
+[gd_scene load_steps=9 format=3 uid="uid://co0lmqnhq86p7"]
 
+[ext_resource type="Texture2D" uid="uid://vrwp01lc367t" path="res://assets/Textures/Dirt/photo-ground-texture-pattern.jpg" id="1_fws1a"]
 [ext_resource type="PackedScene" uid="uid://c4urpl8s6i362" path="res://assets/3D Assets/Vegetation/Tree01/Tree.fbx" id="1_n77mx"]
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_rlkm5"]
 [ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/DefaultScenario.tres" id="2_rlkm5"]
@@ -8,6 +9,8 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
 albedo_color = Color(0.5, 0.5, 0.5, 1)
+albedo_texture = ExtResource("1_fws1a")
+uv1_scale = Vector3(100, 100, 100)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
 albedo_color = Color(0.8, 0, 0, 1)
@@ -28,10 +31,9 @@ script = ExtResource("1_rlkm5")
 scenario_data = ExtResource("2_rlkm5")
 debug_enabled = true
 debug_interval = 1.0
-calculate_moments = false
 
 [node name="Camera3D" type="Camera3D" parent="Projectile"]
-transform = Transform3D(-1, 0, 1.509958e-07, 0, 1, 0, -1.509958e-07, 0, -1, 0, 0, 0.485)
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 0, 0, 0.485)
 current = true
 
 [node name="ProjectileVisual" type="CSGSphere3D" parent="Projectile"]

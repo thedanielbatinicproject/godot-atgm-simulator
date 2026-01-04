@@ -59,14 +59,22 @@ func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_ti
 
 func calculate_thrust_local(state: StateVariables, _guidance_input: Vector3, _current_time: float) -> Vector3:
 	"""
-	Potisna sila u LOKALNOM sustavu projektila.
+	Potisna sila (REAKCIJSKA) u LOKALNOM sustavu projektila.
 	
 	Lokalni sustav: Z = naprijed (nos), X = desno, Y = gore
 	Propulzor je na bazi (Z=0) i gura projektil NAPRIJED (+Z).
 	
-	Gimbal otklon:
-	  - gimbal_x > 0: mlaznica skreće desno -> sila ide lijevo -> nos ide desno
-	  - gimbal_y > 0: mlaznica skreće gore -> sila ide dolje -> nos ide gore
+	FIZIKA GIMBALA:
+	  1. Korisnik daje input (u_x, u_y)
+	  2. Mlaznica se otklanja u smjeru inputa
+	  3. Mlaz izlazi u tom smjeru
+	  4. REAKCIJSKA sila je SUPROTNA smjeru mlaza
+	
+	Primjer za u_x > 0 (joystick desno):
+	  - Mlaznica se otklanja DESNO (+X)
+	  - Mlaz izlazi s komponentom u +X smjeru
+	  - Reakcijska sila ima komponentu u -X smjeru
+	  - Ova sila stvara moment koji okreće nos DESNO
 	"""
 	if not rocket_data:
 		return Vector3.ZERO
@@ -80,11 +88,12 @@ func calculate_thrust_local(state: StateVariables, _guidance_input: Vector3, _cu
 	var gimbal_azimuth = atan2(state.active_gimbal_input.y, state.active_gimbal_input.x)
 	
 	# Reakcijska sila potiska u lokalnom sustavu
-	# Z = naprijed (glavna komponenta), X/Y = bočne komponente od gimbala
+	# Glavna komponenta (+Z) gura naprijed
+	# Bočne komponente su SUPROTNE od smjera otklona mlaznice (reakcija!)
 	var thrust_local = thrust_magnitude * Vector3(
-		sin(gimbal_angle) * cos(gimbal_azimuth),  # X = desno
-		sin(gimbal_angle) * sin(gimbal_azimuth),  # Y = gore
-		cos(gimbal_angle)                          # Z = naprijed (glavna)
+		-sin(gimbal_angle) * cos(gimbal_azimuth),  # X: MINUS jer je reakcija
+		-sin(gimbal_angle) * sin(gimbal_azimuth),  # Y: MINUS jer je reakcija
+		cos(gimbal_angle)                           # Z = naprijed (glavna, uvijek +)
 	)
 	
 	return thrust_local
@@ -135,7 +144,7 @@ func calculate_drag(state: StateVariables) -> Vector3:
 	
 	# Limiter - drag ne smije preći 50% max potiska
 	var drag_mag = drag_force.length()
-	var max_drag = 0.5 * rocket_data.max_thrust
+	var max_drag = rocket_data.max_thrust + rocket_data.mass * environment.gravity
 	if drag_mag > max_drag:
 		drag_force = drag_force.normalized() * max_drag
 	
@@ -152,4 +161,4 @@ func calculate_total(state: StateVariables, guidance_input: Vector3, current_tim
 	var f_thrust = calculate_thrust(state, guidance_input, current_time)
 	var f_drag = calculate_drag(state)
 	
-	return f_gravity + f_buoyancy + f_thrust #+ f_drag
+	return f_gravity + f_buoyancy + f_thrust + f_drag

@@ -172,8 +172,8 @@ func _process(_delta):
 	if not enabled:
 		return
 	
-	var prev_x = gimbal_x
-	var prev_y = gimbal_y
+	#var prev_x = gimbal_x
+	#var prev_y = gimbal_y
 	var input_handled = false
 	
 	# JOYSTICK - desna gljivica

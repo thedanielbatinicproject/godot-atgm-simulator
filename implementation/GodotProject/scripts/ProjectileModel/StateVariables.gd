@@ -83,7 +83,7 @@ func get_state_info() -> String:
 	"""vraća formatiran string s trenutnim stanjem."""
 	var pitch_deg = "%.2f" % rad_to_deg(alpha)  # alpha = pitch
 	var yaw_deg = "%.2f" % rad_to_deg(beta)     # beta = yaw
-	var roll_deg = "%.2f" % rad_to_deg(gamma)   # gamma = roll
+	#var roll_deg = "%.2f" % rad_to_deg(gamma)   # gamma = roll
 	var pos_x = "%.3f" % position.x
 	var pos_y = "%.3f" % position.y
 	var pos_z = "%.3f" % position.z

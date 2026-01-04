@@ -163,11 +163,13 @@ func _physics_process(delta: float):
 	var M_x = m_total.x  # pitch moment
 	var M_y = m_total.y  # yaw moment
 	var M_z = m_total.z  # roll moment
+	# ========== ORIJENTACIJA ==========
 	
+	var omega_x = state.angular_velocity.x
+	var omega_y = state.angular_velocity.y
+	var omega_z = state.angular_velocity.z
+
 	for _substep in range(rotation_substeps):
-		var omega_x = state.angular_velocity.x
-		var omega_y = state.angular_velocity.y
-		var omega_z = state.angular_velocity.z
 		
 		# Eulerove jednadžbe krutog tijela
 		var omega_x_dot = (M_x / I_x) - ((I_z - I_y) / I_x) * omega_y * omega_z
@@ -184,10 +186,7 @@ func _physics_process(delta: float):
 	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_angular_vel, max_angular_vel)
 	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_angular_vel, max_angular_vel)
 	
-	# ========== ORIJENTACIJA ==========
-	var omega_x = state.angular_velocity.x
-	var omega_y = state.angular_velocity.y
-	var omega_z = state.angular_velocity.z
+	
 	
 	var sin_alpha = sin(state.alpha)
 	var cos_alpha = cos(state.alpha)
