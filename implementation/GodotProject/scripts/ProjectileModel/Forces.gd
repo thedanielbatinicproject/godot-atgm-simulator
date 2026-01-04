@@ -25,13 +25,13 @@ func calculate_buoyancy(_state: StateVariables) -> Vector3:
 	return Vector3(0, environment.air_density * environment.gravity * rocket_data.volume, 0)
 
 func calculate_thrust(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
-	"""Potisna sila u globalnom sustavu."""
-	if not rocket_data or not utils:
+	"""Potisna sila u globalnom sustavu. Koristi rotation_basis direktno (izbjegava gimbal lock)."""
+	if not rocket_data:
 		return Vector3.ZERO
 	
 	var thrust_local = calculate_thrust_local(state, guidance_input, current_time)
-	var rotation_matrix = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
-	return rotation_matrix * thrust_local
+	# Koristi rotation_basis umjesto Euler kuteva (gimbal lock problem!)
+	return state.rotation_basis * thrust_local
 
 func calculate_thrust_local(state: StateVariables, _guidance_input: Vector3, _current_time: float) -> Vector3:
 	"""
@@ -55,7 +55,7 @@ func calculate_thrust_local(state: StateVariables, _guidance_input: Vector3, _cu
 
 func calculate_drag(state: StateVariables) -> Vector3:
 	"""Aerodinamički otpor: F = -0.5 * ρ * C_D * A * |v| * v"""
-	if not rocket_data or not environment or not utils:
+	if not rocket_data or not environment:
 		return Vector3.ZERO
 	
 	var wind_velocity = environment.get_wind_at_position(state.position)
@@ -65,7 +65,8 @@ func calculate_drag(state: StateVariables) -> Vector3:
 	if v_rel_mag < 0.1:
 		return Vector3.ZERO
 	
-	var direction = utils.get_direction_vector(state.alpha, state.beta, state.gamma)
+	# Smjer nosa iz rotation_basis (izbjegava gimbal lock)
+	var direction = state.rotation_basis.z.normalized()
 	var v_rel_unit = v_rel / v_rel_mag
 	var cos_theta = clampf(direction.dot(v_rel_unit), -1.0, 1.0)
 	var sin_theta = sqrt(1.0 - cos_theta * cos_theta)
@@ -95,12 +96,9 @@ func calculate_velocity_alignment(state: StateVariables) -> Vector3:
 	"""
 	Usklađivanje brzine s orijentacijom projektila.
 	
-	Kada projektil leti ukošeno, aerodinamičke sile usporavaju bočno klizanje
-	i usmjeravaju brzinu prema smjeru nosa. Ovo modelira realno ponašanje
-	projektila koji "buši" zrak umjesto da "klizi".
-	
-	F_align = -k * m * v_perp
-	gdje je v_perp komponenta brzine okomita na os projektila.
+	Kada projektil leti ukošeno, otpor zraka na bok projektila
+	stvara silu koja "rotira" vektor brzine prema smjeru nosa.
+	Rezultat: brzina konvergira prema osi projektila.
 	"""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
@@ -112,29 +110,42 @@ func calculate_velocity_alignment(state: StateVariables) -> Vector3:
 	if v_rel_mag < 0.5:
 		return Vector3.ZERO
 	
-	# Smjer nosa projektila (lokalna Z os u globalnom sustavu)
-	var z_proj = state.rotation_basis.z
+	# Smjer nosa projektila
+	var z_proj = state.rotation_basis.z.normalized()
 	
 	# Komponenta brzine u smjeru nosa
 	var v_parallel_mag = v_rel.dot(z_proj)
 	var v_parallel = v_parallel_mag * z_proj
 	
-	# Bočna komponenta brzine (okomita na nos)
+	# Bočna komponenta brzine
 	var v_perp = v_rel - v_parallel
 	var v_perp_mag = v_perp.length()
 	
 	if v_perp_mag < 0.1:
 		return Vector3.ZERO
 	
-	# Sila koja usporava bočno klizanje, proporcionalna brzini i gustoći zraka
+	# Sila koja PRENOSI bočnu brzinu u smjer nosa:
+	# - Smanjuje v_perp (sila suprotna od v_perp)
+	# - Povećava v_parallel (sila u smjeru z_proj)
+	# Očuvanje energije: |F_perp| ≈ |F_parallel|
 	var k = rocket_data.velocity_alignment_coefficient
 	var rho = environment.air_density
 	var A_side = rocket_data.radius * (2.0 * rocket_data.cylinder_height + rocket_data.cone_height)
 	
-	# Kvadratna ovisnost o brzini (kao drag)
-	var alignment_force = -k * rho * A_side * v_perp_mag * v_perp
+	var force_mag = k * rho * A_side * v_perp_mag * v_perp_mag
 	
-	return alignment_force
+	# Smjer sile: od v_perp prema z_proj (rotira brzinu prema nosu)
+	var v_perp_unit = v_perp / v_perp_mag
+	
+	# Komponenta koja smanjuje bočno klizanje
+	var f_reduce_perp = -force_mag * v_perp_unit
+	
+	# Komponenta koja dodaje brzinu u smjeru nosa (očuvanje količine gibanja)
+	# Predznak ovisi o tome leti li projektil naprijed ili natrag
+	var sign_parallel = 1.0 if v_parallel_mag >= 0 else -1.0
+	var f_add_parallel = force_mag * sign_parallel * z_proj
+	
+	return f_reduce_perp + f_add_parallel
 
 func calculate_total(state: StateVariables, guidance_input: Vector3, current_time: float) -> Vector3:
 	"""Ukupna vanjska sila."""

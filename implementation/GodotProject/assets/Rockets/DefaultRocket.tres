@@ -10,6 +10,6 @@ max_thrust = 200.0
 max_thrust_angle = 0.17453292519943295
 thrust_latency = 0.0
 gimbal_latency = 0.0
-stabilization_moment_coefficient = 5.0
+velocity_alignment_coefficient = 2.0
 rotational_damping_coefficient = 2.0
 metadata/_custom_type_script = "uid://c6btekbi0in50"

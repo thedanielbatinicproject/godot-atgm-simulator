@@ -5,12 +5,13 @@
 
 [resource]
 script = ExtResource("1_rvgt1")
-scenario_name = "Vukovar"
-scenario_description = "Vukovar"
+scenario_name = "..."
+scenario_description = "..."
 rocket_data = ExtResource("1_tg1lu")
 initial_position = Vector3(50, 3000, 25)
 initial_velocity = Vector3(0, 0, 0)
 initial_alpha = -1.5707963267948966
+gravity = 20.0
 wind_type = "constant"
 wind_amplitudes = Vector3(0, 0, 0)
 wind_frequencies = Vector3(0, 0, 0)
