@@ -42,12 +42,14 @@ class_name RocketData
 @export_range(0.0, 1.0, 0.001, "suffix:s") var gimbal_latency: float = 0.02
 
 @export_group("⚠️ Aerodynamics (Advanced)")
-## Aerodynamic stabilization moment coefficient (C_M,α). 
-## Controls how strongly the projectile aligns with flight direction.
-@export_range(0.0, 10.0, 0.1) var stabilization_moment_coefficient: float = 2.0
-## Rotational damping coefficient in N·m·s/rad.
-## Higher values = faster damping of angular oscillations.
-@export_range(0.0, 5.0, 0.01, "suffix:N·m·s/rad") var rotational_damping_coefficient: float = 0.5
+## Koeficijent usklađivanja brzine s orijentacijom projektila.
+## Veće vrijednosti = brzina se brže usklađuje sa smjerom nosa.
+@export_range(0.0, 5.0, 0.1) var velocity_alignment_coefficient: float = 0.5
+## Koeficijent rotacijskog prigušenja (kvadratni model).
+## Veće vrijednosti = brže prigušenje kutne brzine.
+@export_range(0.0, 1.0, 0.01, "suffix:N·m·s²/rad²") var rotational_damping_coefficient: float = 0.1
+## Maksimalna kutna brzina u rad/s.
+@export_range(1.0, 50.0, 1.0, "suffix:rad/s") var max_angular_velocity: float = 10.0
 
 @export_group("🚫 Drag (Do Not Modify)")
 ## Form drag coefficient (C_D0). Determines drag at zero angle of attack.
@@ -164,8 +166,9 @@ Latency:
 Aerodynamics:
   C_D0:                    %.2f
   k (viscous):             %.0f
-  C_M,α (stabilization):   %.2f
-  Rotational damping:      %.2f N·m·s/rad
+  Velocity alignment:      %.2f
+  Rotational damping:      %.2f N·m·s²/rad²
+  Max angular velocity:    %.1f rad/s
 ===============================
 """ % [
 		radius, cylinder_height, cone_height, volume,
@@ -174,7 +177,7 @@ Aerodynamics:
 		max_thrust, rad_to_deg(max_thrust_angle),
 		thrust_latency, gimbal_latency,
 		drag_coefficient_form, drag_coefficient_viscous_factor, 
-		stabilization_moment_coefficient, rotational_damping_coefficient
+		velocity_alignment_coefficient, rotational_damping_coefficient, max_angular_velocity
 	]
 	
 	return info

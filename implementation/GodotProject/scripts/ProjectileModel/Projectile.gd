@@ -178,11 +178,11 @@ func _physics_process(delta: float):
 		state.angular_velocity.y += omega_y_dot * sub_dt
 		state.angular_velocity.z += omega_z_dot * sub_dt
 	
-	# Clamp kutne brzine
-	var max_angular_vel = 20.0
-	state.angular_velocity.x = clampf(state.angular_velocity.x, -max_angular_vel, max_angular_vel)
-	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_angular_vel, max_angular_vel)
-	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_angular_vel, max_angular_vel)
+	# Ograničenje kutne brzine (parametar iz RocketData)
+	var max_omega = rocket_data.max_angular_velocity
+	state.angular_velocity.x = clampf(state.angular_velocity.x, -max_omega, max_omega)
+	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_omega, max_omega)
+	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_omega, max_omega)
 	
 	# ========== ORIJENTACIJA - DIREKTNA INTEGRACIJA ROTACIJSKE MATRICE ==========
 	# Ovo izbjegava gimbal lock problem koji imaju Euler kutovi!
