@@ -30,7 +30,7 @@ rotation_order = 5
 script = ExtResource("1_rlkm5")
 scenario_data = ExtResource("2_rlkm5")
 debug_enabled = true
-debug_interval = 1.0
+debug_interval = 0.3
 
 [node name="Camera3D" type="Camera3D" parent="Projectile"]
 transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 0, 0, 0.485)

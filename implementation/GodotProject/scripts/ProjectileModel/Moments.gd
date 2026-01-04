@@ -118,6 +118,7 @@ func calculate_total(state: StateVariables, thrust_force_local: Vector3, _wind_v
 	var m_stab_local = state.rotation_basis.transposed() * m_stab_global
 	
 	# Rotacijsko prigušenje (aerodinamičko) - proporcionalno kutnoj brzini
+	# KRITIČNO za stabilnost! Bez ovoga projektil se vrti zauvijek.
 	var m_rotational_drag = -rocket_data.rotational_damping_coefficient * state.angular_velocity
 	
 	var m_total = m_thrust + m_rotational_drag + m_stab_local

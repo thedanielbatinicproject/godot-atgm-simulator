@@ -163,15 +163,13 @@ func _physics_process(delta: float):
 	var M_x = m_total.x  # pitch moment
 	var M_y = m_total.y  # yaw moment
 	var M_z = m_total.z  # roll moment
-	# ========== ORIJENTACIJA ==========
 	
-	var omega_x = state.angular_velocity.x
-	var omega_y = state.angular_velocity.y
-	var omega_z = state.angular_velocity.z
-
 	for _substep in range(rotation_substeps):
+		var omega_x = state.angular_velocity.x
+		var omega_y = state.angular_velocity.y
+		var omega_z = state.angular_velocity.z
 		
-		# Eulerove jednadžbe krutog tijela
+		# Eulerove jednadžbe krutog tijela (u lokalnom sustavu)
 		var omega_x_dot = (M_x / I_x) - ((I_z - I_y) / I_x) * omega_y * omega_z
 		var omega_y_dot = (M_y / I_y) - ((I_x - I_z) / I_y) * omega_z * omega_x
 		var omega_z_dot = (M_z / I_z) - ((I_y - I_x) / I_z) * omega_x * omega_y
@@ -186,34 +184,35 @@ func _physics_process(delta: float):
 	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_angular_vel, max_angular_vel)
 	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_angular_vel, max_angular_vel)
 	
+	# ========== ORIJENTACIJA - DIREKTNA INTEGRACIJA ROTACIJSKE MATRICE ==========
+	# Ovo izbjegava gimbal lock problem koji imaju Euler kutovi!
+	#
+	# Kutna brzina je u LOKALNOM sustavu, ali rotira GLOBALNE osi.
+	# Transformiramo omega u globalni sustav i primjenjujemo malu rotaciju.
 	
+	var omega_local = state.angular_velocity
+	var omega_global = state.rotation_basis * omega_local
 	
-	var sin_alpha = sin(state.alpha)
-	var cos_alpha = cos(state.alpha)
-	var cos_beta = cos(state.beta)
-	var tan_beta = tan(state.beta)
+	# Mala rotacija: R_new = R_delta * R_old
+	# R_delta ≈ I + [ω×] * dt  (za male kuteve)
+	var angle = omega_global.length() * delta
+	if angle > 0.0001:
+		var axis = omega_global.normalized()
+		var delta_rotation = Basis(axis, angle)
+		state.rotation_basis = delta_rotation * state.rotation_basis
 	
-	# Kinematičke relacije: ω → (α̇, β̇, γ̇)
-	var alpha_dot = omega_x + tan_beta * (omega_y * sin_alpha + omega_z * cos_alpha)
-	var beta_dot = omega_y * cos_alpha - omega_z * sin_alpha
-	var gamma_dot = 0.0
-	if abs(cos_beta) > 0.001:
-		gamma_dot = (omega_y * sin_alpha + omega_z * cos_alpha) / cos_beta
-	
-	# Ažuriraj Eulerove kutove
-	state.alpha = normalize_angle(state.alpha + alpha_dot * delta)
-	state.beta = normalize_angle(state.beta + beta_dot * delta)
-	state.gamma = normalize_angle(state.gamma + gamma_dot * delta)
-	
-	# Ažuriraj rotation_basis
-	state.rotation_basis = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
-	
-	# Renormalizacija (numerička stabilnost)
+	# Renormalizacija (numerička stabilnost - Gram-Schmidt)
 	var z_axis = state.rotation_basis.z.normalized()
-	var y_axis = state.rotation_basis.y.normalized()
-	var x_axis = y_axis.cross(z_axis).normalized()
-	y_axis = z_axis.cross(x_axis).normalized()
+	var y_axis = state.rotation_basis.y
+	y_axis = (y_axis - z_axis * y_axis.dot(z_axis)).normalized()
+	var x_axis = y_axis.cross(z_axis)
 	state.rotation_basis = Basis(x_axis, y_axis, z_axis)
+	
+	# Izvuci Euler kutove IZ MATRICE (samo za debug/prikaz)
+	# Ovo je "read-only" - ne koristimo ih za integraciju
+	state.alpha = asin(-state.rotation_basis.z.y)  # pitch
+	state.beta = atan2(state.rotation_basis.z.x, state.rotation_basis.z.z)  # yaw
+	state.gamma = atan2(state.rotation_basis.x.y, state.rotation_basis.y.y)  # roll
 	
 	# ========== AŽURIRANJE SCENE ==========
 	# NEMA KONVERZIJE - sve je već u Godot koordinatama!

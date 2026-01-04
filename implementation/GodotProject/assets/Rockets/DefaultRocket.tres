@@ -4,7 +4,12 @@
 
 [resource]
 script = ExtResource("1_5qbo8")
-cylinder_height = 0.2
-mass = 100.0
+cone_height = 0.15000000000000002
+mass = 15.0
 max_thrust = 200.0
+max_thrust_angle = 0.17453292519943295
+thrust_latency = 0.0
+gimbal_latency = 0.0
+stabilization_moment_coefficient = 5.0
+rotational_damping_coefficient = 2.0
 metadata/_custom_type_script = "uid://c6btekbi0in50"
