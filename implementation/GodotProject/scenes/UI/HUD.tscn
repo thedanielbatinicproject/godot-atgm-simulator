@@ -17,6 +17,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_thrust")
-fill_color = Color(0.70980394, 0, 0.13333334, 0.84705883)
+fill_color = Color(0.78822935, 0.033843208, 0.2134285, 0.84705883)
 label_font = ExtResource("3_vphgt")
 label_font_size = 12
