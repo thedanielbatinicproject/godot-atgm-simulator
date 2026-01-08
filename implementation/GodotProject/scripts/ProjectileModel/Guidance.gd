@@ -3,15 +3,18 @@ class_name Guidance
 
 # REFERENCE
 var input_manager: InputManager
+var game_profile: GameProfileData
 
 # UPRAVLJAČKI ULAZI
 var throttle_input: float = 0.0
 var gimbal_x_input: float = 0.0
 var gimbal_y_input: float = 0.0
+var roll_input: float = 0.0  # -1 = roll left, +1 = roll right
 
 # INICIJALIZACIJA
 
-func _init():
+func _init(p_game_profile: GameProfileData = null):
+	game_profile = p_game_profile
 	reset_inputs()
 
 func _ready():
@@ -46,23 +49,43 @@ func _on_input_state_changed(state: Vector3):
 	gimbal_x_input = state.y
 	gimbal_y_input = state.z
 
+func _process(_delta: float):
+	"""Čita roll input iz InputMap."""
+	roll_input = 0.0
+	if Input.is_action_pressed("roll_right"):
+		roll_input += 1.0
+	if Input.is_action_pressed("roll_left"):
+		roll_input -= 1.0
+
 # UPRAVLJANJE ULAZIMA
 
-func set_control_input(p_throttle: float, p_gimbal_x: float, p_gimbal_y: float):
+func set_control_input(p_throttle: float, p_gimbal_x: float, p_gimbal_y: float, p_roll: float = 0.0):
 	"""postavlja upravljačke ulaze i ograničava ih u dozvoljene raspone."""
 	throttle_input = clamp(p_throttle, 0.0, 1.0)
 	gimbal_x_input = clamp(p_gimbal_x, -1.0, 1.0)
 	gimbal_y_input = clamp(p_gimbal_y, -1.0, 1.0)
+	roll_input = clamp(p_roll, -1.0, 1.0)
 
 func get_control_input() -> Vector3:
-	"""vraća (u_T, u_x, u_y) kao vektor."""
+	"""vraća (u_T, u_x, u_y) kao vektor. Roll se dohvaća posebno."""
 	return Vector3(throttle_input, gimbal_x_input, gimbal_y_input)
+
+func get_roll_input() -> float:
+	"""Vraća roll input [-1, 1]."""
+	return roll_input
+
+func get_roll_angular_velocity() -> float:
+	"""Vraća željenu kutnu brzinu rolla u rad/s."""
+	if game_profile:
+		return roll_input * game_profile.roll_speed
+	return roll_input * 2.0  # default 2 rad/s
 
 func reset_inputs():
 	"""resetira sve ulaze na nulu."""
 	throttle_input = 0.0
 	gimbal_x_input = 0.0
 	gimbal_y_input = 0.0
+	roll_input = 0.0
 
 # DEBUG
 
@@ -75,6 +98,8 @@ func get_input_info() -> String:
 	var gimbal_y_str = "%.3f" % gimbal_y_input
 	var gimbal_mag_str = "%.3f" % gimbal_magnitude
 	var gimbal_az_str = "%.2f" % rad_to_deg(gimbal_angle)
+	var roll_str = "%.3f" % roll_input
+	var roll_vel_str = "%.2f" % get_roll_angular_velocity()
 	
 	var info = """
 Upravljački ulazi:
@@ -84,7 +109,9 @@ Gimbal X (u_x):          %s [-1, 1]
 Gimbal Y (u_y):          %s [-1, 1]
 Gimbal magnitude:        %s
 Gimbal azimut:           %s deg
+Roll input:              %s [-1, 1]
+Roll velocity:           %s rad/s
 ===================================
-""" % [throttle_str, gimbal_x_str, gimbal_y_str, gimbal_mag_str, gimbal_az_str]
+""" % [throttle_str, gimbal_x_str, gimbal_y_str, gimbal_mag_str, gimbal_az_str, roll_str, roll_vel_str]
 	
 	return info

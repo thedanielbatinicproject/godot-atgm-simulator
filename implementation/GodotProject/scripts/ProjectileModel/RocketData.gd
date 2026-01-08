@@ -33,23 +33,30 @@ class_name RocketData
 ## Maximum thrust force in Newtons.
 @export_range(0.0, 10000.0, 10.0, "suffix:N") var max_thrust: float = 500.0
 ## Maximum gimbal deflection angle.
-@export_range(5.0, 50.0, 0.5, "radians_as_degrees") var max_thrust_angle: float = PI / 6.0
-
-@export_group("Control Latency")
-## Delay before thrust changes take effect (seconds).
-@export_range(0.0, 1.0, 0.001, "suffix:s") var thrust_latency: float = 0.01
-## Delay before gimbal changes take effect (seconds).
-@export_range(0.0, 1.0, 0.001, "suffix:s") var gimbal_latency: float = 0.02
+@export_range(0.1, 40.0, 0.5, "radians_as_degrees") var max_thrust_angle: float = PI / 6.0
 
 @export_group("⚠️ Aerodynamics (Advanced)")
-## Koeficijent usklađivanja brzine s orijentacijom projektila.
-## Veće vrijednosti = brzina se brže usklađuje sa smjerom nosa.
-@export_range(0.0, 5.0, 0.1) var velocity_alignment_coefficient: float = 0.5
 ## Koeficijent rotacijskog prigušenja (kvadratni model).
 ## Veće vrijednosti = brže prigušenje kutne brzine.
 @export_range(0.0, 1.0, 0.01, "suffix:N·m·s²/rad²") var rotational_damping_coefficient: float = 0.1
 ## Maksimalna kutna brzina u rad/s.
 @export_range(1.0, 50.0, 1.0, "suffix:rad/s") var max_angular_velocity: float = 10.0
+
+## Velocity alignment coefficient - READ ONLY (set in GameProfile)
+## Prikazuje vrijednost iz GameProfile-a.
+var velocity_alignment_coefficient: float = 0.5:
+	set(value):
+		pass  # Read-only, ignoriraj set
+	get:
+		if _game_profile:
+			return _game_profile.velocity_alignment_coefficient
+		return 0.5
+
+## Referenca na GameProfile (postavlja Projectile)
+var _game_profile: GameProfileData = null
+
+func set_game_profile(profile: GameProfileData) -> void:
+	_game_profile = profile
 
 @export_group("🚫 Drag (Do Not Modify)")
 ## Form drag coefficient (C_D0). Determines drag at zero angle of attack.
@@ -159,14 +166,10 @@ Propulsion:
   Max thrust:              %.1f N
   Max gimbal angle:        %.2f°
   
-Latency:
-  Thrust:                  %.3f s
-  Gimbal:                  %.3f s
-  
 Aerodynamics:
   C_D0:                    %.2f
   k (viscous):             %.0f
-  Velocity alignment:      %.2f
+  Velocity alignment:      %.2f (from GameProfile)
   Rotational damping:      %.2f N·m·s²/rad²
   Max angular velocity:    %.1f rad/s
 ===============================
@@ -175,7 +178,6 @@ Aerodynamics:
 		mass, moment_of_inertia_xx, moment_of_inertia_yy, moment_of_inertia_zz,
 		compute_center_of_mass_local(),
 		max_thrust, rad_to_deg(max_thrust_angle),
-		thrust_latency, gimbal_latency,
 		drag_coefficient_form, drag_coefficient_viscous_factor, 
 		velocity_alignment_coefficient, rotational_damping_coefficient, max_angular_velocity
 	]

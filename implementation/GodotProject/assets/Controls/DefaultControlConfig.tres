@@ -5,3 +5,4 @@
 [resource]
 script = ExtResource("1_config")
 return_animation_trans = 4
+throttle_increment_per_second = 0.5

@@ -6,11 +6,13 @@ class_name Forces
 var rocket_data: RocketData
 var environment: ModelEnvironment
 var utils: Utils
+var game_profile: GameProfileData
 
-func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = null, p_utils: Utils = null):
+func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = null, p_utils: Utils = null, p_game_profile: GameProfileData = null):
 	rocket_data = p_rocket_data
 	environment = p_environment
 	utils = p_utils
+	game_profile = p_game_profile
 
 func calculate_gravity(_state: StateVariables) -> Vector3:
 	"""Gravitacija: -Y smjer."""
@@ -43,9 +45,14 @@ func calculate_thrust_local(state: StateVariables, _guidance_input: Vector3, _cu
 	
 	var thrust_magnitude = rocket_data.max_thrust * minf(state.active_thrust_input, 1.0)
 	
-	var gimbal_magnitude = state.active_gimbal_input.length()
+	# Invertiramo X jer Godot pozitivna rotacija oko Y = nos LIJEVO
+	# S inverzijom: joystick desno → nos desno
+	var input_x = -state.active_gimbal_input.x
+	var input_y = state.active_gimbal_input.y
+	
+	var gimbal_magnitude = Vector2(input_x, input_y).length()
 	var gimbal_angle = rocket_data.max_thrust_angle * minf(gimbal_magnitude, 1.0)
-	var gimbal_azimuth = atan2(state.active_gimbal_input.y, state.active_gimbal_input.x)
+	var gimbal_azimuth = atan2(input_y, input_x)
 	
 	return thrust_magnitude * Vector3(
 		-sin(gimbal_angle) * cos(gimbal_azimuth),
@@ -128,7 +135,7 @@ func calculate_velocity_alignment(state: StateVariables) -> Vector3:
 	# - Smanjuje v_perp (sila suprotna od v_perp)
 	# - Povećava v_parallel (sila u smjeru z_proj)
 	# Očuvanje energije: |F_perp| ≈ |F_parallel|
-	var k = rocket_data.velocity_alignment_coefficient
+	var k = game_profile.velocity_alignment_coefficient if game_profile else 0.5
 	var rho = environment.air_density
 	var A_side = rocket_data.radius * (2.0 * rocket_data.cylinder_height + rocket_data.cone_height)
 	

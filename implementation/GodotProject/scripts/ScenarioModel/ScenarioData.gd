@@ -31,21 +31,29 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 ## Reference to the RocketData resource defining projectile properties.
 @export var rocket_data: RocketData
 
+@export_group("Game Profile")
+## Reference to the GameProfileData resource with gameplay settings.
+@export var game_profile: GameProfileData
+
+@export_group("Controls")
+## Reference to the ControlConfig resource with input settings.
+@export var control_config: ControlConfig
+
 @export_group("Initial Position")
 ## Starting position in meters (Godot: X=right, Y=up, Z=forward).
 @export var initial_position: Vector3 = Vector3.ZERO
 
 @export_group("Initial Velocity")
-## Starting velocity in m/s (Godot: X=right, Y=up, Z=forward).
-@export var initial_velocity: Vector3 = Vector3(0, 0, 100)
+## Početna brzina u smjeru nosa projektila (lokalna +Z os) u m/s.
+@export_range(0.0, 1000.0, 1.0, "suffix:m/s") var initial_speed: float = 100.0
 
 @export_group("Initial Orientation")
-## Initial pitch angle. Positive = nose up.
-@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_alpha: float = 0.0
-## Initial yaw angle. Positive = nose right.
-@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_beta: float = 0.0
-## Initial roll angle. Positive = clockwise when viewed from behind.
-@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_gamma: float = 0.0
+## Početni pitch kut (α). Pozitivno = nos gore.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_pitch_alpha: float = 0.0
+## Početni yaw kut (β). Pozitivno = nos desno.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_yaw_beta: float = 0.0
+## Početni roll kut (γ). Pozitivno = u smjeru kazaljke gledano od iza.
+@export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_roll_gamma: float = 0.0
 
 @export_group("Environment")
 ## Air density in kg/m³. Sea level standard: 1.225
@@ -101,14 +109,36 @@ func setup_wind_for_scenario():
 		_:
 			wind_function = wind_profile.constant_wind(Vector3.ZERO)
 
+func get_initial_velocity_global() -> Vector3:
+	"""Pretvara početnu brzinu iz lokalnog u globalni sustav."""
+	var local_velocity = Vector3(0, 0, initial_speed)
+	var basis = get_initial_basis()
+	return basis * local_velocity
+
+func get_initial_basis() -> Basis:
+	"""Vraća početnu rotacijsku matricu (Basis) iz Euler kuteva.
+	
+	Godot konvencija (desno pravilo ruke):
+	- Pozitivna rotacija oko X = nos DOLJE
+	- Pozitivna rotacija oko Y = nos LIJEVO
+	
+	Naša konvencija (intuitivna):
+	- Pozitivan pitch (α) = nos GORE
+	- Pozitivan yaw (β) = nos DESNO
+	
+	Zato invertiramo alpha i beta.
+	"""
+	return Basis.from_euler(Vector3(-initial_pitch_alpha, -initial_yaw_beta, initial_roll_gamma), EULER_ORDER_YXZ)
+
 func get_initial_state() -> Dictionary:
-	"""vraća rječnik sa svim početnim varijablama stanja."""
+	"""Vraća rječnik sa svim početnim varijablama stanja."""
 	return {
 		"position": initial_position,
-		"velocity": initial_velocity,
-		"alpha": initial_alpha,
-		"beta": initial_beta,
-		"gamma": initial_gamma
+		"velocity": get_initial_velocity_global(),
+		"basis": get_initial_basis(),
+		"alpha": initial_pitch_alpha,
+		"beta": initial_yaw_beta,
+		"gamma": initial_roll_gamma
 	}
 
 func get_wind_at_position(position: Vector3) -> Vector3:
@@ -116,19 +146,22 @@ func get_wind_at_position(position: Vector3) -> Vector3:
 	return wind_function.call(position)
 
 func get_info() -> String:
-	"""vraća formatiran string s podacima scenarija."""
+	"""Vraća formatiran string s podacima scenarija."""
 	var rocket_name = "NIJE UČITAN" if rocket_data == null else rocket_data.get_class()
 	var level_name = "NIJE UČITAN" if level_scene == null else level_scene.resource_path
 	
 	var pos_x = "%.3f" % initial_position.x
 	var pos_y = "%.3f" % initial_position.y
 	var pos_z = "%.3f" % initial_position.z
-	var vel_x = "%.3f" % initial_velocity.x
-	var vel_y = "%.3f" % initial_velocity.y
-	var vel_z = "%.3f" % initial_velocity.z
-	var alpha_deg = "%.2f" % rad_to_deg(initial_alpha)
-	var beta_deg = "%.2f" % rad_to_deg(initial_beta)
-	var gamma_deg = "%.2f" % rad_to_deg(initial_gamma)
+	
+	var global_vel = get_initial_velocity_global()
+	var vel_x = "%.3f" % global_vel.x
+	var vel_y = "%.3f" % global_vel.y
+	var vel_z = "%.3f" % global_vel.z
+	
+	var alpha_deg = "%.2f" % rad_to_deg(initial_pitch_alpha)
+	var beta_deg = "%.2f" % rad_to_deg(initial_yaw_beta)
+	var gamma_deg = "%.2f" % rad_to_deg(initial_roll_gamma)
 	var dens_str = "%.4f" % air_density
 	var grav_str = "%.2f" % gravity
 	var visc_str = "%.6f" % air_viscosity
@@ -146,16 +179,17 @@ Projektil:
   
 Početno stanje:
   Pozicija:                  (%s, %s, %s) m
-  Brzina:                    (%s, %s, %s) m/s
+  Brzina (lokalna):          %.1f m/s (smjer nosa)
+  Brzina (globalna):         (%s, %s, %s) m/s
   Eulerovi kutovi:
-    roll:                    %s deg
-    pitch:                   %s deg
-    yaw:                     %s deg
+    pitch (α):               %s deg
+    yaw (β):                 %s deg
+    roll (γ):                %s deg
   
 Okoljni parametri:
-  Gustoća zraka:             %s kg/m^3
-  Gravitacija:               %s m/s^2
-  Viskoznost zraka:          %s kg/(m*s)
+  Gustoća zraka:             %s kg/m³
+  Gravitacija:               %s m/s²
+  Viskoznost zraka:          %s kg/(m·s)
   Vjetarsko polje:           Prilagođena funkcija
 ===================================
 """ % [
@@ -163,6 +197,7 @@ Okoljni parametri:
 		level_name,
 		rocket_name,
 		pos_x, pos_y, pos_z,
+		initial_speed,
 		vel_x, vel_y, vel_z,
 		alpha_deg, beta_deg, gamma_deg,
 		dens_str, grav_str, visc_str

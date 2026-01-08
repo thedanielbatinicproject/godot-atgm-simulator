@@ -74,9 +74,13 @@ func _ready():
 	)
 	utils = Utils.new(rocket_data)
 	state = StateVariables.new(rocket_data)
-	forces = Forces.new(rocket_data, environment, utils)
-	moments = Moments.new(rocket_data, environment, utils)
-	guidance = Guidance.new()
+	
+	# Postavi game_profile referencu u RocketData za read-only prikaz
+	rocket_data.set_game_profile(scenario_data.game_profile)
+	
+	forces = Forces.new(rocket_data, environment, utils, scenario_data.game_profile)
+	moments = Moments.new(rocket_data, environment, utils, scenario_data.game_profile)
+	guidance = Guidance.new(scenario_data.game_profile)
 	
 	# Dodaj guidance kao child
 	guidance.name = "Guidance"
@@ -86,14 +90,17 @@ func _ready():
 	scenario_data.setup_wind_for_scenario()
 	environment.set_wind_function(scenario_data.wind_function)
 	
-	# Početni uvjeti - DIREKTNO u Godot koordinatama (nema konverzije!)
+	# Početni uvjeti - koristi basis iz ScenarioData (već ima ispravne inverzije)
 	var initial_state = scenario_data.get_initial_state()
 	state.position = initial_state["position"]
 	state.velocity = initial_state["velocity"]
-	state.alpha = initial_state["alpha"]
-	state.beta = initial_state["beta"]
-	state.gamma = initial_state["gamma"]
-	state.rotation_basis = utils.euler_to_rotation_matrix(state.alpha, state.beta, state.gamma)
+	state.rotation_basis = initial_state["basis"]
+	
+	# Euler kutevi samo za prikaz (izvučeni iz basisa)
+	var euler = state.rotation_basis.get_euler(EULER_ORDER_YXZ)
+	state.alpha = euler.x
+	state.beta = euler.y
+	state.gamma = euler.z
 	elapsed_time = 0.0
 
 	if debug_enabled:
@@ -125,11 +132,15 @@ func _physics_process(delta: float):
 		state.pending_gimbal_input = new_gimbal
 		state.pending_gimbal_time = elapsed_time
 	
-	# Primijeni nakon latencije
-	if elapsed_time - state.pending_thrust_time >= rocket_data.thrust_latency:
+	# Primijeni nakon latencije (latency dolazi iz GameProfile)
+	var game_profile = scenario_data.game_profile
+	var thrust_latency = game_profile.thrust_latency if game_profile else 0.01
+	var gimbal_latency = game_profile.gimbal_latency if game_profile else 0.02
+	
+	if elapsed_time - state.pending_thrust_time >= thrust_latency:
 		state.active_thrust_input = state.pending_thrust_input
 	
-	if elapsed_time - state.pending_gimbal_time >= rocket_data.gimbal_latency:
+	if elapsed_time - state.pending_gimbal_time >= gimbal_latency:
 		state.active_gimbal_input = state.pending_gimbal_input
 	
 	# ========== TRANSLACIJA ==========
@@ -183,6 +194,35 @@ func _physics_process(delta: float):
 	state.angular_velocity.x = clampf(state.angular_velocity.x, -max_omega, max_omega)
 	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_omega, max_omega)
 	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_omega, max_omega)
+	
+	# ========== ROLL KONTROLA S INERCIJOM ==========
+	# Roll koristi akceleraciju i prigušenje za realističan osjećaj
+	var roll_input = guidance.get_roll_input()
+	var roll_max_speed = game_profile.roll_max_speed if game_profile else 3.0
+	var roll_accel = game_profile.roll_acceleration if game_profile else 8.0
+	var roll_damp = game_profile.roll_damping if game_profile else 3.0
+	
+	# Trenutna roll brzina
+	var omega_z = state.angular_velocity.z
+	
+	if abs(roll_input) > 0.01:
+		# Input aktivan - primijeni akceleraciju prema ciljnoj brzini
+		var target_omega_z = roll_input * roll_max_speed
+		var accel_dir = sign(target_omega_z - omega_z)
+		omega_z += accel_dir * roll_accel * delta
+		
+		# Ograniči na maksimalnu brzinu
+		omega_z = clampf(omega_z, -roll_max_speed, roll_max_speed)
+	else:
+		# Nema inputa - primijeni prigušenje (simulira trenje/otpor)
+		var damping_force = roll_damp * omega_z
+		omega_z -= damping_force * delta
+		
+		# Zaustavi ako je brzina vrlo mala
+		if abs(omega_z) < 0.01:
+			omega_z = 0.0
+	
+	state.angular_velocity.z = omega_z
 	
 	# ========== ORIJENTACIJA - DIREKTNA INTEGRACIJA ROTACIJSKE MATRICE ==========
 	# Ovo izbjegava gimbal lock problem koji imaju Euler kutovi!

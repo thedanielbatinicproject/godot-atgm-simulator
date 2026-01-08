@@ -4,8 +4,8 @@
 [ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="2_prevj"]
 [ext_resource type="Script" uid="uid://6wixwvm2of5c" path="res://scripts/Controls/StickController.gd" id="3_eebyn"]
 [ext_resource type="Texture2D" uid="uid://dbire1mv0fx0f" path="res://assets/UI/ControlsUI/stick_background.png" id="4_giowa"]
-[ext_resource type="Texture2D" uid="uid://bs4bf55x5i6n1" path="res://assets/UI/ControlsUI/stick_cursor.png" id="5_2n70s"]
-[ext_resource type="Texture2D" uid="uid://cfra5p64xukv5" path="res://assets/UI/ControlsUI/stick_center.png" id="6_l0tbk"]
+[ext_resource type="Texture2D" uid="uid://bnmdy0c2itybe" path="res://assets/UI/ControlsUI/stick_cursor.svg" id="5_prevj"]
+[ext_resource type="Texture2D" uid="uid://d32dwhbkqnelf" path="res://assets/UI/ControlsUI/stick_center.svg" id="6_eebyn"]
 [ext_resource type="Script" uid="uid://dysumfde4h1qi" path="res://scripts/Controls/ThrottleController.gd" id="7_b66xp"]
 
 [sub_resource type="Resource" id="Resource_config"]
@@ -42,8 +42,8 @@ grow_vertical = 2
 script = ExtResource("3_eebyn")
 config = SubResource("Resource_config")
 background_texture = ExtResource("4_giowa")
-cursor_texture = ExtResource("5_2n70s")
-center_texture = ExtResource("6_l0tbk")
+cursor_texture = ExtResource("5_prevj")
+center_texture = ExtResource("6_eebyn")
 
 [node name="ThrottleController" type="Node" parent="."]
 script = ExtResource("7_b66xp")
