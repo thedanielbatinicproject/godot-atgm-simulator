@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/DefaultScenario.tres" id="2_rlkm5"]
 [ext_resource type="PackedScene" uid="uid://cq1lexg1np6nf" path="res://assets/UI/input_manager.tscn" id="4_nb1wl"]
 [ext_resource type="PackedScene" uid="uid://3bte2dhfjpx6" path="res://assets/3D Assets/Props/Tank01/Tiger_I.fbx" id="5_m5dm6"]
-[ext_resource type="PackedScene" path="res://scenes/UI/HUD.tscn" id="5_xpysu"]
+[ext_resource type="PackedScene" uid="uid://dljr351o146qo" path="res://scenes/UI/HUD.tscn" id="5_xpysu"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2"]
 albedo_color = Color(0.5, 0.5, 0.5, 1)
