@@ -1,6 +1,5 @@
 extends Control
 
-
 @onready var transitions = $MainMenuTransitions
 @onready var scenario_selector = $ScenarioSelector
 @onready var button_start = $VBox/ButtonStart

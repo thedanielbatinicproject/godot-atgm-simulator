@@ -1,0 +1,48 @@
+[gd_scene load_steps=13 format=3 uid="uid://fvxwm37emnrs"]
+
+[ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="1_g4tci"]
+[ext_resource type="Resource" uid="uid://g8tej85v3njn" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
+[ext_resource type="Script" uid="uid://bgt7apg0qnkgk" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_dl574"]
+[ext_resource type="Texture2D" uid="uid://cmk2caergusv3" path="res://assets/Textures/UncutGrass1/Uncut_Grass_oilpt20_1K_BaseColor.jpg" id="4_f53m7"]
+[ext_resource type="Texture2D" uid="uid://bu7hd3dx0wmlc" path="res://assets/Textures/Dirt01/yd0ldai_2K_Basecolor.jpg" id="5_cmh6r"]
+[ext_resource type="Texture2D" uid="uid://dboougf36f5i2" path="res://assets/Textures/CliffRock/Icelandic_Jagged_Slate_Rock_shfsaida_2K_BaseColor.jpg" id="6_vlfo1"]
+[ext_resource type="Texture2D" uid="uid://dqohq56xn58yu" path="res://assets/Textures/UncutGrass1/Uncut_Grass_oilpt20_1K_Normal.jpg" id="7_3lldj"]
+[ext_resource type="Texture2D" uid="uid://b4txsnr4qo6b3" path="res://assets/Textures/Dirt01/yd0ldai_2K_Normal.jpg" id="8_2nfpu"]
+[ext_resource type="Texture2D" uid="uid://comsqv5dyjlkq" path="res://assets/Textures/CliffRock/Icelandic_Jagged_Slate_Rock_shfsaida_2K_Normal.jpg" id="9_r4i6k"]
+[ext_resource type="Script" uid="uid://bu35icu0qa0m6" path="res://addons/zylann.hterrain/hterrain_detail_layer.gd" id="10_xc7o6"]
+[ext_resource type="Texture2D" uid="uid://6jmdwj3vn6m0" path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" id="11_wcbab"]
+
+[sub_resource type="Resource" id="Resource_g4tci"]
+script = ExtResource("3_dl574")
+mode = 0
+textures = [[ExtResource("4_f53m7"), ExtResource("5_cmh6r"), ExtResource("6_vlfo1")], [ExtResource("7_3lldj"), ExtResource("8_2nfpu"), ExtResource("9_r4i6k")]]
+
+[node name="Level1" type="Node3D"]
+
+[node name="HTerrain" type="Node3D" parent="."]
+script = ExtResource("1_g4tci")
+_terrain_data = ExtResource("2_g4tci")
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_g4tci")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = null
+shader_params/u_tile_reduction = null
+metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
+
+[node name="HTerrainDetailLayer" type="Node3D" parent="HTerrain"]
+script = ExtResource("10_xc7o6")
+shader_params/u_globalmap_tint_bottom = null
+shader_params/u_globalmap_tint_top = null
+shader_params/u_bottom_ao = null
+shader_params/u_instance_scale = null
+shader_params/u_roughness = null
+metadata/_editor_icon = ExtResource("11_wcbab")
