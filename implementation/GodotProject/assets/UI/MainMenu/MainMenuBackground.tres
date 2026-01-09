@@ -1,0 +1,45 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[resource]
+shader = ExtResource( 1 )
+
+[sub_resource type="Shader" id=1]
+code = """
+shader_type canvas_item;
+
+uniform int star_count = 64;
+uniform float star_min_size = 1.5;
+uniform float star_max_size = 4.0;
+uniform float star_min_speed = 0.5;
+uniform float star_max_speed = 2.0;
+uniform float blur_strength = 0.7;
+uniform float time_scale = 0.7;
+uniform vec4 star_color : hint_color = vec4(1.0, 1.0, 1.0, 0.85);
+
+float rand(vec2 co) {
+    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
+
+void fragment() {
+    vec2 uv = UV;
+    float t = TIME * time_scale;
+    vec3 col = vec3(0.0);
+    for (int i = 0; i < star_count; i++) {
+        float fi = float(i);
+        float px = rand(vec2(fi, 0.1)) * 1.0;
+        float py = rand(vec2(fi, 0.2)) * 1.0;
+        float size = mix(star_min_size, star_max_size, rand(vec2(fi, 0.3)));
+        float speed = mix(star_min_speed, star_max_speed, rand(vec2(fi, 0.4)));
+        float phase = rand(vec2(fi, 0.5)) * 6.2831;
+        float pulse = 0.5 + 0.5 * sin(t * speed + phase);
+        float star_size = size + pulse * size * 0.5;
+        float blur = blur_strength * (0.5 + 0.5 * pulse);
+        vec2 spos = vec2(px, py);
+        float d = length(uv - spos);
+        float star = exp(-pow(d / (star_size * 0.01 + blur * 0.03), 2.0));
+        col += star * star_color.rgb;
+    }
+    col = clamp(col, 0.0, 1.0);
+    COLOR = vec4(col, star_color.a);
+}
+"""

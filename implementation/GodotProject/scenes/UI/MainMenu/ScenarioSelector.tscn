@@ -1,0 +1,72 @@
+[gd_scene load_steps=2 format=3]
+
+[node name="ScenarioSelector" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Grid" type="GridContainer" parent="."]
+columns = 3
+anchor_left = 0.1
+anchor_right = 0.9
+anchor_top = 0.1
+anchor_bottom = 0.8
+margin_left = 0
+margin_right = 0
+margin_top = 0
+margin_bottom = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+anchor_left = 0.1
+anchor_right = 0.9
+anchor_top = 0.1
+anchor_bottom = 0.8
+margin_left = 0
+margin_right = 0
+margin_top = 0
+margin_bottom = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+
+[node name="Grid" type="GridContainer" parent="Scroll"]
+columns = 3
+
+[node name="Footer" type="HBoxContainer" parent="."]
+anchor_left = 0.0
+anchor_right = 1.0
+anchor_top = 0.85
+anchor_bottom = 1.0
+margin_left = 0
+margin_right = 0
+margin_top = 0
+margin_bottom = 0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="GridScroll" type="GridContainer" parent="Scroll"]
+columns = 3
+
+[node name="StartButton" type="TextureButton" parent="Footer"]
+texture_normal = ExtResource( 1 )
+expand = true
+stretch_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+[node name="StartLabel" type="Label" parent="Footer/StartButton"]
+text = "START"
+custom_fonts/font = ExtResource( 2 )
+anchor_left = 0.0
+anchor_right = 1.0
+anchor_top = 0.0
+anchor_bottom = 1.0
+align = 1
+valign = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[ext_resource path="res://assets/UI/MainMenu/Graphics/button_base.png" type="Texture" id=1]
+[ext_resource path="res://assets/UI/Fonts/Neuropol.otf" type="Font" id=2]

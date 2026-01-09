@@ -5,4 +5,6 @@
 [resource]
 script = ExtResource("1_config")
 return_animation_trans = 4
-throttle_increment_per_second = 0.5
+throttle_increment_per_second = 0.3
+throttle_joystick_deadzone = 0.01
+throttle_joystick_cooldown_time = 0.5

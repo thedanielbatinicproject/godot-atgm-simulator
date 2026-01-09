@@ -8,8 +8,13 @@ signal throttle_changed(throttle: float)
 @export var config: ControlConfig
 
 # STATE
+
 var throttle: float = 0.0
 var enabled: bool = true
+# Cooldown timer za joystick throttle
+var _joystick_throttle_cooldown: float = 0.0
+# Praćenje prethodnog stanja joystick throttle
+var _prev_joystick_throttle_active: bool = false
 
 func _ready():
 	_apply_config()
@@ -26,23 +31,35 @@ func _process(delta):
 	
 	var prev_throttle = throttle
 	
-	# TIPKOVNICA - W/S
-	if config.enable_keyboard_input:
+	# JOYSTICK THROTTLE ima prioritet nad tipkovnicom, s cooldownom
+	var joystick_value = 0.0
+	var joystick_throttle_now = false
+	if config.enable_gamepad_input:
+		joystick_value = Input.get_action_strength("joystick_throttle")
+		if abs(joystick_value) > config.throttle_joystick_deadzone:
+			joystick_throttle_now = true
+			throttle = clampf(joystick_value, config.throttle_min, config.throttle_max)
+			_joystick_throttle_cooldown = config.throttle_joystick_cooldown_time
+
+	# Odbroji cooldown
+	if _joystick_throttle_cooldown > 0.0:
+		_joystick_throttle_cooldown -= delta
+		if _joystick_throttle_cooldown < 0.0:
+			_joystick_throttle_cooldown = 0.0
+
+	var joystick_throttle_active = _joystick_throttle_cooldown > 0.0
+
+	# Ako joystick nije aktivan, koristi tipkovnicu
+	if not joystick_throttle_active and config.enable_keyboard_input:
 		if Input.is_action_pressed("throttle_increase"):
 			throttle = minf(throttle + config.throttle_increment_per_second * delta, config.throttle_max)
-		
 		if Input.is_action_pressed("throttle_decrease"):
 			throttle = maxf(throttle - config.throttle_increment_per_second * delta, config.throttle_min)
-	
-	# GAMEPAD - RT/LT triggers (analogne)
-	if config.enable_gamepad_input:
-		var rt = Input.get_action_strength("throttle_increase")
-		var lt = Input.get_action_strength("throttle_decrease")
-		
-		# Ako je trigger pritisnut
-		if rt > config.deadzone_joystick or lt > config.deadzone_joystick:
-			var delta_throttle = (rt - lt) * config.throttle_increment_per_second * delta
-			throttle = clampf(throttle + delta_throttle, config.throttle_min, config.throttle_max)
+
+	# Resetiraj throttle na 0 samo na prijelazu s aktivnog joysticka na neaktivni
+	if _prev_joystick_throttle_active and not joystick_throttle_active:
+		throttle = 0.0
+	_prev_joystick_throttle_active = joystick_throttle_active
 	
 	# Emit ako se promijenilo
 	if abs(throttle - prev_throttle) > 0.001:

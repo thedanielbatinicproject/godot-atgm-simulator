@@ -8,7 +8,4 @@ idle_moment_thrust_percentage = 20.0
 thrust_latency = 0.0
 gimbal_latency = 0.0
 velocity_alignment_coefficient = 9.0
-roll_max_speed = 7.5
-roll_acceleration = 9.0
-roll_damping = 0.5
 metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

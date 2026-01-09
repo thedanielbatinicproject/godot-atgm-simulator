@@ -19,6 +19,10 @@ class_name ControlConfig
 @export var throttle_default: float = 0.0
 @export var throttle_min: float = 0.0
 @export var throttle_max: float = 1.0
+# Deadzone za joystick throttle (RT/LT)
+@export var throttle_joystick_deadzone: float = 0.08
+# Cooldown vrijeme (sekunde) nakon zadnjeg joystick throttle unosa
+@export var throttle_joystick_cooldown_time: float = 0.25
 
 # DEADZONES
 @export_group("Deadzones")

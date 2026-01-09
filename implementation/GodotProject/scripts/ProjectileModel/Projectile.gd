@@ -21,6 +21,8 @@ class_name Projectile
 @export var debug_enabled: bool = false
 @export var debug_interval: float = 0.5
 @export var calculate_moments: bool = true
+# Debug opcija: koristi gravitaciju u simulaciji
+@export var calculate_gravity: bool = true
 
 # KOMPONENTE SIMULACIJE
 var state: StateVariables
@@ -95,7 +97,11 @@ func _ready():
 	state.position = initial_state["position"]
 	state.velocity = initial_state["velocity"]
 	state.rotation_basis = initial_state["basis"]
-	
+
+	# Debug opcija: runtime isključenje gravitacije (ne dira config)
+	if not calculate_gravity:
+		environment.gravity = 0.0
+
 	# Euler kutevi samo za prikaz (izvučeni iz basisa)
 	var euler = state.rotation_basis.get_euler(EULER_ORDER_YXZ)
 	state.alpha = euler.x
@@ -174,11 +180,12 @@ func _physics_process(delta: float):
 	var M_x = m_total.x  # pitch moment
 	var M_y = m_total.y  # yaw moment
 	var M_z = m_total.z  # roll moment
+	# Trenutna roll brzina
+	var omega_z = state.angular_velocity.z
 	
 	for _substep in range(rotation_substeps):
 		var omega_x = state.angular_velocity.x
 		var omega_y = state.angular_velocity.y
-		var omega_z = state.angular_velocity.z
 		
 		# Eulerove jednadžbe krutog tijela (u lokalnom sustavu)
 		var omega_x_dot = (M_x / I_x) - ((I_z - I_y) / I_x) * omega_y * omega_z
@@ -195,37 +202,29 @@ func _physics_process(delta: float):
 	state.angular_velocity.y = clampf(state.angular_velocity.y, -max_omega, max_omega)
 	state.angular_velocity.z = clampf(state.angular_velocity.z, -max_omega, max_omega)
 	
-	# ========== ROLL KONTROLA S INERCIJOM ==========
-	# Roll koristi akceleraciju i prigušenje za realističan osjećaj
+	# ========== ROLL KONTROLA S INERCIJOM (EKSPONENCIJALNI DAMPING) ==========
+	# Roll koristi akceleraciju i eksponencijalno prigušenje za realističan osjećaj
 	var roll_input = guidance.get_roll_input()
 	var roll_max_speed = game_profile.roll_max_speed if game_profile else 3.0
 	var roll_accel = game_profile.roll_acceleration if game_profile else 8.0
 	var roll_damp = game_profile.roll_damping if game_profile else 3.0
-	
-	# Trenutna roll brzina
-	var omega_z = state.angular_velocity.z
 	
 	if abs(roll_input) > 0.01:
 		# Input aktivan - primijeni akceleraciju prema ciljnoj brzini
 		var target_omega_z = roll_input * roll_max_speed
 		var accel_dir = sign(target_omega_z - omega_z)
 		omega_z += accel_dir * roll_accel * delta
-		
 		# Ograniči na maksimalnu brzinu
 		omega_z = clampf(omega_z, -roll_max_speed, roll_max_speed)
 	else:
-		# Nema inputa - primijeni prigušenje (simulira trenje/otpor)
-		var damping_force = roll_damp * omega_z
-		omega_z -= damping_force * delta
-		
-		# Zaustavi ako je brzina vrlo mala
+		# Eksponencijalno prigušenje (kao kod thrusta)
+		omega_z *= exp(-roll_damp * delta)
 		if abs(omega_z) < 0.01:
 			omega_z = 0.0
-	
 	state.angular_velocity.z = omega_z
 	
 	# ========== ORIJENTACIJA - DIREKTNA INTEGRACIJA ROTACIJSKE MATRICE ==========
-	# Ovo izbjegava gimbal lock problem koji imaju Euler kutovi!
+	# Ovo izbjegava gimbal lock problem koji imaju Euler kutovi
 	#
 	# Kutna brzina je u LOKALNOM sustavu, ali rotira GLOBALNE osi.
 	# Transformiramo omega u globalni sustav i primjenjujemo malu rotaciju.

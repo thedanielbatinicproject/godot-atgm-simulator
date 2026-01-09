@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ScenarioData" load_steps=4 format=3 uid="uid://bs8kvx8queetb"]
+[gd_resource type="Resource" script_class="ScenarioData" load_steps=5 format=3 uid="uid://bs8kvx8queetb"]
 
+[ext_resource type="Resource" uid="uid://bghewffyp0tbg" path="res://assets/Controls/DefaultControlConfig.tres" id="1_lgkev"]
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_rvgt1"]
 [ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/DefaultRocket.tres" id="1_tg1lu"]
 [ext_resource type="Resource" uid="uid://cg8r5iumwxe7x" path="res://assets/GameProfiles/DefaultProfile.tres" id="3_gameprofile"]
@@ -10,11 +11,13 @@ scenario_name = "..."
 scenario_description = "..."
 rocket_data = ExtResource("1_tg1lu")
 game_profile = ExtResource("3_gameprofile")
+control_config = ExtResource("1_lgkev")
 initial_position = Vector3(-903.059, 1500, -902.526)
 initial_speed = 30.0
 initial_pitch_alpha = -0.32288591161895097
 initial_yaw_beta = -0.937241808320955
-wind_type = "constant"
-wind_amplitudes = Vector3(0, 0, 0)
-wind_frequencies = Vector3(0, 0, 0)
+wind_type = "altitude_gradient"
+wind_amplitudes = Vector3(10, 10, 10)
+wind_frequencies = Vector3(0.5, 0.5, 0.5)
+wind_gradient = Vector3(0.01, 0.01, 0.01)
 metadata/_custom_type_script = "uid://0mnruf4ps0g6"

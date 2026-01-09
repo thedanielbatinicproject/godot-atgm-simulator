@@ -18,6 +18,7 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export_category("Scenario")
 
 @export_group("Identification")
+@export var scenario_thumbnail: Texture2D
 ## Unique name for this scenario.
 @export var scenario_name: String = "Default Scenario"
 ## Description of what this scenario tests or demonstrates.

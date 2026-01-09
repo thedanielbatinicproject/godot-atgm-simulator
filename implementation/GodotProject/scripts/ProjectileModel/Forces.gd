@@ -15,9 +15,14 @@ func _init(p_rocket_data: RocketData = null, p_environment: ModelEnvironment = n
 	game_profile = p_game_profile
 
 func calculate_gravity(_state: StateVariables) -> Vector3:
-	"""Gravitacija: -Y smjer."""
+	"""Gravitacija: -Y smjer. Poštuje debug opciju calculate_gravity iz projektila."""
 	if not rocket_data or not environment:
 		return Vector3.ZERO
+	# Provjeri postoji li projektil i opcija calculate_gravity
+	if has_node(".."):
+		var projectile = get_node("..")
+		if projectile.has_variable("calculate_gravity") and not projectile.calculate_gravity:
+			return Vector3.ZERO
 	return Vector3(0, -rocket_data.mass * environment.gravity, 0)
 
 func calculate_buoyancy(_state: StateVariables) -> Vector3:
