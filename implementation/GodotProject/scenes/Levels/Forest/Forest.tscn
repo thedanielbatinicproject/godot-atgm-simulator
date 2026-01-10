@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://fvxwm37emnrs"]
+[gd_scene load_steps=11 format=3 uid="uid://g4avkbt1qmi2"]
 
 [ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="1_g4tci"]
-[ext_resource type="Resource" uid="uid://g8tej85v3njn" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
+[ext_resource type="Resource" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
 [ext_resource type="Script" uid="uid://bgt7apg0qnkgk" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_dl574"]
 [ext_resource type="Texture2D" uid="uid://cmk2caergusv3" path="res://assets/Textures/UncutGrass1/Uncut_Grass_oilpt20_1K_BaseColor.jpg" id="4_f53m7"]
 [ext_resource type="Texture2D" uid="uid://bu7hd3dx0wmlc" path="res://assets/Textures/Dirt01/yd0ldai_2K_Basecolor.jpg" id="5_cmh6r"]
@@ -15,7 +15,7 @@ script = ExtResource("3_dl574")
 mode = 0
 textures = [[ExtResource("6_vlfo1"), ExtResource("5_cmh6r"), ExtResource("4_f53m7")], [ExtResource("9_r4i6k"), ExtResource("8_2nfpu"), ExtResource("7_3lldj")]]
 
-[node name="Level1" type="Node3D"]
+[node name="ForestLevel" type="Node3D"]
 
 [node name="Lighting" type="Node3D" parent="."]
 transform = Transform3D(-0.59902364, -0.76615065, 0.2327744, 0, 0.29070225, 0.9568136, -0.80073136, 0.573154, -0.17413752, 0, 0, 0)

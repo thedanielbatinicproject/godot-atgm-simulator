@@ -1,0 +1,79 @@
+[gd_scene load_steps=18 format=3 uid="uid://c1slp4rxalcj8"]
+
+[ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="1_0a0ap"]
+[ext_resource type="Resource" uid="uid://bwrk8mts35tc2" path="res://assets/Terrain/tutorial/data.hterrain" id="2_7f756"]
+[ext_resource type="Script" uid="uid://bgt7apg0qnkgk" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_ujie5"]
+[ext_resource type="Texture2D" uid="uid://nre8xk2xh4e8" path="res://slot0_albedo_bump.png" id="4_2lr4g"]
+[ext_resource type="Texture2D" uid="uid://cvrl5h5trx7jh" path="res://slot1_albedo_bump.png" id="5_s5pcb"]
+[ext_resource type="Texture2D" uid="uid://d1a43mpaujy36" path="res://slot2_albedo_bump.png" id="6_xlghy"]
+[ext_resource type="Texture2D" uid="uid://kms64x012irt" path="res://slot0_normal_roughness.png" id="7_qicw6"]
+[ext_resource type="Texture2D" uid="uid://c8enoc1l0n0f3" path="res://slot1_normal_roughness.png" id="8_lw5f1"]
+[ext_resource type="Texture2D" uid="uid://1hgqgkdr8eh2" path="res://slot2_normal_roughness.png" id="9_k5sun"]
+[ext_resource type="Script" uid="uid://bu35icu0qa0m6" path="res://addons/zylann.hterrain/hterrain_detail_layer.gd" id="10_2lr4g"]
+[ext_resource type="Texture2D" uid="uid://dkxxomafa1nbe" path="res://assets/Billboards/Grass1/grass_billboard.png" id="11_s5pcb"]
+[ext_resource type="Texture2D" uid="uid://6jmdwj3vn6m0" path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" id="12_xlghy"]
+[ext_resource type="Texture2D" uid="uid://crf3002ok2631" path="res://assets/Skyboxes/CloudSky1/CloudSky1.exr" id="13_s5pcb"]
+
+[sub_resource type="Resource" id="Resource_nlc0m"]
+script = ExtResource("3_ujie5")
+mode = 0
+textures = [[ExtResource("4_2lr4g"), ExtResource("5_s5pcb"), ExtResource("6_xlghy")], [ExtResource("7_qicw6"), ExtResource("8_lw5f1"), ExtResource("9_k5sun")]]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_xlghy"]
+panorama = ExtResource("13_s5pcb")
+energy_multiplier = 0.4
+
+[sub_resource type="Sky" id="Sky_qicw6"]
+sky_material = SubResource("PanoramaSkyMaterial_xlghy")
+
+[sub_resource type="Environment" id="Environment_lw5f1"]
+background_mode = 2
+sky = SubResource("Sky_qicw6")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Tutorial" type="Node3D"]
+
+[node name="HTerrain" type="Node3D" parent="."]
+script = ExtResource("1_0a0ap")
+_terrain_data = ExtResource("2_7f756")
+chunk_size = 64
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_nlc0m")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 4.0
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Vector4(1, 1, 1, 1)
+metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
+
+[node name="HTerrainDetailLayer" type="Node3D" parent="HTerrain"]
+script = ExtResource("10_2lr4g")
+texture = ExtResource("11_s5pcb")
+view_distance = 106.865
+density = 10.0
+shader_params/u_globalmap_tint_bottom = null
+shader_params/u_globalmap_tint_top = null
+shader_params/u_bottom_ao = null
+shader_params/u_instance_scale = null
+shader_params/u_roughness = null
+metadata/_editor_icon = ExtResource("12_xlghy")
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 259.7429, 21.135075, 345.2828)
+height = 1.8
+
+[node name="Lightning" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Lightning"]
+environment = SubResource("Environment_lw5f1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Lightning"]
+transform = Transform3D(-0.11667077, -0.5907606, 0.798367, 0, 0.8038569, 0.5948228, -0.9931707, 0.06939844, -0.0937866, 0, 0, 0)
+shadow_enabled = true
