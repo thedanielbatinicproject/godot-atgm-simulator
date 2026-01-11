@@ -170,7 +170,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_3r2d0")
 theme_override_styles/hover = SubResource("StyleBoxFlat_yktg1")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxiga")
 toggle_mode = true
-text = "GRAPHICS"
+text = "DISPLAY"
 
 [node name="SoundSettingsBtn" type="Button" parent="SceneRoot/OptionsMenu/Options"]
 layout_mode = 2
@@ -217,7 +217,6 @@ theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 20
 
 [node name="GRAPHICS" type="Panel" parent="SceneRoot/MainContentBox"]
-visible = false
 layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS"]
@@ -232,11 +231,96 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Resolution"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 35
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 35
+theme_override_constants/margin_bottom = 40
+
+[node name="OptionButton" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 4
+popup/item_0/text = "1920x1080"
+popup/item_0/id = 0
+popup/item_1/text = "1440x1080"
+popup/item_1/id = 1
+popup/item_2/text = "2560x1440"
+popup/item_2/id = 2
+popup/item_3/text = "4096x2160"
+popup/item_3/id = 3
+
+[node name="BoxContainer3" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
 [node name="RightRoot" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BoxContainer3" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
 [node name="SOUND" type="Panel" parent="SceneRoot/MainContentBox"]
+visible = false
 layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/SOUND"]
