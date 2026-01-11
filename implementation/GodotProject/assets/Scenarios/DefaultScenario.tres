@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="ScenarioData" load_steps=5 format=3 uid="uid://bs8kvx8queetb"]
 
-[ext_resource type="Resource" uid="uid://bghewffyp0tbg" path="res://assets/Controls/DefaultControlConfig.tres" id="1_lgkev"]
+[ext_resource type="Resource" uid="uid://bghewffyp0tbg" path="res://assets/Controls/Default.tres" id="1_lgkev"]
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_rvgt1"]
 [ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/DefaultRocket.tres" id="1_tg1lu"]
-[ext_resource type="Resource" uid="uid://cg8r5iumwxe7x" path="res://assets/GameProfiles/DefaultProfile.tres" id="3_gameprofile"]
+[ext_resource type="Resource" uid="uid://bq3ddh1kc338j" path="res://assets/GameProfiles/VeryEasy.tres" id="3_gameprofile"]
 
 [resource]
 script = ExtResource("1_rvgt1")

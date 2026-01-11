@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameProfileData" load_steps=2 format=3 uid="uid://ugkrbqjtfque"]
+
+[ext_resource type="Script" uid="uid://dy3wdvahbr6vn" path="res://scripts/GameProfile/GameProfileData.gd" id="1_3phaf"]
+
+[resource]
+script = ExtResource("1_3phaf")
+profile_name = "Hard"
+description = "Easy game profile with easy controls for beginers."
+idle_moment_thrust_percentage = 30.0
+thrust_latency = 0.08
+gimbal_latency = 0.05
+velocity_alignment_coefficient = 7.0
+auto_stabilization = true
+roll_acceleration = 3.0
+metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

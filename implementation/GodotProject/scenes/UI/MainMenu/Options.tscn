@@ -1,10 +1,30 @@
-[gd_scene load_steps=33 format=3 uid="uid://ctptm2pbq1oqo"]
+[gd_scene load_steps=41 format=3 uid="uid://ctptm2pbq1oqo"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_pcou3"]
+[ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_snpff"]
 [ext_resource type="Script" uid="uid://bws1b4is7qlrx" path="res://scripts/MainMenu/OptionsMenu.gd" id="1_urebe"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_pnkru"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="4_sxiga"]
 [ext_resource type="Script" uid="uid://buiiy3hwe2nuc" path="res://scripts/MainMenu/slider.gd" id="5_ca6he"]
+[ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="5_etk1h"]
+
+[sub_resource type="GDScript" id="GDScript_snpff"]
+script/source = "extends VBoxContainer
+
+@onready var options: HBoxContainer = $OptionsMenu/Options
+@onready var graphics_settings_btn: Button = $OptionsMenu/Options/GraphicsSettingsBtn
+@onready var sound_settings_btn: Button = $OptionsMenu/Options/SoundSettingsBtn
+@onready var profile_settings_btn: Button = $OptionsMenu/Options/ProfileSettingsBtn
+@onready var controls_settings_btn: Button = $OptionsMenu/Options/ControlsSettingsBtn
+@onready var resolution_dropdown: OptionButton = $MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/ResolutionDropdown
+@onready var display_type_dropdown: OptionButton = $MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/DisplayTypeDropdown
+@onready var vsync_button: CheckButton = $MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VsyncButton
+@onready var brightness_slider: HSlider = $MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/BrightnessSlider
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pj0l6"]
 bg_color = Color(0, 0, 0, 1)
@@ -99,6 +119,19 @@ thickness = 10
 color = Color(0.011294988, 0, 0.66424143, 1)
 thickness = 10
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pj0l6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tt1nk"]
+bg_color = Color(0.5058824, 0.5058824, 0.5058824, 0.54901963)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vyb2b"]
+bg_color = Color(0.5058824, 0.5058824, 0.5058824, 0.54901963)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dbu4n"]
+bg_color = Color(0.42745098, 0.42745098, 0.42745098, 0.72156864)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t1b5t"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_urebe"]
 bg_color = Color(0, 0, 0, 1)
 corner_radius_top_left = 55
@@ -138,7 +171,6 @@ grow_vertical = 2
 script = ExtResource("1_urebe")
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -158,6 +190,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_snpff")
 
 [node name="OptionsTitle" type="Label" parent="SceneRoot"]
 custom_minimum_size = Vector2(0, 150)
@@ -194,6 +227,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_yktg1")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxiga")
 toggle_mode = true
 text = "DISPLAY"
+script = ExtResource("5_etk1h")
 
 [node name="SoundSettingsBtn" type="Button" parent="SceneRoot/OptionsMenu/Options"]
 layout_mode = 2
@@ -206,6 +240,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_etk1h")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxiga")
 toggle_mode = true
 text = "SOUND"
+script = ExtResource("5_etk1h")
 
 [node name="ProfileSettingsBtn" type="Button" parent="SceneRoot/OptionsMenu/Options"]
 layout_mode = 2
@@ -218,6 +253,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_etk1h")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxiga")
 toggle_mode = true
 text = "GAME PROFILE"
+script = ExtResource("5_etk1h")
 
 [node name="ControlsSettingsBtn" type="Button" parent="SceneRoot/OptionsMenu/Options"]
 layout_mode = 2
@@ -230,6 +266,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_dfe86")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxiga")
 toggle_mode = true
 text = "CONTROLS"
+script = ExtResource("5_etk1h")
 
 [node name="MainContentBox" type="MarginContainer" parent="SceneRoot"]
 layout_mode = 2
@@ -240,6 +277,7 @@ theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 20
 
 [node name="GRAPHICS" type="Panel" parent="SceneRoot/MainContentBox"]
+visible = false
 layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS"]
@@ -322,6 +360,7 @@ popup/item_3/text = "2560x1440"
 popup/item_3/id = 3
 popup/item_4/text = "4096x2160"
 popup/item_4/id = 4
+script = ExtResource("5_etk1h")
 
 [node name="BoxContainer3" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
 layout_mode = 2
@@ -351,7 +390,7 @@ size_flags_vertical = 1
 theme_override_fonts/font = ExtResource("2_pnkru")
 theme_override_font_sizes/font_size = 30
 text = "Display 
-type"
+mode"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -384,6 +423,7 @@ popup/item_1/text = "Windowed"
 popup/item_1/id = 1
 popup/item_2/text = "Borderless"
 popup/item_2/id = 2
+script = ExtResource("5_etk1h")
 
 [node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
 layout_mode = 2
@@ -433,6 +473,7 @@ size_flags_vertical = 4
 theme_override_styles/focus = SubResource("StyleBoxEmpty_ca6he")
 theme_override_icons/checked = SubResource("DPITexture_etk1h")
 theme_override_icons/unchecked = SubResource("DPITexture_pj0l6")
+script = ExtResource("5_etk1h")
 
 [node name="RightRoot" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer"]
 layout_mode = 2
@@ -446,13 +487,194 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Brightness"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 150
+theme_override_constants/margin_bottom = 40
+
+[node name="BrightnessSlider" type="HSlider" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_icons/grabber = SubResource("DPITexture_sxiga")
+theme_override_icons/grabber_highlight = SubResource("DPITexture_ca6he")
+theme_override_icons/grabber_disabled = SubResource("DPITexture_snpff")
+theme_override_styles/slider = SubResource("StyleBoxLine_sxiga")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_ca6he")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_snpff")
+min_value = 0.5
+max_value = 2.0
+step = 0.1
+value = 1.5
+script = ExtResource("5_ca6he")
+audio_bus_name = "Music"
+
 [node name="BoxContainer3" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Graphics
+quality"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 150
+theme_override_constants/margin_bottom = 40
+
+[node name="GraphicsQualityDropdown" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k8pph")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_etk1h")
+alignment = 1
+item_count = 5
+popup/item_0/text = "Very High"
+popup/item_0/id = 0
+popup/item_1/text = "High"
+popup/item_1/id = 1
+popup/item_2/text = "Medium"
+popup/item_2/id = 2
+popup/item_3/text = "Low"
+popup/item_3/id = 3
+popup/item_4/text = "Very Low"
+popup/item_4/id = 4
+script = ExtResource("5_etk1h")
+
 [node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Anti-Aliasing"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 150
+theme_override_constants/margin_bottom = 40
+
+[node name="AADropdown" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k8pph")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_etk1h")
+alignment = 1
+item_count = 5
+popup/item_0/text = "Off"
+popup/item_0/id = 0
+popup/item_1/text = "FXAA"
+popup/item_1/id = 1
+popup/item_2/text = "SMAA"
+popup/item_2/id = 2
+popup/item_3/text = "TAA"
+popup/item_3/id = 3
+popup/item_4/text = "DLAA"
+popup/item_4/id = 4
+script = ExtResource("5_etk1h")
 
 [node name="SOUND" type="Panel" parent="SceneRoot/MainContentBox"]
 visible = false
@@ -519,7 +741,7 @@ theme_override_icons/grabber_disabled = SubResource("DPITexture_snpff")
 theme_override_styles/slider = SubResource("StyleBoxLine_sxiga")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_ca6he")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_snpff")
-value = 75.0
+value = 80.0
 script = ExtResource("5_ca6he")
 audio_bus_name = "Music"
 
@@ -568,7 +790,7 @@ theme_override_icons/grabber_disabled = SubResource("DPITexture_snpff")
 theme_override_styles/slider = SubResource("StyleBoxLine_sxiga")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_ca6he")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_snpff")
-value = 50.0
+value = 80.0
 script = ExtResource("5_ca6he")
 audio_bus_name = "UI"
 
@@ -625,7 +847,7 @@ theme_override_icons/grabber_disabled = SubResource("DPITexture_snpff")
 theme_override_styles/slider = SubResource("StyleBoxLine_sxiga")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_ca6he")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_snpff")
-value = 50.0
+value = 80.0
 script = ExtResource("5_ca6he")
 audio_bus_name = "SFX"
 
@@ -674,7 +896,7 @@ theme_override_icons/grabber_disabled = SubResource("DPITexture_snpff")
 theme_override_styles/slider = SubResource("StyleBoxLine_sxiga")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_ca6he")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_snpff")
-value = 50.0
+value = 80.0
 script = ExtResource("5_ca6he")
 audio_bus_name = "Voice"
 
@@ -682,21 +904,702 @@ audio_bus_name = "Voice"
 visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS"]
-layout_mode = 0
-offset_right = 400.0
-offset_bottom = 139.0
-text = "Kontrole"
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="PROFILE" type="Panel" parent="SceneRoot/MainContentBox"]
-visible = false
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE"]
-layout_mode = 0
-offset_right = 400.0
-offset_bottom = 139.0
-text = "Profil"
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/focus = SubResource("StyleBoxEmpty_pj0l6")
+text = "Controls setting:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="ControlsDropdown" type="OptionButton" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tt1nk")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_vyb2b")
+theme_override_styles/hover = SubResource("StyleBoxFlat_dbu4n")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_t1b5t")
+alignment = 1
+script = ExtResource("5_etk1h")
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 25
+
+[node name="DescriptionControls" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Return animation
+duration (s):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ReturnAnimDur" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "0.3s"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Return animation
+transition:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="RetAnimTrans" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "QUAD"
+vertical_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Throttle increment 
+per second:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ThrIncrmPerSec" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "10ms"
+vertical_alignment = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Throttle joystick
+deadzone:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ThrotleJoystickDeadzone" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "0.08"
+vertical_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Throttle joystick to
+key cooldown time:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ThrotleCooldown" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "0.25"
+vertical_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Joystick deadzone:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="JoystickDeadzone" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "0.1"
+vertical_alignment = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Mouse deadzone:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MouseDeadzone" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "5"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Enable keyboard:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EnableKeyboard" type="Label" parent="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "ON"
+vertical_alignment = 1
+
+[node name="PROFILE" type="Panel" parent="SceneRoot/MainContentBox"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/PROFILE"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/focus = SubResource("StyleBoxEmpty_pj0l6")
+text = "Game profile:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="GameProfile" type="OptionButton" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tt1nk")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_vyb2b")
+theme_override_styles/hover = SubResource("StyleBoxFlat_dbu4n")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_t1b5t")
+alignment = 1
+item_count = 5
+popup/item_0/text = "Very Easy"
+popup/item_0/id = 0
+popup/item_1/text = "Easy"
+popup/item_1/id = 1
+popup/item_2/text = "Medium"
+popup/item_2/id = 2
+popup/item_3/text = "Hard"
+popup/item_3/id = 3
+popup/item_4/text = "Very Hard"
+popup/item_4/id = 4
+script = ExtResource("5_etk1h")
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 25
+
+[node name="Description" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Idle moment thrust %:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="IdleMomentPer" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "11%"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Thrust latency:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ThrustLat" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "10ms"
+vertical_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Gimbal latency:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="GimbalLat" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "10ms"
+vertical_alignment = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Velocity alignment 
+coefficient (0-9):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="VelAlinCoe" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/HBoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "7"
+vertical_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Auto stabilization:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AutoStab" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "On"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Stabilization
+strength (0-1):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="StabStr" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "0.7"
+vertical_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Roll max speed (0-1):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="RollMaxSpeed" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "5"
+vertical_alignment = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Roll acceleration (0-30):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="RollAccel" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer4/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "3"
+vertical_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 25
+text = "Roll damping (0-20):"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="RollDamp" type="Label" parent="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 40
+text = "3"
+vertical_alignment = 1
 
 [node name="ReturnBtnMargin" type="MarginContainer" parent="SceneRoot"]
 layout_mode = 2
@@ -708,7 +1611,7 @@ layout_mode = 2
 theme_override_constants/separation = 22
 alignment = 2
 
-[node name="DisplayApplyBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer"]
+[node name="ApplyBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer"]
 custom_minimum_size = Vector2(350, 100)
 layout_direction = 1
 layout_mode = 2
@@ -721,6 +1624,8 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_sxiga")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ca6he")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_snpff")
 text = "APPLY"
+script = ExtResource("5_etk1h")
+is_apply_button = true
 
 [node name="ReturnBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer"]
 custom_minimum_size = Vector2(350, 100)
@@ -735,6 +1640,16 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_sxiga")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ca6he")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_snpff")
 text = "RETURN"
+script = ExtResource("5_etk1h")
+
+[node name="UIAudio" type="AudioStreamPlayer" parent="SceneRoot"]
+bus = &"UI"
+
+[node name="GraphicsApplier" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_snpff")
 
 [connection signal="pressed" from="SceneRoot/OptionsMenu/Options/GraphicsSettingsBtn" to="." method="_on_graphics_settings_btn_pressed"]
 [connection signal="pressed" from="SceneRoot/OptionsMenu/Options/SoundSettingsBtn" to="." method="_on_sound_settings_btn_pressed"]
@@ -743,9 +1658,18 @@ text = "RETURN"
 [connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
 [connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/DisplayTypeDropdown" to="." method="_on_display_type_dropdown_item_selected"]
 [connection signal="toggled" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VsyncButton" to="." method="_on_vsync_button_toggled"]
+[connection signal="value_changed" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/BrightnessSlider" to="." method="_on_brightness_slider_value_changed"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/GraphicsQualityDropdown" to="." method="_on_graphics_quality_dropdown_item_selected"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/RightRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/AADropdown" to="." method="_on_aa_dropdown_item_selected"]
+[connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MusicSlider" to="." method="_on_music_slider_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MusicSlider" to="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MusicSlider" method="_on_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/UISlider" to="." method="_on_ui_slider_value_changed"]
+[connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/UISlider" to="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/UISlider" method="_on_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/SFXSlider" to="." method="_on_sfx_slider_value_changed"]
+[connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/SFXSlider" to="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/SFXSlider" method="_on_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/VoiceSlider" to="." method="_on_voice_slider_value_changed"]
-[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/DisplayApplyBtn" to="." method="_on_display_apply_btn_pressed"]
+[connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/VoiceSlider" to="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/VoiceSlider" method="_on_value_changed"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/CONTROLS/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/ControlsDropdown" to="." method="_on_controls_dropdown_item_selected"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/PROFILE/VBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/GameProfile" to="." method="_on_game_profile_item_selected"]
+[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/ApplyBtn" to="." method="_on_apply_btn_pressed"]
 [connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/ReturnBtn" to="." method="_on_return_btn_pressed"]

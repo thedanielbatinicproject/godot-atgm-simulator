@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GameProfileData" load_steps=2 format=3 uid="uid://b7imrh6u0w78h"]
+
+[ext_resource type="Script" uid="uid://dy3wdvahbr6vn" path="res://scripts/GameProfile/GameProfileData.gd" id="1_mjfjg"]
+
+[resource]
+script = ExtResource("1_mjfjg")
+profile_name = "Medium"
+description = "Medium game profile for average players."
+idle_moment_thrust_percentage = 25.0
+thrust_latency = 0.15
+gimbal_latency = 0.1
+velocity_alignment_coefficient = 3.0
+metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

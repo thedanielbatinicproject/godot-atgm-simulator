@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ControlConfig" load_steps=2 format=3 uid="uid://st7fuh1kut6r"]
+
+[ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="1_ofyot"]
+
+[resource]
+script = ExtResource("1_ofyot")
+name = "Relaxed"
+description = "Controls for clumsy users."
+return_animation_duration = 0.15
+throttle_increment_per_second = 0.2
+throttle_joystick_deadzone = 0.2
+throttle_joystick_cooldown_time = 0.5
+deadzone_joystick = 0.3
+deadzone_mouse = 6.0
+metadata/_custom_type_script = "uid://dwyq6f1j3ibnu"

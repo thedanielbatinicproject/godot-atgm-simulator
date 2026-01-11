@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GameProfileData" load_steps=2 format=3 uid="uid://xq2ll6ltbwey"]
+
+[ext_resource type="Script" uid="uid://dy3wdvahbr6vn" path="res://scripts/GameProfile/GameProfileData.gd" id="1_xajgv"]
+
+[resource]
+script = ExtResource("1_xajgv")
+profile_name = "Very hard"
+description = "Very hard game profile for advanced users."
+thrust_latency = 0.3
+gimbal_latency = 0.1
+velocity_alignment_coefficient = 0.3
+roll_max_speed = 1.0
+roll_acceleration = 1.0
+metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

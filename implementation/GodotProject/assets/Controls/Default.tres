@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ControlConfig" load_steps=2 format=3 uid="uid://bghewffyp0tbg"]
+
+[ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="1_yyfec"]
+
+[resource]
+script = ExtResource("1_yyfec")
+name = "Default"
+description = "Default control configuration for starter player."
+return_animation_duration = 0.225
+return_animation_trans = 4
+throttle_increment_per_second = 0.3
+throttle_joystick_cooldown_time = 0.5

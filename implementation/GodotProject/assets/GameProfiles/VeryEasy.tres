@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="GameProfileData" load_steps=2 format=3 uid="uid://bq3ddh1kc338j"]
+
+[ext_resource type="Script" uid="uid://dy3wdvahbr6vn" path="res://scripts/GameProfile/GameProfileData.gd" id="1_fssmt"]
+
+[resource]
+script = ExtResource("1_fssmt")
+profile_name = "Very easy"
+description = "Very easy game profile for old people."
+idle_moment_thrust_percentage = 50.0
+thrust_latency = 0.0
+gimbal_latency = 0.0
+velocity_alignment_coefficient = 9.0
+auto_stabilization = true
+stabilization_strength = 0.5
+roll_max_speed = 5.0
+roll_acceleration = 3.0
+metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

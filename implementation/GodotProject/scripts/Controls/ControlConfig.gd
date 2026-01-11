@@ -1,6 +1,11 @@
 extends Resource
 class_name ControlConfig
 
+#GENERAL
+@export_group("General")
+@export var name: String = "Default Control Config"
+@export var description: String = "Default control configuration."
+
 # STICK CONTROLLER
 @export_group("Stick Controller")
 @export var stick_radius: float = 150.0

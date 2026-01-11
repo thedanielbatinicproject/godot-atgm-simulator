@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameProfileData" load_steps=2 format=3 uid="uid://d2tqq6d5ulr8y"]
+
+[ext_resource type="Script" uid="uid://dy3wdvahbr6vn" path="res://scripts/GameProfile/GameProfileData.gd" id="1_ekyln"]
+
+[resource]
+script = ExtResource("1_ekyln")
+profile_name = "Hard"
+description = "Hard game profile for quick players."
+idle_moment_thrust_percentage = 5.0
+thrust_latency = 0.2
+gimbal_latency = 0.15
+velocity_alignment_coefficient = 1.0
+roll_max_speed = 2.0
+roll_acceleration = 3.0
+metadata/_custom_type_script = "uid://dy3wdvahbr6vn"

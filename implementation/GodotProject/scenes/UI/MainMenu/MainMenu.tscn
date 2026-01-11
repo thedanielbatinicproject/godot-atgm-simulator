@@ -1,10 +1,12 @@
-[gd_scene load_steps=12 format=3 uid="uid://nu1cl703v3dc"]
+[gd_scene load_steps=14 format=3 uid="uid://nu1cl703v3dc"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_5o0ao"]
+[ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_d1yk3"]
 [ext_resource type="Script" uid="uid://b8p5eo4j4wvyw" path="res://scripts/MainMenu/MainMenu.gd" id="1_si7on"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="2_c5d1r"]
 [ext_resource type="AudioStream" uid="uid://d05k3o2dn8gak" path="res://assets/Audio/Music/main_menu1.wav" id="5_c5d1r"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="5_j26ry"]
+[ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="5_ojgp0"]
 [ext_resource type="PackedScene" uid="uid://ctptm2pbq1oqo" path="res://scenes/UI/MainMenu/Options.tscn" id="6_j26ry"]
 [ext_resource type="PackedScene" uid="uid://c0ajm1wdsfbxk" path="res://scenes/UI/MainMenu/ScenarioSelector.tscn" id="7_d1yk3"]
 
@@ -85,20 +87,34 @@ SIMULATION"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ButtonMargin" type="MarginContainer" parent="MainMenuRoot"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenuRoot"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 700
-theme_override_constants/margin_top = 150
-theme_override_constants/margin_right = 700
-theme_override_constants/margin_bottom = 150
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainMenuRoot/ButtonMargin"]
+[node name="BoxContainer2" type="BoxContainer" parent="MainMenuRoot/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonMargin" type="BoxContainer" parent="MainMenuRoot/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MainMenuRoot/HBoxContainer/ButtonMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 120
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 120
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 44
 
-[node name="StartBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+[node name="StartBtn" type="Button" parent="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_j26ry")
@@ -108,8 +124,9 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
 theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
 text = "START SIMULATION"
+script = ExtResource("5_ojgp0")
 
-[node name="OptionBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+[node name="OptionBtn" type="Button" parent="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_j26ry")
@@ -119,8 +136,9 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
 theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
 text = "OPTIONS"
+script = ExtResource("5_ojgp0")
 
-[node name="ExitBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+[node name="ExitBtn" type="Button" parent="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_j26ry")
@@ -130,6 +148,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
 theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
 text = "EXIT"
+script = ExtResource("5_ojgp0")
+
+[node name="BoxContainer" type="BoxContainer" parent="MainMenuRoot/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="FooterMargin" type="MarginContainer" parent="MainMenuRoot"]
 layout_mode = 2
@@ -160,6 +183,13 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
-[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/OptionBtn" to="." method="_on_option_btn_pressed"]
-[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/ExitBtn" to="." method="_on_exit_btn_pressed"]
+[node name="GraphicsApplier" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_d1yk3")
+
+[connection signal="pressed" from="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
+[connection signal="pressed" from="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer/OptionBtn" to="." method="_on_option_btn_pressed"]
+[connection signal="pressed" from="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer/ExitBtn" to="." method="_on_exit_btn_pressed"]
+[connection signal="finished" from="MainMenuMusic" to="." method="_on_main_menu_music_finished"]

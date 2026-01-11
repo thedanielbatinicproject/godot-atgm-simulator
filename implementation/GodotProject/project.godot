@@ -18,12 +18,22 @@ boot_splash/show_image=false
 boot_splash/fullsize=false
 boot_splash/use_filter=false
 config/icon="uid://dspd55ab3spu6"
+config/autoload_on_startup=true
+
+[autoload]
+
+GraphicsSettingsManager="*res://scripts/Singletons/GraphicsSettingsManager.gd"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/borderless=true
+window/stretch/mode="canvas_items"
+
+[editor]
+
+version_control/autoload_on_startup=true
 
 [editor_plugins]
 

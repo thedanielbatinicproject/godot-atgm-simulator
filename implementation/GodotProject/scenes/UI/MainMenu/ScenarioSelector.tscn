@@ -1,8 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://c0ajm1wdsfbxk"]
+[gd_scene load_steps=11 format=3 uid="uid://c0ajm1wdsfbxk"]
 
+[ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_5cs3r"]
 [ext_resource type="Script" uid="uid://ba5xs7ypm6df2" path="res://scripts/MainMenu/ScenarioSelector.gd" id="1_70qer"]
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_guh81"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_1p68v"]
+[ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="4_0lcv2"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="4_5cs3r"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_70qer"]
@@ -76,6 +78,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_5cs3r")
 theme_override_styles/hover = SubResource("StyleBoxFlat_aakfd")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_0lcv2")
 text = "RETURN"
+script = ExtResource("4_0lcv2")
 
 [node name="OptionsTitle" type="Label" parent="."]
 layout_mode = 1
@@ -99,5 +102,11 @@ theme_override_font_sizes/font_size = 70
 text = "SCENE SELECTOR"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="GraphicsApplier" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_5cs3r")
 
 [connection signal="pressed" from="ReturnBtn" to="." method="_on_return_btn_pressed"]

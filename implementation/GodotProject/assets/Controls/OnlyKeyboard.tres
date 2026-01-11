@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ControlConfig" load_steps=2 format=3 uid="uid://ky4n4x5mfjiy"]
+
+[ext_resource type="Script" uid="uid://dwyq6f1j3ibnu" path="res://scripts/Controls/ControlConfig.gd" id="1_2q361"]
+
+[resource]
+script = ExtResource("1_2q361")
+name = "Keyboard and mosue"
+description = "Made for keyboard and mouse users."
+return_animation_duration = 0.1
+throttle_increment_per_second = 0.4
+deadzone_mouse = 2.0
+enable_gamepad_input = false
+metadata/_custom_type_script = "uid://dwyq6f1j3ibnu"
