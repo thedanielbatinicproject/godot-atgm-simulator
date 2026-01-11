@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://ctptm2pbq1oqo"]
+[gd_scene load_steps=33 format=3 uid="uid://ctptm2pbq1oqo"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_pcou3"]
 [ext_resource type="Script" uid="uid://bws1b4is7qlrx" path="res://scripts/MainMenu/OptionsMenu.gd" id="1_urebe"]
@@ -46,6 +46,29 @@ corner_radius_bottom_right = 35
 bg_color = Color(0, 0, 0, 0.29803923)
 corner_radius_top_right = 35
 corner_radius_bottom_right = 35
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tgq8v"]
+bg_color = Color(0.5058824, 0.5058824, 0.5058824, 0.54901963)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k8pph"]
+bg_color = Color(0.42745098, 0.42745098, 0.42745098, 0.72156864)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_etk1h"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgtgh"]
+bg_color = Color(0.42745098, 0.42745098, 0.42745098, 0.72156864)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ca6he"]
+
+[sub_resource type="DPITexture" id="DPITexture_etk1h"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".75\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\"/></svg>
+"
+base_scale = 3.0
+
+[sub_resource type="DPITexture" id="DPITexture_pj0l6"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><g fill-opacity=\".5\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#1a1a1a\" rx=\"7\"/><circle cx=\"8\" cy=\"8\" r=\"5\" fill=\"#fff\"/></g></svg>
+"
+base_scale = 3.0
 
 [sub_resource type="DPITexture" id="DPITexture_sxiga"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\" fill-opacity=\".75\"/></svg>
@@ -273,31 +296,143 @@ size_flags_horizontal = 3
 [node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 35
+theme_override_constants/margin_left = 50
 theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 35
+theme_override_constants/margin_right = 150
 theme_override_constants/margin_bottom = 40
 
-[node name="OptionButton" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+[node name="ResolutionDropdown" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 4
-popup/item_0/text = "1920x1080"
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k8pph")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_etk1h")
+alignment = 1
+item_count = 5
+popup/item_0/text = "1280x1024"
 popup/item_0/id = 0
-popup/item_1/text = "1440x1080"
+popup/item_1/text = "1920x1080"
 popup/item_1/id = 1
-popup/item_2/text = "2560x1440"
+popup/item_2/text = "1440x1080"
 popup/item_2/id = 2
-popup/item_3/text = "4096x2160"
+popup/item_3/text = "2560x1440"
 popup/item_3/id = 3
+popup/item_4/text = "4096x2160"
+popup/item_4/id = 4
 
 [node name="BoxContainer3" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Display 
+type"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 150
+theme_override_constants/margin_bottom = 40
+
+[node name="DisplayTypeDropdown" type="OptionButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_tgq8v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_rgtgh")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_etk1h")
+alignment = 1
+item_count = 3
+popup/item_0/text = "Fullscreen"
+popup/item_0/id = 0
+popup/item_1/text = "Windowed"
+popup/item_1/id = 1
+popup/item_2/text = "Borderless"
+popup/item_2/id = 2
+
 [node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="Label" type="Label" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 30
+text = "Enable
+V-Sync"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 105
+
+[node name="VsyncButton" type="CheckButton" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 4
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ca6he")
+theme_override_icons/checked = SubResource("DPITexture_etk1h")
+theme_override_icons/unchecked = SubResource("DPITexture_pj0l6")
 
 [node name="RightRoot" type="BoxContainer" parent="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer"]
 layout_mode = 2
@@ -568,7 +703,26 @@ layout_mode = 2
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 40
 
-[node name="ReturnBtn" type="Button" parent="SceneRoot/ReturnBtnMargin"]
+[node name="HBoxContainer" type="HBoxContainer" parent="SceneRoot/ReturnBtnMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+alignment = 2
+
+[node name="DisplayApplyBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer"]
+custom_minimum_size = Vector2(350, 100)
+layout_direction = 1
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("2_pnkru")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_urebe")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sxiga")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ca6he")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_snpff")
+text = "APPLY"
+
+[node name="ReturnBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer"]
 custom_minimum_size = Vector2(350, 100)
 layout_direction = 1
 layout_mode = 2
@@ -586,8 +740,12 @@ text = "RETURN"
 [connection signal="pressed" from="SceneRoot/OptionsMenu/Options/SoundSettingsBtn" to="." method="_on_sound_settings_btn_pressed"]
 [connection signal="pressed" from="SceneRoot/OptionsMenu/Options/ProfileSettingsBtn" to="." method="_on_profile_settings_btn_pressed"]
 [connection signal="pressed" from="SceneRoot/OptionsMenu/Options/ControlsSettingsBtn" to="." method="_on_controls_settings_btn_pressed"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
+[connection signal="item_selected" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/DisplayTypeDropdown" to="." method="_on_display_type_dropdown_item_selected"]
+[connection signal="toggled" from="SceneRoot/MainContentBox/GRAPHICS/HBoxContainer/LeftRoot/VBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VsyncButton" to="." method="_on_vsync_button_toggled"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MusicSlider" to="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MusicSlider" method="_on_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/Left/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/UISlider" to="." method="_on_ui_slider_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer/MarginContainer/HBoxContainer/BoxContainer2/SFXSlider" to="." method="_on_sfx_slider_value_changed"]
 [connection signal="value_changed" from="SceneRoot/MainContentBox/SOUND/HBoxContainer/LeftRoot2/HBoxContainer/BoxContainer2/MarginContainer/HBoxContainer/BoxContainer2/VoiceSlider" to="." method="_on_voice_slider_value_changed"]
-[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/ReturnBtn" to="." method="_on_return_btn_pressed"]
+[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/DisplayApplyBtn" to="." method="_on_display_apply_btn_pressed"]
+[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/ReturnBtn" to="." method="_on_return_btn_pressed"]
