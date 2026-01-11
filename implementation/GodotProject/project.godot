@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Pojednostavljeni model protuoklopnog vođenog projektila"
+config/version="1.0.0"
 run/main_scene="uid://nu1cl703v3dc"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"

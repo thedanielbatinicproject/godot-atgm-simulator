@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://g4avkbt1qmi2"]
 
 [ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="1_g4tci"]
-[ext_resource type="Resource" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
+[ext_resource type="Resource" uid="uid://g8tej85v3njn" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
 [ext_resource type="Script" uid="uid://bgt7apg0qnkgk" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="3_dl574"]
 [ext_resource type="Texture2D" uid="uid://cmk2caergusv3" path="res://assets/Textures/UncutGrass1/Uncut_Grass_oilpt20_1K_BaseColor.jpg" id="4_f53m7"]
 [ext_resource type="Texture2D" uid="uid://bu7hd3dx0wmlc" path="res://assets/Textures/Dirt01/yd0ldai_2K_Basecolor.jpg" id="5_cmh6r"]
@@ -39,7 +39,7 @@ custom_globalmap_shader = null
 texture_set = SubResource("Resource_tr3qb")
 render_layers = 1
 cast_shadow = 1
-shader_params/u_ground_uv_scale = 20
+shader_params/u_ground_uv_scale = 3.0
 shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = null

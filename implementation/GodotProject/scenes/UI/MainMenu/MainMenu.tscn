@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://nu1cl703v3dc"]
+[gd_scene load_steps=11 format=3 uid="uid://nu1cl703v3dc"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_5o0ao"]
 [ext_resource type="Script" uid="uid://b8p5eo4j4wvyw" path="res://scripts/MainMenu/MainMenu.gd" id="1_si7on"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="2_c5d1r"]
+[ext_resource type="AudioStream" uid="uid://d05k3o2dn8gak" path="res://assets/Audio/Music/main_menu1.wav" id="5_c5d1r"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="5_j26ry"]
+[ext_resource type="PackedScene" uid="uid://ctptm2pbq1oqo" path="res://scenes/UI/MainMenu/Options.tscn" id="6_j26ry"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6quh8"]
 bg_color = Color(0, 0, 0, 1)
@@ -36,88 +38,41 @@ shadow_size = 3
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_si7on")
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
-layout_mode = 0
-offset_left = -973.0
-offset_top = -546.0
-offset_right = 968.0
-offset_bottom = 552.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 stream = ExtResource("1_5o0ao")
 volume_db = -80.0
 autoplay = true
 expand = true
 loop = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="MainMenuRoot" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -281.0
-offset_top = -100.0
-offset_right = 281.0
-offset_bottom = 397.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 44
 
-[node name="StartBtn" type="Button" parent="VBoxContainer"]
+[node name="TitleMargin" type="MarginContainer" parent="MainMenuRoot"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("5_j26ry")
-theme_override_font_sizes/font_size = 36
-theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
-theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
-text = "START SIMULATION"
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_bottom = -5
 
-[node name="OptionBtn" type="Button" parent="VBoxContainer"]
+[node name="Title" type="Label" parent="MainMenuRoot/TitleMargin"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("5_j26ry")
-theme_override_font_sizes/font_size = 36
-theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
-theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
-text = "OPTIONS"
-
-[node name="ExitBtn" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("5_j26ry")
-theme_override_font_sizes/font_size = 36
-theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
-theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
-text = "EXIT"
-
-[node name="Title" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -305.5
-offset_top = -450.0
-offset_right = 305.5
-offset_bottom = -168.0
-grow_horizontal = 2
-grow_vertical = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 6
 theme_override_constants/shadow_offset_y = 6
@@ -129,19 +84,58 @@ SIMULATION"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Footer" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -535.0
-offset_top = 463.0
-offset_right = 561.0
-offset_bottom = 528.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="ButtonMargin" type="MarginContainer" parent="MainMenuRoot"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 700
+theme_override_constants/margin_top = 150
+theme_override_constants/margin_right = 700
+theme_override_constants/margin_bottom = 150
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenuRoot/ButtonMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 44
+
+[node name="StartBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("5_j26ry")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
+theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
+text = "START SIMULATION"
+
+[node name="OptionBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("5_j26ry")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
+theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
+text = "OPTIONS"
+
+[node name="ExitBtn" type="Button" parent="MainMenuRoot/ButtonMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("5_j26ry")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_6quh8")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5o0ao")
+theme_override_styles/hover = SubResource("StyleBoxFlat_si7on")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5o0ao")
+text = "EXIT"
+
+[node name="FooterMargin" type="MarginContainer" parent="MainMenuRoot"]
+layout_mode = 2
+theme_override_constants/margin_bottom = 15
+
+[node name="Footer" type="Label" parent="MainMenuRoot/FooterMargin"]
+layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
@@ -152,6 +146,14 @@ text = "ISS Project 2026 (FER)
 Created by Daniel Batinić, Leon Lužaić, Ivan Periša, Karim Krklec, Nikola Simunić"
 horizontal_alignment = 1
 
-[connection signal="pressed" from="VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
-[connection signal="pressed" from="VBoxContainer/OptionBtn" to="." method="_on_option_btn_pressed"]
-[connection signal="pressed" from="VBoxContainer/ExitBtn" to="." method="_on_exit_btn_pressed"]
+[node name="MainMenuMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_c5d1r")
+autoplay = true
+
+[node name="Options" parent="." instance=ExtResource("6_j26ry")]
+visible = false
+layout_mode = 1
+
+[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
+[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/OptionBtn" to="." method="_on_option_btn_pressed"]
+[connection signal="pressed" from="MainMenuRoot/ButtonMargin/VBoxContainer/ExitBtn" to="." method="_on_exit_btn_pressed"]
