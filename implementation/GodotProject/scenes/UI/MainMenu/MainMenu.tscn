@@ -1,9 +1,11 @@
-[gd_scene load_steps=14 format=3 uid="uid://nu1cl703v3dc"]
+[gd_scene load_steps=16 format=3 uid="uid://nu1cl703v3dc"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_5o0ao"]
 [ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_d1yk3"]
 [ext_resource type="Script" uid="uid://b8p5eo4j4wvyw" path="res://scripts/MainMenu/MainMenu.gd" id="1_si7on"]
+[ext_resource type="Texture2D" uid="uid://cvt0d66hxi8mh" path="res://assets/UI/Cursors/CursorJoystick.png" id="2_4p5d5"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="2_c5d1r"]
+[ext_resource type="Texture2D" uid="uid://dev0ikwffnor" path="res://assets/UI/Cursors/CursorMouseAndKeyboardSmall.png" id="3_gc5k6"]
 [ext_resource type="AudioStream" uid="uid://d05k3o2dn8gak" path="res://assets/Audio/Music/main_menu1.wav" id="5_c5d1r"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="5_j26ry"]
 [ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="5_ojgp0"]
@@ -47,6 +49,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_si7on")
+joystick_cursor = ExtResource("2_4p5d5")
+default_cursor = ExtResource("3_gc5k6")
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
 layout_mode = 1
