@@ -188,9 +188,8 @@ visible = false
 layout_mode = 1
 
 [node name="GraphicsApplier" type="Control" parent="."]
+layout_mode = 1
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 script = ExtResource("1_d1yk3")
 
 [connection signal="pressed" from="MainMenuRoot/HBoxContainer/ButtonMargin/MarginContainer/VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
