@@ -1,12 +1,14 @@
-[gd_scene load_steps=18 format=3 uid="uid://c0ajm1wdsfbxk"]
+[gd_scene load_steps=20 format=3 uid="uid://c0ajm1wdsfbxk"]
 
 [ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_5cs3r"]
 [ext_resource type="Script" uid="uid://ba5xs7ypm6df2" path="res://scripts/MainMenu/ScenarioSelector.gd" id="1_70qer"]
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_guh81"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_1p68v"]
+[ext_resource type="Resource" uid="uid://bs8kvx8queetb" path="res://assets/Scenarios/TutorialScenario.tres" id="2_rc87y"]
+[ext_resource type="Resource" uid="uid://daqg63quulduq" path="res://assets/Scenarios/TestScenario.tres" id="3_ked15"]
 [ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="4_0lcv2"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="4_5cs3r"]
-[ext_resource type="AudioStream" uid="uid://ijelu3yw3gow" path="res://assets/Audio/UI_SFX/hover.wav" id="7_wdi4c"]
+[ext_resource type="Texture2D" uid="uid://bx2sd7a86s5mc" path="res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png" id="6_wdi4c"]
 
 [sub_resource type="GDScript" id="GDScript_0lcv2"]
 script/source = "extends VBoxContainer
@@ -94,6 +96,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_70qer")
+scenario_data_array = Array[Resource]([ExtResource("2_rc87y"), ExtResource("3_ked15")])
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
 layout_mode = 1
@@ -187,7 +190,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer"]
+[node name="ScenarioBox" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -196,21 +199,24 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 40
 
-[node name="ScenariosList" type="VBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer"]
+[node name="ScenariosList" type="VBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = SubResource("Theme_0lcv2")
 theme_override_constants/separation = 10
 
-[node name="ScenarioItem1" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
+[node name="ScenarioItem1" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList"]
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
+script = ExtResource("4_0lcv2")
+is_apply_deny = true
 
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem1"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
+[node name="ScenarioItemMargin" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList/ScenarioItem1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -219,220 +225,20 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem1/MarginContainer"]
+[node name="ScenarioThumbAndTitle" type="VBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList/ScenarioItem1/ScenarioItemMargin"]
 layout_mode = 2
-size_flags_horizontal = 3
 
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem1/MarginContainer/Panel"]
+[node name="ScenarioThumb" type="TextureRect" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList/ScenarioItem1/ScenarioItemMargin/ScenarioThumbAndTitle"]
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("6_wdi4c")
+
+[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList/ScenarioItem1/ScenarioItemMargin/ScenarioThumbAndTitle"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 30
 text = "TUTORIAL"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem2" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem2"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem2/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem2/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "DUNE"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem3" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem3"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem3/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem3/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "DUNE NIGHT"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem4" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem4"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem4/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem4/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "MINECRAFT"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem5" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem5"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem5/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem5/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "FOREST"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem6" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem6"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem6/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem6/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "LARGE ROOM"
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
-
-[node name="ScenarioItem7" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem7"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem7/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem7/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "FREESTYLE"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScenarioItem8" type="Button" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem8"]
-layout_mode = 0
-offset_right = 535.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="Panel" type="BoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem8/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ScenarioTitle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/MarginContainer/ScenariosList/ScenarioItem8/MarginContainer/Panel"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("2_1p68v")
-theme_override_font_sizes/font_size = 30
-text = "DUST II"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -487,7 +293,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/Desc"]
+[node name="ScenarioDescription" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/Desc"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -516,7 +322,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/LevelName"]
+[node name="LevelName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/LevelName"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -525,7 +331,7 @@ theme_override_font_sizes/font_size = 20
 text = "DUNE"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="RocketModel" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
@@ -542,7 +348,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketModel"]
+[node name="ProjModelName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketModel"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -568,7 +374,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketThrust"]
+[node name="ProjMaxThrust" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketThrust"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -594,7 +400,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMaxAngle"]
+[node name="ProjThrustMaxAngle" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMaxAngle"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -620,7 +426,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMass"]
+[node name="ProjWeight" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMass"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -646,7 +452,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketLenght"]
+[node name="ProjLen" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketLenght"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -667,12 +473,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
-text = "Projectile base radius:"
+text = "Projectile base diameter:"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketRadisu"]
+[node name="ProjRadius" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketRadisu"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -715,7 +521,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/InitialSpeed"]
+[node name="ProjInitialSpeed" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/InitialSpeed"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -741,7 +547,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TimeOfDay"]
+[node name="TimeOfDay" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TimeOfDay"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -767,7 +573,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Wind"]
+[node name="WindType" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Wind"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -793,7 +599,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/WindStr"]
+[node name="WindStrenght" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/WindStr"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -819,7 +625,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TankModel"]
+[node name="TankName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TankModel"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -845,7 +651,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Other"]
+[node name="OtherConditionsFog" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Other"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -871,7 +677,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Profile"]
+[node name="SelectedProfile" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Profile"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -897,7 +703,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls"]
+[node name="SelectedControls" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -918,12 +724,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
-text = "Difficulty:"
+text = "Scenario difficulty:"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ScenarioName" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls2"]
+[node name="Difficulty" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls2"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -983,7 +789,6 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_q1vkg")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_2ou0m")
 text = "START SCENARIO"
 script = ExtResource("4_0lcv2")
-hover_sound = ExtResource("7_wdi4c")
 is_apply_button = true
 
 [node name="ReturnBtn" type="Button" parent="SceneRoot/ReturnBtnMargin/HBoxContainer/Buttons"]

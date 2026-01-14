@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RocketData" load_steps=2 format=3 uid="uid://oih1w570e4a8"]
+
+[ext_resource type="Script" uid="uid://c6btekbi0in50" path="res://scripts/ProjectileModel/RocketData.gd" id="1_i3apc"]
+
+[resource]
+script = ExtResource("1_i3apc")
+rocket_name = "FGM-148 Javelin Missile"
+radius = 0.0635
+cylinder_height = 0.25
+cone_height = 0.83
+mass = 23.700000000000003
+max_thrust = 842.0
+max_thrust_angle = 0.15009831567151233
+rotational_damping_coefficient = 2.0
+metadata/_custom_type_script = "uid://c6btekbi0in50"

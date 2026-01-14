@@ -16,24 +16,27 @@ class_name RocketData
 # ============================================================================
 
 @export_category("Projectile")
+@export_group("General")
+## Name of the rocket/projectile.
+@export var rocket_name: String = "Default Rocket"
 
 @export_group("Geometry")
 ## Radius of the cylindrical body in meters.
-@export_range(0.01, 1.0, 0.01, "suffix:m") var radius: float = 0.05
+@export_range(0.01, 1.0, 0.0001, "suffix:m") var radius: float = 0.05
 ## Height of the cylindrical section in meters.
-@export_range(0.01, 5.0, 0.01, "suffix:m") var cylinder_height: float = 0.3
+@export_range(0.01, 5.0, 0.0001, "suffix:m") var cylinder_height: float = 0.3
 ## Height of the conical nose section in meters.
-@export_range(0.01, 2.0, 0.01, "suffix:m") var cone_height: float = 0.2
+@export_range(0.01, 2.0, 0.0001, "suffix:m") var cone_height: float = 0.2
 
 @export_group("Mass")
 ## Total mass of the projectile in kilograms.
-@export_range(0.1, 100.0, 0.1, "suffix:kg") var mass: float = 2.0
+@export_range(0.1, 100.0, 0.01, "suffix:kg") var mass: float = 2.0
 
 @export_group("Propulsion")
 ## Maximum thrust force in Newtons.
-@export_range(0.0, 10000.0, 10.0, "suffix:N") var max_thrust: float = 500.0
+@export_range(0.0, 10000.0, 1.0, "suffix:N") var max_thrust: float = 500.0
 ## Maximum gimbal deflection angle.
-@export_range(0.1, 40.0, 0.5, "radians_as_degrees") var max_thrust_angle: float = PI / 6.0
+@export_range(0.1, 40.0, 0.05, "radians_as_degrees") var max_thrust_angle: float = PI / 6.0
 
 @export_group("⚠️ Aerodynamics (Advanced)")
 ## Koeficijent rotacijskog prigušenja (kvadratni model).

@@ -1,4 +1,5 @@
 extends Resource
+
 class_name ScenarioData
 
 # ============================================================================
@@ -18,42 +19,120 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export_category("Scenario")
 
 @export_group("Identification")
-@export var scenario_thumbnail: Texture2D
+@export var scenario_thumbnail: Texture2D = ResourceLoader.load("res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png")
 ## Unique name for this scenario.
 @export var scenario_name: String = "Default Scenario"
+## Difficulty for this scenario.
+@export var scenario_difficulty: String = "Easy"
 ## Description of what this scenario tests or demonstrates.
 @export_multiline var scenario_description: String = ""
 
-@export_group("Scene")
+@export_group("3D Scene")
 ## The 3D level/environment scene to load for this scenario.
 @export var level_scene: PackedScene
 
+# ============================================================================
+# TANK CONFIGURATION
+# ============================================================================
+@export_group("Tank")
+## 3D model of the tank (should include collision mesh)
+@export var tank_scene: PackedScene
+## Name of the tank (for UI or logic)
+@export var tank_name: String = "Default Tank"
+## Initial delay before tank starts moving (seconds)
+@export var tank_initial_delay: float = 0.0
+
+# Tank path definition: parallel arrays for easy Inspector editing
+## Positions along the tank path (in meters)
+@export var tank_path_positions: PackedVector3Array = PackedVector3Array() ## At least 2 required
+## Speeds after each tank path point (in km/h)
+@export var tank_path_speeds: Array[float] = [] ## Speed in km/h for each segment (default 25.0)
+## Orientations for each tank path point (Euler angles in degrees)
+@export var tank_path_orientations: Array[Vector3] = [] ## Orientation (Euler angles in degrees) for each point
+
+# Helper methods for tank path data
+func get_tank_path_point(idx: int) -> Dictionary:
+	# Returns a dictionary with position, speed, and orientation for the given index
+	var pos = tank_path_positions[idx] if idx < tank_path_positions.size() else Vector3.ZERO
+	var speed = tank_path_speeds[idx] if idx < tank_path_speeds.size() else 25.0
+	var orientation = tank_path_orientations[idx] if idx < tank_path_orientations.size() else Vector3.ZERO
+	return {
+		"position": pos,
+		"speed_kmph": speed,
+		"orientation": orientation
+	}
+
+func get_tank_path_length() -> int:
+	# Returns the number of defined tank path points (minimum of all arrays)
+	return min(tank_path_positions.size(), tank_path_speeds.size(), tank_path_orientations.size())
+
+
+# --- USER-SELECTED GAME PROFILE AND CONTROLS ---
+var game_profile: GameProfileData
+var control_config: ControlConfig
+
+func _ready():
+	load_user_settings()
+
+func load_user_settings():
+	# Default indices: Easy profile (1), Default controls (0)
+	var profile_index = 1
+	var controls_index = 0
+
+	# Load profile index from config
+	var profile_cfg = ConfigFile.new()
+	if profile_cfg.load("user://settings/profile.cfg") == OK:
+		profile_index = profile_cfg.get_value("profile", "selected", 1)
+
+	# Load controls index from config
+	var controls_cfg = ConfigFile.new()
+	if controls_cfg.load("user://settings/controls.cfg") == OK:
+		controls_index = controls_cfg.get_value("controls", "selected", 0)
+
+	# Resource paths
+	var profile_paths = [
+		"res://assets/GameProfiles/VeryEasy.tres",
+		"res://assets/GameProfiles/Easy.tres",
+		"res://assets/GameProfiles/Medium.tres",
+		"res://assets/GameProfiles/Hard.tres",
+		"res://assets/GameProfiles/VeryHard.tres"
+	]
+	var controls_paths = [
+		"res://assets/Controls/Default.tres",
+		"res://assets/Controls/OnlyJoystick.tres",
+		"res://assets/Controls/OnlyKeyboard.tres",
+		"res://assets/Controls/RelaxedControls.tres"
+	]
+
+	# Load resources, fallback if missing
+	if profile_index < profile_paths.size():
+		game_profile = load(profile_paths[profile_index])
+	else:
+		game_profile = load(profile_paths[1]) # Easy
+
+	if controls_index < controls_paths.size():
+		control_config = load(controls_paths[controls_index])
+	else:
+		control_config = load(controls_paths[0]) # Default
+
+
+# ============================================================================
+# PROJECTILE CONFIGURATION
+# ============================================================================
 @export_group("Projectile")
-## Reference to the RocketData resource defining projectile properties.
+## Projectile scene (should include mesh, collision, logic, etc.)
+@export var projectile_scene: PackedScene
+## Rocket parameters resource (for physics, guidance, etc.)
 @export var rocket_data: RocketData
-
-@export_group("Game Profile")
-## Reference to the GameProfileData resource with gameplay settings.
-@export var game_profile: GameProfileData
-
-@export_group("Controls")
-## Reference to the ControlConfig resource with input settings.
-@export var control_config: ControlConfig
-
-@export_group("Initial Position")
-## Starting position in meters (Godot: X=right, Y=up, Z=forward).
+## Initial global position (meters)
 @export var initial_position: Vector3 = Vector3.ZERO
-
-@export_group("Initial Velocity")
-## Početna brzina u smjeru nosa projektila (lokalna +Z os) u m/s.
+## Initial speed in the direction of the projectile's nose (m/s)
 @export_range(0.0, 1000.0, 1.0, "suffix:m/s") var initial_speed: float = 100.0
-
-@export_group("Initial Orientation")
-## Početni pitch kut (α). Pozitivno = nos gore.
+## Initial pitch angle (α). Positive = nose up.
 @export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_pitch_alpha: float = 0.0
-## Početni yaw kut (β). Pozitivno = nos desno.
+## Initial yaw angle (β). Positive = nose right.
 @export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_yaw_beta: float = 0.0
-## Početni roll kut (γ). Pozitivno = u smjeru kazaljke gledano od iza.
+## Initial roll angle (γ). Positive = clockwise from behind.
 @export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var initial_roll_gamma: float = 0.0
 
 @export_group("Environment")
@@ -63,6 +142,19 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export_range(0.0, 20.0, 0.01, "suffix:m/s²") var gravity: float = 9.81
 ## Dynamic viscosity of air in kg/(m·s).
 @export var air_viscosity: float = 1.8e-5
+
+# ============================================================================
+# ENVIRONMENT VISUALS
+# ============================================================================
+@export_group("Environment Visuals")
+## Time of day in hours (0.0 = midnight, 12.0 = noon, 18.0 = sunset)
+@export_range(0.0, 24.0, 0.1, "suffix:h") var time_of_day: float = 12.0
+## Fog color
+@export var fog_color: Color = Color(0.7, 0.7, 0.8, 1.0)
+## Fog density (0 = no fog, 1 = very dense)
+@export_range(0.0, 1.0, 0.01) var fog_density: float = 0.0
+## Ambient light energy (0 = dark, 1 = default, >1 = brighter)
+@export_range(0.0, 2.0, 0.01) var ambient_light_energy: float = 1.0
 
 @export_group("Wind Configuration")
 ## Type of wind field to generate.
@@ -75,6 +167,31 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export var wind_frequencies: Vector3 = Vector3(0.05, 0.03, 0.04)
 ## Wind gradient vector for gradient-based wind types.
 @export var wind_gradient: Vector3 = Vector3.ZERO
+
+# ============================================================================
+# VOICE LINES
+# ============================================================================
+@export_group("Voice Lines")
+## Time (in seconds) when each voice line should play
+@export var voice_line_times: Array[float] = []
+## Subtitle text for each voice line
+@export var voice_line_texts: Array[String] = []
+## Audio resource for each voice line (can be null)
+@export var voice_line_audios: Array[AudioStream] = []
+
+# Helper method to fetch voice line data as dictionary
+func get_voice_line(idx: int) -> Dictionary:
+	var time = voice_line_times[idx] if idx < voice_line_times.size() else 0.0
+	var text = voice_line_texts[idx] if idx < voice_line_texts.size() else ""
+	var audio = voice_line_audios[idx] if idx < voice_line_audios.size() else null
+	return {
+		"time": time,
+		"text": text,
+		"audio": audio
+	}
+
+func get_voice_line_count() -> int:
+	return min(voice_line_times.size(), voice_line_texts.size(), voice_line_audios.size())
 
 # VJETAR KAO VEKTORSKO POLJE
 var wind_function: Callable = func(_pos: Vector3) -> Vector3:
@@ -147,61 +264,64 @@ func get_wind_at_position(position: Vector3) -> Vector3:
 	return wind_function.call(position)
 
 func get_info() -> String:
-	"""Vraća formatiran string s podacima scenarija."""
-	var rocket_name = "NIJE UČITAN" if rocket_data == null else rocket_data.get_class()
-	var level_name = "NIJE UČITAN" if level_scene == null else level_scene.resource_path
-	
-	var pos_x = "%.3f" % initial_position.x
-	var pos_y = "%.3f" % initial_position.y
-	var pos_z = "%.3f" % initial_position.z
-	
-	var global_vel = get_initial_velocity_global()
-	var vel_x = "%.3f" % global_vel.x
-	var vel_y = "%.3f" % global_vel.y
-	var vel_z = "%.3f" % global_vel.z
-	
-	var alpha_deg = "%.2f" % rad_to_deg(initial_pitch_alpha)
-	var beta_deg = "%.2f" % rad_to_deg(initial_yaw_beta)
-	var gamma_deg = "%.2f" % rad_to_deg(initial_roll_gamma)
-	var dens_str = "%.4f" % air_density
-	var grav_str = "%.2f" % gravity
-	var visc_str = "%.6f" % air_viscosity
-	
-	var info = """Scenario - ScenarioData
-===================================
-Naziv:                       %s
-Opis:                        %s
+		"""Returns a formatted string with scenario data."""
+		var projectile_scene_name = "NOT LOADED" if projectile_scene == null else projectile_scene.resource_path
+		var rocket_name = "NOT LOADED" if rocket_data == null else rocket_data.get_class()
+		var level_name = "NOT LOADED" if level_scene == null else level_scene.resource_path
 
-Okruzenje:
-  Level (scene):             %s
-  
-Projektil:
-  Model:                     %s
-  
-Početno stanje:
-  Pozicija:                  (%s, %s, %s) m
-  Brzina (lokalna):          %.1f m/s (smjer nosa)
-  Brzina (globalna):         (%s, %s, %s) m/s
-  Eulerovi kutovi:
-    pitch (α):               %s deg
-    yaw (β):                 %s deg
-    roll (γ):                %s deg
-  
-Okoljni parametri:
-  Gustoća zraka:             %s kg/m³
-  Gravitacija:               %s m/s²
-  Viskoznost zraka:          %s kg/(m·s)
-  Vjetarsko polje:           Prilagođena funkcija
+		var pos_x = "%.3f" % initial_position.x
+		var pos_y = "%.3f" % initial_position.y
+		var pos_z = "%.3f" % initial_position.z
+
+		var global_vel = get_initial_velocity_global()
+		var vel_x = "%.3f" % global_vel.x
+		var vel_y = "%.3f" % global_vel.y
+		var vel_z = "%.3f" % global_vel.z
+
+		var alpha_deg = "%.2f" % rad_to_deg(initial_pitch_alpha)
+		var beta_deg = "%.2f" % rad_to_deg(initial_yaw_beta)
+		var gamma_deg = "%.2f" % rad_to_deg(initial_roll_gamma)
+		var dens_str = "%.4f" % air_density
+		var grav_str = "%.2f" % gravity
+		var visc_str = "%.6f" % air_viscosity
+
+		var info = """Scenario - ScenarioData
+===================================
+Name:                        %s
+Description:                 %s
+
+Environment:
+	Level (scene):             %s
+
+Projectile:
+	Scene:                     %s
+	Data:                      %s
+
+Initial state:
+	Position:                  (%s, %s, %s) m
+	Speed (local):             %.1f m/s (nose direction)
+	Speed (global):            (%s, %s, %s) m/s
+	Euler angles:
+		pitch (α):               %s deg
+		yaw (β):                 %s deg
+		roll (γ):                %s deg
+
+Environment parameters:
+	Air density:               %s kg/m³
+	Gravity:                   %s m/s²
+	Air viscosity:             %s kg/(m·s)
+	Wind field:                Custom function
 ===================================
 """ % [
-		scenario_name, scenario_description,
-		level_name,
-		rocket_name,
-		pos_x, pos_y, pos_z,
-		initial_speed,
-		vel_x, vel_y, vel_z,
-		alpha_deg, beta_deg, gamma_deg,
-		dens_str, grav_str, visc_str
-	]
-	
-	return info
+				scenario_name, scenario_description,
+				level_name,
+				projectile_scene_name,
+				rocket_name,
+				pos_x, pos_y, pos_z,
+				initial_speed,
+				vel_x, vel_y, vel_z,
+				alpha_deg, beta_deg, gamma_deg,
+				dens_str, grav_str, visc_str
+		]
+
+		return info
