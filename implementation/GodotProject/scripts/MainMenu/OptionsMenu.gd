@@ -492,3 +492,7 @@ func update_controls_labels(index: int):
 func _on_controls_dropdown_item_selected(index: int) -> void:
 	controls_settings["selected"] = index
 	update_controls_labels(index)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("return"):
+		_on_return_btn_pressed()

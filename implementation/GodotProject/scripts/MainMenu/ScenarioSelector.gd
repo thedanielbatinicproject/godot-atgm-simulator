@@ -1,5 +1,11 @@
 extends Control
 
+var scroll_speed := 300 # pixels per second
+var scroll_accel_time := 1.5 # seconds to accelerate
+var scroll_accel_factor := 5.0 # speed multiplier after acceleration
+var scroll_up_hold_time := 0.0
+var scroll_down_hold_time := 0.0
+
 @onready var main_menu_root: VBoxContainer = $"../MainMenuRoot"
 @onready var scenario_selector: Control = $"."
 
@@ -7,6 +13,7 @@ extends Control
 @export var enable_scenario_loading: bool = true
 @onready var scenarios_list: VBoxContainer = $SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList
 @onready var scenario_item_1: Button = $SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer/ScenarioBox/ScenariosList/ScenarioItem1
+@onready var scroll_container: ScrollContainer = $SceneRoot/MainContentBox/HBoxContainer/ScrollableArea/MarginContainer/ScenarioList/ScrollContainer
 
 @onready var scenario_data_display: HBoxContainer = $SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer
 
@@ -38,6 +45,24 @@ func _ready() -> void:
 	scenario_data_display.visible = false
 	if enable_scenario_loading:
 		populate_scenarios_list()
+
+func _process(delta):
+	if Input.is_action_pressed("scroll_up"):
+		scroll_up_hold_time += delta
+		var speed = scroll_speed
+		if scroll_up_hold_time > scroll_accel_time:
+			speed *= scroll_accel_factor
+		scroll_container.scroll_vertical += speed * delta
+	else:
+		scroll_up_hold_time = 0.0
+	if Input.is_action_pressed("scroll_down"):
+		scroll_down_hold_time += delta
+		var speed = scroll_speed
+		if scroll_down_hold_time > scroll_accel_time:
+			speed *= scroll_accel_factor
+		scroll_container.scroll_vertical -= speed * delta
+	else:
+		scroll_down_hold_time = 0.0
 
 # Populates the scenario list with all scenario .tres files in /assets/Scenarios
 func populate_scenarios_list() -> void:
@@ -245,3 +270,9 @@ func _on_return_btn_pressed() -> void:
 	scenario_selector.visible = false
 	if main_menu_root:
 		main_menu_root.visible = true
+
+#func _process(delta):
+#	if Input.is_action_pressed("scroll_up"):
+#		scroll_container.scroll_vertical += scroll_speed * delta
+#	if Input.is_action_pressed("scroll_down"):
+#		scroll_container.scroll_vertical -= scroll_speed * delta

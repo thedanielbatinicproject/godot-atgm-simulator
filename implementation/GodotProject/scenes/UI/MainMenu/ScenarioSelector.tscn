@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://c0ajm1wdsfbxk"]
+[gd_scene load_steps=23 format=3 uid="uid://c0ajm1wdsfbxk"]
 
 [ext_resource type="Script" uid="uid://bgcrj11l8vbop" path="res://scripts/GraphicsSettingsApplier.gd" id="1_5cs3r"]
 [ext_resource type="Script" uid="uid://ba5xs7ypm6df2" path="res://scripts/MainMenu/ScenarioSelector.gd" id="1_70qer"]
@@ -8,6 +8,9 @@
 [ext_resource type="Resource" uid="uid://daqg63quulduq" path="res://assets/Scenarios/TestScenario.tres" id="3_ked15"]
 [ext_resource type="Script" uid="uid://c3mlu5x81gqth" path="res://scripts/MainMenu/UISoundPlayer.gd" id="4_0lcv2"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="4_5cs3r"]
+[ext_resource type="Resource" uid="uid://b5nip7kieyvkc" path="res://assets/Scenarios/TestScenario2.tres" id="4_oqhug"]
+[ext_resource type="Resource" uid="uid://bx2c1k8ex00r" path="res://assets/Scenarios/TestScenario3.tres" id="5_0txs5"]
+[ext_resource type="Resource" uid="uid://berxmgdb8mxn6" path="res://assets/Scenarios/TestScenario4.tres" id="6_q1vkg"]
 [ext_resource type="Texture2D" uid="uid://bx2sd7a86s5mc" path="res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png" id="6_wdi4c"]
 
 [sub_resource type="GDScript" id="GDScript_0lcv2"]
@@ -96,7 +99,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_70qer")
-scenario_data_array = Array[Resource]([ExtResource("2_rc87y"), ExtResource("3_ked15")])
+scenario_data_array = Array[Resource]([ExtResource("2_rc87y"), ExtResource("3_ked15"), ExtResource("4_oqhug"), ExtResource("5_0txs5"), ExtResource("6_q1vkg")])
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
 layout_mode = 1

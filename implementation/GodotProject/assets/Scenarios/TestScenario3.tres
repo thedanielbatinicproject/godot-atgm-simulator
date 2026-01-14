@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ScenarioData" load_steps=2 format=3 uid="uid://bx2c1k8ex00r"]
+
+[ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_utmaj"]
+
+[resource]
+script = ExtResource("1_utmaj")
+scenario_description = "DANIEL"
+tank_path_positions = null
+metadata/_custom_type_script = "uid://0mnruf4ps0g6"
