@@ -313,6 +313,7 @@ visible_characters_behavior = 1
 [node name="LevelName" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/LevelName"]
 custom_minimum_size = Vector2(50, 0)
@@ -321,7 +322,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 30
 text = "Level name:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -332,13 +333,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "DUNE"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketModel" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketModel"]
 custom_minimum_size = Vector2(50, 0)
@@ -347,7 +348,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Projectile model:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -358,13 +359,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "M-442F"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketThrust" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketThrust"]
 custom_minimum_size = Vector2(50, 0)
@@ -373,7 +374,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Max thrust:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -384,13 +385,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "300N"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketMaxAngle" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMaxAngle"]
 custom_minimum_size = Vector2(50, 0)
@@ -399,7 +400,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Max thrust angle:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -410,13 +411,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "1.5deg"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketMass" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketMass"]
 custom_minimum_size = Vector2(50, 0)
@@ -425,7 +426,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Projectile mass:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -436,13 +437,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "15kg"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketLenght" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketLenght"]
 custom_minimum_size = Vector2(50, 0)
@@ -451,7 +452,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Projectile len:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -462,13 +463,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "45cm"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="RocketRadisu" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer/MarginContainer/VBoxContainer/RocketRadisu"]
 custom_minimum_size = Vector2(50, 0)
@@ -477,7 +478,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Projectile base diameter:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -488,7 +489,6 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "15cm"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
@@ -512,6 +512,7 @@ size_flags_horizontal = 3
 [node name="InitialSpeed" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/InitialSpeed"]
 custom_minimum_size = Vector2(50, 0)
@@ -520,7 +521,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Initial projectile speed:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -531,13 +532,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "30 mps"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="TimeOfDay" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TimeOfDay"]
 custom_minimum_size = Vector2(50, 0)
@@ -546,7 +547,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Time of day:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -557,13 +558,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Noon"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Wind" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Wind"]
 custom_minimum_size = Vector2(50, 0)
@@ -572,7 +573,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Wind:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -583,13 +584,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Altitude gradient with noise"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="WindStr" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/WindStr"]
 custom_minimum_size = Vector2(50, 0)
@@ -598,7 +599,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Wind coefficient:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -609,13 +610,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "5"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="TankModel" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/TankModel"]
 custom_minimum_size = Vector2(50, 0)
@@ -624,7 +625,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Tank model:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -635,13 +636,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "T-14 Armata"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Other" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Other"]
 custom_minimum_size = Vector2(50, 0)
@@ -650,7 +651,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Other conditions:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -661,13 +662,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Fog, rain"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Profile" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Profile"]
 custom_minimum_size = Vector2(50, 0)
@@ -676,7 +677,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Selected profile:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -687,13 +688,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Easy"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Controls" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls"]
 custom_minimum_size = Vector2(50, 0)
@@ -702,7 +703,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Selected controls:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -713,13 +714,13 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Default"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Controls2" type="HBoxContainer" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SceneRoot/MainContentBox/HBoxContainer/ScenarioDetails/HBoxContainer/MarginContainer/HBoxContainer/BoxContainer2/MarginContainer/VBoxContainer/Controls2"]
 custom_minimum_size = Vector2(50, 0)
@@ -728,7 +729,7 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 25
 text = "Scenario difficulty:"
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 autowrap_mode = 2
 
@@ -739,7 +740,6 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 20
 text = "Medium"
-horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
@@ -810,10 +810,5 @@ script = ExtResource("4_0lcv2")
 [node name="UIAudio" type="AudioStreamPlayer" parent="SceneRoot"]
 bus = &"UI"
 
-[node name="GraphicsApplier2" type="Control" parent="."]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("1_5cs3r")
-
+[connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/Buttons/StartBtn" to="." method="_on_start_btn_pressed"]
 [connection signal="pressed" from="SceneRoot/ReturnBtnMargin/HBoxContainer/Buttons/ReturnBtn" to="." method="_on_return_btn_pressed"]

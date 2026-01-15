@@ -17,12 +17,15 @@ class_name Projectile
 # ============================================================================
 
 # KONFIGURACIJA
-@export var scenario_data: ScenarioData
+var scenario_data: ScenarioData  # Set via initialize() at runtime
 @export var debug_enabled: bool = false
 @export var debug_interval: float = 0.5
 @export var calculate_moments: bool = true
 # Debug opcija: koristi gravitaciju u simulaciji
 @export var calculate_gravity: bool = true
+
+# Flag to track initialization
+var _initialized: bool = false
 
 # KOMPONENTE SIMULACIJE
 var state: StateVariables
@@ -50,14 +53,36 @@ func normalize_angle(angle: float) -> float:
 # ============================================================================
 
 func _ready():
-	"""Inicijalizira sve komponente projektila iz scenarija."""
+	"""Called when node enters scene tree. Actual initialization happens in initialize()."""
+	# If scenario_data was already set (e.g., via initialize() before adding to tree),
+	# perform initialization now
+	if scenario_data and not _initialized:
+		_do_initialize()
+
+
+func initialize(p_scenario_data: ScenarioData) -> void:
+	"""Initialize projectile with scenario data. Call this after instantiating the scene."""
+	scenario_data = p_scenario_data
+	
+	# If already in tree, initialize immediately
+	if is_inside_tree():
+		_do_initialize()
+	# Otherwise, _ready() will call _do_initialize()
+
+
+func _do_initialize():
+	"""Actual initialization logic - sets up all components from scenario data."""
+	if _initialized:
+		return
+	_initialized = true
+	
 	if not scenario_data:
-		print("ERROR: No ScenarioData assigned to Projectile!")
+		push_error("Projectile: No ScenarioData provided!")
 		return
 	
 	var rocket_data = scenario_data.rocket_data
 	if not rocket_data:
-		print("ERROR: ScenarioData has no RocketData!")
+		push_error("Projectile: ScenarioData has no RocketData!")
 		return
 	
 	# Izračunaj momente tromosti
@@ -119,7 +144,7 @@ func _ready():
 
 func _physics_process(delta: float):
 	"""Glavna simulacijska petlja - eksplicitni Euler."""
-	if not scenario_data or not scenario_data.rocket_data or not state:
+	if not _initialized or not scenario_data or not scenario_data.rocket_data or not state:
 		return
 	
 	elapsed_time += delta

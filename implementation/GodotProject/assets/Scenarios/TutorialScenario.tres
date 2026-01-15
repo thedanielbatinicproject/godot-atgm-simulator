@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="ScenarioData" load_steps=5 format=3 uid="uid://bs8kvx8queetb"]
+[gd_resource type="Resource" script_class="ScenarioData" load_steps=6 format=3 uid="uid://bs8kvx8queetb"]
 
 [ext_resource type="PackedScene" uid="uid://g4avkbt1qmi2" path="res://scenes/Levels/Forest/Forest.tscn" id="1_fqmhx"]
-[ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148.tres" id="2_pn45g"]
+[ext_resource type="PackedScene" uid="uid://2fl736ekeq20" path="res://assets/Rockets/FGM-148/FGM-148.tscn" id="2_pn45g"]
+[ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148/FGM-148.tres" id="3_h2wk0"]
 [ext_resource type="Texture2D" uid="uid://bx2sd7a86s5mc" path="res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png" id="3_va8r5"]
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="4_h2wk0"]
 
@@ -13,8 +14,11 @@ scenario_difficulty = "Very easy"
 scenario_description = "Learn how to control rocket in this simple environment. We recommend using default controls with easy game profile!"
 level_scene = ExtResource("1_fqmhx")
 tank_name = "M-14 Armada"
-tank_path_positions = PackedVector3Array()
-rocket_data = ExtResource("2_pn45g")
+tank_path_positions = PackedVector3Array(0, 0, 0, 10, 10, 10)
+tank_path_speeds = Array[float]([1.0, 1.0])
+tank_path_orientations = Array[Vector3]([Vector3(0, 0, 0), Vector3(0, 0, 0)])
+projectile_scene = ExtResource("2_pn45g")
+rocket_data = ExtResource("3_h2wk0")
 initial_position = Vector3(-903.059, 1500, -902.526)
 initial_speed = 30.0
 initial_pitch_alpha = -0.32288591161895097
@@ -26,4 +30,5 @@ wind_type = "constant"
 wind_amplitudes = Vector3(0, 0, 0)
 wind_frequencies = Vector3(0.5, 0.5, 0.5)
 wind_gradient = Vector3(0.01, 0.01, 0.01)
+player_control_delay = 4.0
 metadata/_custom_type_script = "uid://0mnruf4ps0g6"

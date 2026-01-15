@@ -8,6 +8,7 @@ var scroll_down_hold_time := 0.0
 
 @onready var main_menu_root: VBoxContainer = $"../MainMenuRoot"
 @onready var scenario_selector: Control = $"."
+@onready var start_btn: Button = $SceneRoot/ReturnBtnMargin/HBoxContainer/Buttons/StartBtn
 
 # --- SCENARIO SELECTOR SCROLL AREA ---
 @export var enable_scenario_loading: bool = true
@@ -39,10 +40,14 @@ var scroll_down_hold_time := 0.0
 # --- SCENARIO DATA ARRAY (for export inclusion and editor management) ---
 @export var scenario_data_array: Array[Resource] = [] # Fill with ScenarioData .tres in the editor
 
+# Currently selected scenario
+var selected_scenario: ScenarioData = null
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	scenario_data_display.visible = false
+	start_btn.disabled = true  # Disable until a scenario is selected
 	if enable_scenario_loading:
 		populate_scenarios_list()
 
@@ -129,6 +134,10 @@ func _on_scenario_item_pressed(item: Button) -> void:
 	var scenario_res = item.get_meta("scenario_res")
 	if scenario_res == null:
 		return
+	
+	# Store selected scenario and enable start button
+	selected_scenario = scenario_res as ScenarioData
+	start_btn.disabled = false
 
 	# Scenario description and name
 	scenario_description.text = scenario_res.scenario_description if "scenario_description" in scenario_res else ""
@@ -268,11 +277,15 @@ func _on_scenario_item_pressed(item: Button) -> void:
 func _on_return_btn_pressed() -> void:
 	scenario_data_display.visible = false
 	scenario_selector.visible = false
+	selected_scenario = null
+	start_btn.disabled = true
 	if main_menu_root:
 		main_menu_root.visible = true
 
-#func _process(delta):
-#	if Input.is_action_pressed("scroll_up"):
-#		scroll_container.scroll_vertical += scroll_speed * delta
-#	if Input.is_action_pressed("scroll_down"):
-#		scroll_container.scroll_vertical -= scroll_speed * delta
+
+func _on_start_btn_pressed() -> void:
+	if selected_scenario == null:
+		push_warning("ScenarioSelector: No scenario selected")
+		return
+	# Call ScenarioManager to start the selected scenario
+	ScenarioManager.start_scenario(selected_scenario)

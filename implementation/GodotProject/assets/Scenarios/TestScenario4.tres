@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_3no54"]
 [ext_resource type="PackedScene" uid="uid://g4avkbt1qmi2" path="res://scenes/Levels/Forest/Forest.tscn" id="1_vo6e8"]
-[ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148.tres" id="2_oyyer"]
+[ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148/FGM-148.tres" id="2_oyyer"]
 
 [resource]
 script = ExtResource("1_3no54")

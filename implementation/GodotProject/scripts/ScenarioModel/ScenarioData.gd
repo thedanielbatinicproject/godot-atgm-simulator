@@ -190,6 +190,16 @@ func get_voice_line(idx: int) -> Dictionary:
 		"audio": audio
 	}
 
+@export_group("Player controls")
+## Time in seconds before player can control the projectile.
+@export_range(0.0, 10.0, 0.1, "suffix:s") var player_control_delay: float = 0.0
+## Distance from tank or ground where final cutscene starts playing (meters).
+@export_range(0.0, 500.0, 1.0, "suffix:m") var final_cutscene_start_distance: float = 50.0
+## Maximum time in seconds for the scenario before auto-ending.
+@export_range(10.0,1600.0, 1.0, "suffix:s") var max_scenario_time: float = 400.0
+## Distance from terrain where projectile is considered leaving mission area (meters).
+@export_range(10.0,15000.0, 1.0, "suffix:m") var mission_area_limit: float = 2000.0
+
 func get_voice_line_count() -> int:
 	return min(voice_line_times.size(), voice_line_texts.size(), voice_line_audios.size())
 
