@@ -14,6 +14,7 @@ const ScenarioEnvironmentClass = preload("res://scripts/ScenarioManager/Scenario
 const ScenarioEventWatcherClass = preload("res://scripts/ScenarioManager/ScenarioEventWatcher.gd")
 const ScenarioCutsceneManagerClass = preload("res://scripts/ScenarioManager/ScenarioCutsceneManager.gd")
 const NarratorManagerClass = preload("res://scripts/ScenarioManager/NarratorManager.gd")
+const CameraManagerClass = preload("res://scripts/ScenarioManager/CameraManager.gd")
 
 signal scenario_loading_started
 signal scenario_started
@@ -29,6 +30,7 @@ var environment
 var event_watcher
 var cutscene_manager
 var narrator
+var camera_manager
 
 # Current scenario data
 var current_scenario_data: ScenarioData = null
@@ -60,6 +62,9 @@ func _ready() -> void:
 	
 	narrator = NarratorManagerClass.new()
 	add_child(narrator)
+	
+	camera_manager = CameraManagerClass.new()
+	add_child(camera_manager)
 	
 	# Connect signals
 	_connect_signals()
@@ -94,6 +99,11 @@ func _input(event: InputEvent) -> void:
 			pause_scenario()
 		elif state.is_state(ScenarioStateClass.State.PAUSED):
 			resume_scenario()
+	
+	# Camera switching
+	if event.is_action_pressed("switch_camera"):
+		if state.is_state(ScenarioStateClass.State.RUNNING) or state.is_state(ScenarioStateClass.State.CUTSCENE):
+			camera_manager.switch_camera()
 
 
 func _process(delta: float) -> void:
@@ -104,9 +114,11 @@ func _process(delta: float) -> void:
 	if state.is_state(ScenarioStateClass.State.RUNNING):
 		event_watcher.process(delta)
 		narrator.process(delta)
+		camera_manager.process(delta)
 	
 	if state.is_state(ScenarioStateClass.State.CUTSCENE):
 		cutscene_manager.process_cutscene(delta)
+		camera_manager.process(delta)
 
 
 # ============================================================================
@@ -188,7 +200,11 @@ func _on_loading_started() -> void:
 func _on_loading_completed(scenario_root: Node) -> void:
 	_scenario_root = scenario_root
 	
-	# Add scenario root to tree
+	# Create InputManager BEFORE adding scenario_root to tree
+	# This ensures it exists when Projectile's _ready() is called
+	_create_input_manager()
+	
+	# Add scenario root to tree (this triggers _ready() on all children)
 	get_tree().root.add_child(_scenario_root)
 	get_tree().current_scene = _scenario_root
 	
@@ -198,12 +214,12 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Create HUD layer
 	_create_hud()
 	
-	# Add InputManager for controls
-	_create_input_manager()
-	
 	# Setup narrator
 	if _hud_layer:
 		narrator.setup(current_scenario_data, _hud_layer)
+	
+	# Setup camera manager
+	camera_manager.setup(_scenario_root, current_scenario_data)
 	
 	# Transition to starting state
 	state.transition_to(ScenarioStateClass.State.STARTING)
@@ -236,15 +252,23 @@ func _on_state_changed(old_state: int, new_state: int) -> void:
 func _on_player_control_delay_finished() -> void:
 	if state.is_state(ScenarioStateClass.State.RUNNING):
 		player_control_changed.emit(true)
+		_set_hud_visible(true)
 		narrator.play_default_message("You have control!", 2.0)
+
+
+func _set_hud_visible(visible: bool) -> void:
+	"""Show or hide the HUD based on player control state."""
+	if _hud_instance:
+		_hud_instance.visible = visible
 
 
 func _on_cutscene_distance_reached() -> void:
 	if not state.can_transition_to(ScenarioStateClass.State.CUTSCENE):
 		return
 	
-	# Disable player control
+	# Disable player control and hide HUD
 	player_control_changed.emit(false)
+	_set_hud_visible(false)
 	
 	# Start cutscene
 	state.transition_to(ScenarioStateClass.State.CUTSCENE)
@@ -255,6 +279,9 @@ func _on_cutscene_distance_reached() -> void:
 
 
 func _on_projectile_hit_tank() -> void:
+	# Hide HUD during hit sequence
+	_set_hud_visible(false)
+	
 	# Play hit animation
 	var projectile = event_watcher.get_projectile()
 	var hit_pos = projectile.global_position if projectile else Vector3.ZERO
@@ -268,6 +295,7 @@ func _on_projectile_hit_ground(position: Vector3) -> void:
 	if state.is_state(ScenarioStateClass.State.RUNNING):
 		state.transition_to(ScenarioStateClass.State.CUTSCENE)
 		player_control_changed.emit(false)
+		_set_hud_visible(false)
 	
 	# Play miss animation
 	cutscene_manager.play_miss_animation(position)
@@ -307,19 +335,24 @@ func _end_scenario(success: bool, message: String) -> void:
 	_show_end_screen(success, message)
 
 
+var _hud_instance: Node = null
+
 func _create_hud() -> void:
 	_hud_layer = CanvasLayer.new()
 	_hud_layer.name = "HUDLayer"
 	_hud_layer.layer = 10
 	_scenario_root.add_child(_hud_layer)
 	
-	if hud_scene:
-		var hud = hud_scene.instantiate()
-		_hud_layer.add_child(hud)
+	# Use preloaded HUD scene
+	_hud_instance = HUD_SCENE.instantiate()
+	_hud_layer.add_child(_hud_instance)
+	# Start with HUD hidden until player control is enabled
+	_hud_instance.visible = false
 
 
 var _input_manager: Node = null
 const INPUT_MANAGER_SCENE = preload("res://assets/UI/input_manager.tscn")
+const HUD_SCENE = preload("res://scenes/UI/HUD.tscn")
 
 func _create_input_manager() -> void:
 	# Instantiate InputManager scene and add to scenario
@@ -411,6 +444,7 @@ func _cleanup_scenario() -> void:
 	cutscene_manager.cleanup()
 	narrator.cleanup()
 	environment.cleanup()
+	camera_manager.cleanup()
 	
 	# Unload scenario
 	loader.unload_scenario()

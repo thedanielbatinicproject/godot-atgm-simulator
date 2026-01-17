@@ -38,5 +38,5 @@ shape = SubResource("CylinderShape3D_78euo")
 transform = Transform3D(0.135, 0, 0, 0, -5.9010374e-09, -0.135, 0, 0.135, -5.9010374e-09, 0, 0, 0.827401)
 shape = SubResource("SphereShape3D_7kpfk")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0.79376835)
+[node name="Camera3D" type="Camera3D" parent="Area3D/CollisionShape3D4"]
+transform = Transform3D(-7.4074073, 0, -6.475761e-07, 6.475761e-07, -3.2378804e-07, -7.4074073, -2.830645e-14, -7.4074073, 3.2378804e-07, 0, -0.24913073, 1.0889863e-08)

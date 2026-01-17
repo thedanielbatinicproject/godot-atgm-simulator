@@ -199,6 +199,7 @@ func get_voice_line(idx: int) -> Dictionary:
 @export_range(10.0,1600.0, 1.0, "suffix:s") var max_scenario_time: float = 400.0
 ## Distance from terrain where projectile is considered leaving mission area (meters).
 @export_range(10.0,15000.0, 1.0, "suffix:m") var mission_area_limit: float = 2000.0
+@export var static_camera_location : Vector3 = Vector3(0, 0, 0)
 
 func get_voice_line_count() -> int:
 	return min(voice_line_times.size(), voice_line_texts.size(), voice_line_audios.size())

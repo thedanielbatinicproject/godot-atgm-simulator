@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://g4avkbt1qmi2"]
+[gd_scene load_steps=11 format=3 uid="uid://g4avkbt1qmi2"]
 
 [ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="1_g4tci"]
 [ext_resource type="Resource" uid="uid://g8tej85v3njn" path="res://assets/Terrain/Forest/data.hterrain" id="2_g4tci"]
@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" uid="uid://dqohq56xn58yu" path="res://assets/Textures/UncutGrass1/Uncut_Grass_oilpt20_1K_Normal.jpg" id="7_3lldj"]
 [ext_resource type="Texture2D" uid="uid://b4txsnr4qo6b3" path="res://assets/Textures/Dirt01/yd0ldai_2K_Normal.jpg" id="8_2nfpu"]
 [ext_resource type="Texture2D" uid="uid://comsqv5dyjlkq" path="res://assets/Textures/CliffRock/Icelandic_Jagged_Slate_Rock_shfsaida_2K_Normal.jpg" id="9_r4i6k"]
-[ext_resource type="PackedScene" uid="uid://3bte2dhfjpx6" path="res://assets/3D Assets/Props/Tank01/Tiger_I.fbx" id="10_8ccj7"]
 
 [sub_resource type="Resource" id="Resource_tr3qb"]
 script = ExtResource("3_dl574")
@@ -24,7 +23,7 @@ transform = Transform3D(-0.59902364, -0.76615065, 0.2327744, 0, 0.29070225, 0.95
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Lighting"]
 
 [node name="Sun" type="DirectionalLight3D" parent="Lighting"]
-transform = Transform3D(0.9999999, 0, -1.4901161e-08, -2.9802322e-08, 0.99999994, 7.450581e-09, 1.4901161e-08, 0, 0.99999994, 0, 0, 0)
+transform = Transform3D(0.9999999, 0, 0, -2.9802322e-08, 0.99999994, 2.2351742e-08, 1.4901161e-08, 0, 0.99999994, 0, 193.83542, 637.98737)
 shadow_enabled = true
 
 [node name="HTerrain" type="Node3D" parent="."]
@@ -45,22 +44,3 @@ shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = null
 metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.78001, 309.21927, 447.94882)
-radius = 0.39
-height = 1.8
-
-[node name="Tiger_I" parent="." instance=ExtResource("10_8ccj7")]
-transform = Transform3D(-0.026996952, 0, 0.9996355, 0, 1, 0, -0.9996355, 0, -0.026996952, 47.59733, -19.146431, 683.0437)
-
-[node name="Tiger_I2" parent="." instance=ExtResource("10_8ccj7")]
-transform = Transform3D(-0.653077, 0, 0.7572915, 0, 1, 0, -0.7572915, 0, -0.653077, 84.39432, -19.146431, 655.7519)
-
-[node name="Tiger_I3" parent="." instance=ExtResource("10_8ccj7")]
-transform = Transform3D(-0.653077, 0, 0.7572915, 0, 1, 0, -0.7572915, 0, -0.653077, 124.055664, -14.711273, 608.3513)
-
-[node name="CSGSphere3D" type="CSGCylinder3D" parent="."]
-transform = Transform3D(0.68335027, 0, 0.73009074, 0, 1, 0, -0.73009074, 0, 0.68335027, 2006.7336, 339.77502, 2372.6858)
-radius = 28.233408
-height = 36.95

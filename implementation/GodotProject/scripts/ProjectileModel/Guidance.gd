@@ -19,7 +19,9 @@ func _init(p_game_profile: GameProfileData = null):
 
 func _ready():
 	# Pokušaj pronaći InputManager u sceni
-	_find_input_manager()
+	# Use call_deferred to allow InputManager to be added first
+	call_deferred("_find_input_manager")
+
 
 func _find_input_manager():
 	"""Pronađi InputManager u sceni i poveži signale."""
@@ -31,7 +33,22 @@ func _find_input_manager():
 		input_manager.input_state_changed.connect(_on_input_state_changed)
 		print("[Guidance] Connected to InputManager")
 	else:
-		push_warning("[Guidance] InputManager not found in scene!")
+		# Retry after a short delay - InputManager might be added later
+		push_warning("[Guidance] InputManager not found, retrying in 0.1s...")
+		await get_tree().create_timer(0.1).timeout
+		_retry_find_input_manager()
+
+
+func _retry_find_input_manager():
+	"""Retry finding InputManager after delay."""
+	var root = get_tree().root
+	input_manager = _find_node_by_class(root, "InputManager")
+	
+	if input_manager:
+		input_manager.input_state_changed.connect(_on_input_state_changed)
+		print("[Guidance] Connected to InputManager (retry successful)")
+	else:
+		push_error("[Guidance] InputManager not found after retry!")
 
 func _find_node_by_class(node: Node, class_name_str: String) -> Node:
 	"""Rekurzivno traži node po class_name."""
