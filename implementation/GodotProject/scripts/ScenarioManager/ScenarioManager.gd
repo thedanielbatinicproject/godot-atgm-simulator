@@ -198,6 +198,9 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Create HUD layer
 	_create_hud()
 	
+	# Add InputManager for controls
+	_create_input_manager()
+	
 	# Setup narrator
 	if _hud_layer:
 		narrator.setup(current_scenario_data, _hud_layer)
@@ -313,6 +316,16 @@ func _create_hud() -> void:
 	if hud_scene:
 		var hud = hud_scene.instantiate()
 		_hud_layer.add_child(hud)
+
+
+var _input_manager: Node = null
+const INPUT_MANAGER_SCENE = preload("res://assets/UI/input_manager.tscn")
+
+func _create_input_manager() -> void:
+	# Instantiate InputManager scene and add to scenario
+	_input_manager = INPUT_MANAGER_SCENE.instantiate()
+	_input_manager.name = "InputManager"
+	_scenario_root.add_child(_input_manager)
 
 
 func _show_pause_menu() -> void:

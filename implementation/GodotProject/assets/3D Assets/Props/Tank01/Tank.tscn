@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://bgpumk6eksovm"]
+
+[ext_resource type="ArrayMesh" uid="uid://bpthfj5jqt0el" path="res://assets/3D Assets/Props/Tank01/Tiger_I.obj" id="1_tank_mesh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tank"]
+size = Vector3(3.5, 2.5, 7.0)
+
+[node name="Tank" type="Node3D"]
+
+[node name="TankMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("1_tank_mesh")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 2
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+shape = SubResource("BoxShape3D_tank")
