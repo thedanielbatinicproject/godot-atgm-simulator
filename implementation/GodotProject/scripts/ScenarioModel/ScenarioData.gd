@@ -43,36 +43,38 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export var tank_initial_delay: float = 0.0
 
 # Tank path definition: parallel arrays for easy Inspector editing
-## Positions along the tank path (in meters)
-@export var tank_path_positions: PackedVector3Array = PackedVector3Array() ## At least 2 required
+## Positions along the tank path - X,Z coordinates only (Y/height is calculated from terrain)
+@export var tank_path_positions: PackedVector2Array = PackedVector2Array() ## At least 2 required - (x, z) positions
 ## Speeds after each tank path point (in km/h)
+## Index 0 = speed after point 0, Index 1 = speed after point 1, etc.
 @export var tank_path_speeds: Array[float] = [] ## Speed in km/h for each segment (default 25.0)
-## Orientations for each tank path point (Euler angles in degrees)
-@export var tank_path_orientations: Array[Vector3] = [] ## Orientation (Euler angles in degrees) for each point
+# NOTE: Tank orientations and height are calculated automatically:
+# - Y position (height): Calculated from terrain via raycasting
+# - Y rotation (yaw): Direction to next path point
+# - X/Z rotation (pitch/roll): Terrain normal via raycasting
 
 # Helper methods for tank path data
 func get_tank_path_point(idx: int) -> Dictionary:
-	# Returns a dictionary with position, speed, and orientation for the given index
-	var pos = tank_path_positions[idx] if idx < tank_path_positions.size() else Vector3.ZERO
+	# Returns a dictionary with XZ position and speed for the given index
+	# Y coordinate must be calculated from terrain
+	var pos2d = tank_path_positions[idx] if idx < tank_path_positions.size() else Vector2.ZERO
 	var speed = tank_path_speeds[idx] if idx < tank_path_speeds.size() else 25.0
-	var orientation = tank_path_orientations[idx] if idx < tank_path_orientations.size() else Vector3.ZERO
 	return {
-		"position": pos,
-		"speed_kmph": speed,
-		"orientation": orientation
+		"position_xz": pos2d,
+		"speed_kmph": speed
 	}
 
 func get_tank_path_length() -> int:
-	# Returns the number of defined tank path points (minimum of all arrays)
-	return min(tank_path_positions.size(), tank_path_speeds.size(), tank_path_orientations.size())
+	# Returns the number of defined tank path points
+	return tank_path_positions.size()
 
 
 # --- USER-SELECTED GAME PROFILE AND CONTROLS ---
 var game_profile: GameProfileData
 var control_config: ControlConfig
 
-func _ready():
-	load_user_settings()
+# NOTE: Resources don't have _ready() - call load_user_settings() manually!
+# ScenarioManager calls this in start_scenario()
 
 func load_user_settings():
 	# Default indices: Easy profile (1), Default controls (0)

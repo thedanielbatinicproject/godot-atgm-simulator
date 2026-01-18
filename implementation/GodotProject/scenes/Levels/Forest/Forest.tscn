@@ -44,3 +44,6 @@ shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = null
 metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 244.03017, 93.200745, 406.76843)

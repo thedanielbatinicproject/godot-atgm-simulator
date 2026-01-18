@@ -1,0 +1,128 @@
+[gd_scene load_steps=9 format=3 uid="uid://ce3fl6txhc1rk"]
+
+[ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_6r3k4"]
+[ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_0sn3p"]
+[ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="2_jg1n8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iefxc"]
+
+[sub_resource type="DPITexture" id="DPITexture_0sn3p"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\" fill-opacity=\".75\"/></svg>
+"
+base_scale = 0.01
+saturation = 0.0
+
+[sub_resource type="DPITexture" id="DPITexture_jg1n8"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\"/></svg>
+"
+base_scale = 0.01
+saturation = 0.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jg1n8"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.2736892, 0.26949486, 0.26769248, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lf73p"]
+bg_color = Color(0.21056989, 0.28322533, 0.72567195, 1)
+
+[node name="LoadingScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -914.0
+offset_top = -524.0
+offset_right = 1027.0
+offset_bottom = 574.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("1_6r3k4")
+volume_db = -80.0
+autoplay = true
+expand = true
+loop = true
+
+[node name="BoxContainer" type="BoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="VBoxContainer" parent="BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LoadingLabelTITLE" type="Label" parent="BoxContainer/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_jg1n8")
+theme_override_font_sizes/font_size = 50
+theme_override_styles/focus = SubResource("StyleBoxEmpty_iefxc")
+text = "LOADING SCENARIO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer3" type="BoxContainer" parent="BoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/HBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 150
+theme_override_constants/margin_top = 150
+theme_override_constants/margin_right = 150
+theme_override_constants/margin_bottom = 150
+
+[node name="LoaderSlider" type="HSlider" parent="BoxContainer/HBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_icons/grabber = SubResource("DPITexture_0sn3p")
+theme_override_icons/grabber_highlight = SubResource("DPITexture_jg1n8")
+theme_override_styles/slider = SubResource("StyleBoxFlat_jg1n8")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_lf73p")
+
+[node name="LoaderPer" type="Label" parent="BoxContainer/HBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_0sn3p")
+theme_override_font_sizes/font_size = 50
+theme_override_styles/focus = SubResource("StyleBoxEmpty_iefxc")
+text = "13%"
+horizontal_alignment = 1
+vertical_alignment = 1

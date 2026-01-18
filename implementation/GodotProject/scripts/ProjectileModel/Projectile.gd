@@ -27,6 +27,13 @@ var scenario_data: ScenarioData  # Set via initialize() at runtime
 # Flag to track initialization
 var _initialized: bool = false
 
+# Physics control - can be disabled for cutscenes
+var physics_enabled: bool = true
+
+# Signals for cutscene/explosion events
+signal exploded(position: Vector3)
+signal physics_stopped
+
 # KOMPONENTE SIMULACIJE
 var state: StateVariables
 var forces: Forces
@@ -147,11 +154,21 @@ func _physics_process(delta: float):
 	if not _initialized or not scenario_data or not scenario_data.rocket_data or not state:
 		return
 	
+	# Skip physics if disabled (during cutscene/explosion)
+	if not physics_enabled:
+		return
+	
 	elapsed_time += delta
 	var rocket_data = scenario_data.rocket_data
 	
 	# ========== LATENCY SUSTAV ==========
-	var current_guidance = guidance.get_control_input()
+	# Only read user input if enabled (disabled during cutscene)
+	var current_guidance: Vector3
+	if user_input_enabled:
+		current_guidance = guidance.get_control_input()
+	else:
+		# During cutscene: maintain last thrust, keep gimbal neutral
+		current_guidance = Vector3(state.thrust_input, 0.0, 0.0)
 	
 	# Ažuriraj pending input
 	if abs(state.pending_thrust_input - current_guidance.x) > 0.001:
@@ -229,7 +246,8 @@ func _physics_process(delta: float):
 	
 	# ========== ROLL KONTROLA S INERCIJOM (EKSPONENCIJALNI DAMPING) ==========
 	# Roll koristi akceleraciju i eksponencijalno prigušenje za realističan osjećaj
-	var roll_input = guidance.get_roll_input()
+	# Only read roll input if user input is enabled
+	var roll_input = guidance.get_roll_input() if user_input_enabled else 0.0
 	var roll_max_speed = game_profile.roll_max_speed if game_profile else 3.0
 	var roll_accel = game_profile.roll_acceleration if game_profile else 8.0
 	var roll_damp = game_profile.roll_damping if game_profile else 3.0
@@ -355,6 +373,75 @@ func reset():
 		state.reset()
 	if guidance:
 		guidance.reset_inputs()
+
+
+# ============================================================================
+# CUTSCENE / EXPLOSION CONTROL
+# ============================================================================
+
+# Flag to track if user input is disabled (for cutscenes)
+var user_input_enabled: bool = true
+
+
+func disable_user_input() -> void:
+	"""Disable user input - physics continues but player can't control.
+	Used during final cutscene while projectile flies to target."""
+	user_input_enabled = false
+	# Reset guidance inputs to neutral
+	if guidance:
+		guidance.reset_inputs()
+	print("[Projectile] User input disabled for cutscene")
+
+
+func enable_user_input() -> void:
+	"""Re-enable user input."""
+	user_input_enabled = true
+
+
+func stop_physics() -> void:
+	"""Stop all physics calculations - used during cutscene."""
+	physics_enabled = false
+	physics_stopped.emit()
+	print("[Projectile] Physics stopped for cutscene")
+
+
+func resume_physics() -> void:
+	"""Resume physics calculations."""
+	physics_enabled = true
+
+
+func trigger_explosion() -> void:
+	"""Trigger explosion - stop physics, hide mesh, emit signal."""
+	stop_physics()
+	
+	# Hide all visual children (meshes)
+	_hide_visual_meshes()
+	
+	# Emit explosion signal with current position
+	var explosion_pos = global_position
+	exploded.emit(explosion_pos)
+	print("[Projectile] Explosion triggered at: ", explosion_pos)
+
+
+func _hide_visual_meshes() -> void:
+	"""Hide all MeshInstance3D and CSG children (visual representation)."""
+	for child in get_children():
+		if child is MeshInstance3D or child is CSGShape3D:
+			child.visible = false
+		# Also check grandchildren
+		for grandchild in child.get_children():
+			if grandchild is MeshInstance3D or grandchild is CSGShape3D:
+				grandchild.visible = false
+
+func show_visual_meshes() -> void:
+	"""Show all visual meshes again (for reset/retry)."""
+	for child in get_children():
+		if child is MeshInstance3D or child is CSGShape3D:
+			child.visible = true
+		for grandchild in child.get_children():
+			if grandchild is MeshInstance3D or grandchild is CSGShape3D:
+				grandchild.visible = true
+
 
 # GETTERI
 
