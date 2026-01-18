@@ -567,11 +567,11 @@ func _on_tank_should_stop() -> void:
 
 
 func _on_projectile_out_of_bounds() -> void:
-	_end_scenario(false, "OUT OF BOUNDS")
+	_end_scenario(false, "Projectile left the mission area.")
 
 
 func _on_scenario_timeout() -> void:
-	_end_scenario(false, "TIME'S UP")
+	_end_scenario(false, "Time limit exceeded. Mission failed.")
 
 
 func _on_cutscene_finished() -> void:
@@ -580,12 +580,12 @@ func _on_cutscene_finished() -> void:
 
 func _on_hit_animation_finished() -> void:
 	# Show success screen while keeping camera active
-	_show_end_screen_overlay(true, "MISSION COMPLETE")
+	_show_end_screen_overlay(true, "Target eliminated! Mission accomplished.")
 
 
 func _on_miss_animation_finished() -> void:
 	# Show failure screen while keeping camera active
-	_show_end_screen_overlay(false, "MISSION FAILED")
+	_show_end_screen_overlay(false, "Projectile missed the target. Tank survived.")
 
 
 func _show_end_screen_overlay(success: bool, message: String) -> void:
@@ -709,7 +709,7 @@ func _hide_pause_menu() -> void:
 		_pause_menu_instance.visible = false
 
 
-func _show_end_screen(success: bool, _message: String) -> void:
+func _show_end_screen(success: bool, reason: String) -> void:
 	# Hide pause menu if visible
 	if _pause_menu_instance:
 		_pause_menu_instance.visible = false
@@ -723,6 +723,10 @@ func _show_end_screen(success: bool, _message: String) -> void:
 	else:
 		if _failure_screen_instance:
 			_failure_screen_instance.visible = true
+			# Update failure reason label
+			var reason_label = _failure_screen_instance.get_node_or_null("FailureReason")
+			if reason_label:
+				reason_label.text = reason
 		if _success_screen_instance:
 			_success_screen_instance.visible = false
 

@@ -168,7 +168,7 @@ func _physics_process(delta: float):
 		current_guidance = guidance.get_control_input()
 	else:
 		# During cutscene: maintain last thrust, keep gimbal neutral
-		current_guidance = Vector3(state.thrust_input, 0.0, 0.0)
+		current_guidance = Vector3(state.active_thrust_input, 0.0, 0.0)
 	
 	# Ažuriraj pending input
 	if abs(state.pending_thrust_input - current_guidance.x) > 0.001:

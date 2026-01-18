@@ -208,7 +208,23 @@ func _spawn_explosion_effect(position: Vector3, is_hit: bool) -> void:
 	"""Create explosion particle effect."""
 	_explosion_effect = GPUParticles3D.new()
 	_explosion_effect.name = "ExplosionEffect"
-	_explosion_effect.global_position = position
+	
+	# Add to scene FIRST, then set position (node must be in tree for global_position)
+	var parent_node: Node = null
+	if _tank and is_instance_valid(_tank):
+		parent_node = _tank.get_parent()
+	elif _projectile and is_instance_valid(_projectile):
+		parent_node = _projectile.get_parent()
+	
+	if parent_node:
+		parent_node.add_child(_explosion_effect)
+		_explosion_effect.global_position = position
+	else:
+		push_error("[CutsceneManager] No valid parent for explosion effect")
+		_explosion_effect.queue_free()
+		_explosion_effect = null
+		return
+	
 	_explosion_effect.emitting = true
 	_explosion_effect.one_shot = true
 	_explosion_effect.explosiveness = 1.0
@@ -238,10 +254,6 @@ func _spawn_explosion_effect(position: Vector3, is_hit: bool) -> void:
 	mesh.radius = 0.3
 	mesh.height = 0.6
 	_explosion_effect.draw_pass_1 = mesh
-	
-	# Add to scene
-	if _tank and is_instance_valid(_tank):
-		_tank.get_parent().add_child(_explosion_effect)
 	
 	# Auto-cleanup after animation completes
 	var cleanup_timer = get_tree().create_timer(6.0)

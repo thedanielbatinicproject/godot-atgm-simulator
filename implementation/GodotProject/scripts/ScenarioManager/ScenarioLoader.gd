@@ -210,13 +210,14 @@ func raycast_terrain(world_pos: Vector3, space_state: PhysicsDirectSpaceState3D)
 	if not space_state:
 		return result
 	
-	# Cast ray from high above downward
-	var ray_origin = Vector3(world_pos.x, world_pos.y + 1000.0, world_pos.z)
-	var ray_end = Vector3(world_pos.x, world_pos.y - 1000.0, world_pos.z)
+	# Cast ray from high above downward (use absolute positions)
+	var ray_origin = Vector3(world_pos.x, 1000.0, world_pos.z)
+	var ray_end = Vector3(world_pos.x, -1000.0, world_pos.z)
 	
 	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
+	query.collision_mask = 1  # Layer 1 where terrain collision is
 	
 	var hit = space_state.intersect_ray(query)
 	if hit:

@@ -184,18 +184,24 @@ func _raycast_terrain(world_pos: Vector3) -> Dictionary:
 	if not _space_state:
 		return result
 	
-	var ray_origin = Vector3(world_pos.x, world_pos.y + 500.0, world_pos.z)
-	var ray_end = Vector3(world_pos.x, world_pos.y - 500.0, world_pos.z)
+	# Use absolute positions high above and below for raycast
+	var ray_origin = Vector3(world_pos.x, 1000.0, world_pos.z)
+	var ray_end = Vector3(world_pos.x, -1000.0, world_pos.z)
 	
 	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
+	query.collision_mask = 1  # Layer 1 where terrain collision is
 	
 	var hit = _space_state.intersect_ray(query)
 	if hit:
 		result.hit = true
 		result.position = hit.position
 		result.normal = hit.normal
+		# Debug: print terrain hit info
+		# print("[TankMovement] Terrain hit at Y=%.2f, normal=%s" % [hit.position.y, hit.normal])
+	else:
+		push_warning("[TankMovement] No terrain hit at (%.1f, %.1f)" % [world_pos.x, world_pos.z])
 	
 	return result
 
