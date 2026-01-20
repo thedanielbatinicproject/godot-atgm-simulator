@@ -32,16 +32,23 @@ var _scenario_data: ScenarioData = null
 func setup_environment(scenario_root: Node, scenario_data: ScenarioData) -> void:
 	_scenario_data = scenario_data
 	
-	print("[ScenarioEnvironment] Setting up environment for time: %.1fh" % scenario_data.time_of_day)
+	print("[ScenarioEnvironment] ========== ENVIRONMENT SETUP ==========")
+	print("[ScenarioEnvironment] Scenario root: ", scenario_root.name if scenario_root else "NULL")
+	print("[ScenarioEnvironment] Time of day: %.1fh" % scenario_data.time_of_day)
+	print("[ScenarioEnvironment] Fog density: %.2f" % scenario_data.fog_density)
+	print("[ScenarioEnvironment] Ambient energy: %.2f" % scenario_data.ambient_light_energy)
 	
 	# Find or create WorldEnvironment
 	_world_environment = _find_or_create_world_environment(scenario_root)
+	print("[ScenarioEnvironment] WorldEnvironment: ", _world_environment.name if _world_environment else "NULL")
+	print("[ScenarioEnvironment] Environment resource: ", _world_environment.environment if _world_environment else "NULL")
 	
 	# Setup sky with appropriate skybox
 	_setup_sky()
 	
 	# Find or create DirectionalLight3D (sun/moon)
 	_directional_light = _find_directional_light(scenario_root)
+	print("[ScenarioEnvironment] Found existing light: ", _directional_light.name if _directional_light else "NONE")
 	if not _directional_light:
 		_create_celestial_light(scenario_root)
 	
@@ -51,16 +58,31 @@ func setup_environment(scenario_root: Node, scenario_data: ScenarioData) -> void
 	_apply_ambient_lighting()
 	_setup_wind()
 	
-	print("[ScenarioEnvironment] Environment setup complete")
+	print("[ScenarioEnvironment] ========== SETUP COMPLETE ==========")
+	
+	# Print final state
+	if _world_environment and _world_environment.environment:
+		var env = _world_environment.environment
+		print("[ScenarioEnvironment] FINAL STATE:")
+		print("  - Background mode: ", env.background_mode)
+		print("  - Sky: ", env.sky)
+		print("  - Fog enabled: ", env.fog_enabled)
+		print("  - Ambient source: ", env.ambient_light_source)
 
 
 func _find_or_create_world_environment(root: Node) -> WorldEnvironment:
 	# Search for existing WorldEnvironment
 	var we = _find_node_of_type(root, "WorldEnvironment")
 	if we:
+		print("[ScenarioEnvironment] Found existing WorldEnvironment: ", we.name)
+		# CRITICAL: Ensure it has an Environment resource
+		if not we.environment:
+			print("[ScenarioEnvironment] WorldEnvironment had no Environment! Creating one...")
+			we.environment = Environment.new()
 		return we
 	
 	# Create new one if not found
+	print("[ScenarioEnvironment] Creating new WorldEnvironment")
 	var new_we = WorldEnvironment.new()
 	new_we.name = "WorldEnvironment"
 	new_we.environment = Environment.new()
@@ -86,26 +108,45 @@ func _find_node_of_type(root: Node, type_name: String) -> Node:
 
 func _setup_sky() -> void:
 	"""Setup sky with appropriate skybox based on time of day."""
-	if not _world_environment or not _world_environment.environment:
+	if not _world_environment:
+		push_error("[ScenarioEnvironment] No WorldEnvironment for sky setup!")
 		return
+	
+	if not _world_environment.environment:
+		print("[ScenarioEnvironment] Creating new Environment resource")
+		_world_environment.environment = Environment.new()
 	
 	var env = _world_environment.environment
 	var time = _scenario_data.time_of_day
 	
 	# Select skybox based on time
 	var skybox_path = _get_skybox_for_time(time)
+	print("[ScenarioEnvironment] Loading skybox: %s for time %.1fh" % [skybox_path, time])
+	
+	# Check if file exists
+	if not ResourceLoader.exists(skybox_path):
+		push_error("[ScenarioEnvironment] Skybox file not found: %s" % skybox_path)
+		return
 	
 	# Load skybox material
-	var sky_material = load(skybox_path) as PanoramaSkyMaterial
+	var sky_material = load(skybox_path)
+	print("[ScenarioEnvironment] Loaded resource type: ", sky_material.get_class() if sky_material else "NULL")
+	
 	if sky_material:
+		# Set background mode to sky
 		env.background_mode = Environment.BG_SKY
+		
+		# Create or reuse Sky resource
 		if not env.sky:
 			env.sky = Sky.new()
+			print("[ScenarioEnvironment] Created new Sky resource")
+		
+		# Assign material
 		env.sky.sky_material = sky_material
-		print("[ScenarioEnvironment] Loaded skybox: %s" % skybox_path)
+		print("[ScenarioEnvironment] SUCCESS - Skybox assigned: %s" % skybox_path)
 	else:
-		push_warning("[ScenarioEnvironment] Failed to load skybox: %s" % skybox_path)
-		# Keep existing sky or use default
+		push_error("[ScenarioEnvironment] Failed to load skybox: %s" % skybox_path)
+		return
 	
 	# Setup glow for sun/fire effects
 	env.glow_enabled = true
@@ -117,6 +158,7 @@ func _setup_sky() -> void:
 	# Tonemap settings
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.tonemap_exposure = _get_exposure_for_time(time)
+	print("[ScenarioEnvironment] Tonemap exposure: %.2f" % env.tonemap_exposure)
 
 
 func _get_skybox_for_time(time: float) -> String:

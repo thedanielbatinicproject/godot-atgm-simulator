@@ -49,6 +49,7 @@ var _explosion_effect: GPUParticles3D = null
 var _smoke_effect: GPUParticles3D = null  # Secondary smoke particles
 var _is_animating: bool = false  # True during hit/miss animation
 var _frozen_camera_position: Vector3 = Vector3.ZERO  # Position where camera freezes
+var _pending_smoke_position: Vector3 = Vector3.ZERO  # Position for delayed smoke spawn
 
 
 func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_position: Vector3 = Vector3.ZERO) -> void:
@@ -98,66 +99,70 @@ func _create_cutscene_camera() -> void:
 
 
 func _position_camera_at_entry_point() -> void:
-	"""Position camera behind the projectile entry point, looking toward tank.
-	Camera is placed along the line from tank to projectile entry, but further back."""
+	"""Position camera to always keep tank in center of screen.
+	Camera is placed at a good viewing angle from the projectile's approach direction."""
 	if not _cutscene_camera or not _tank:
 		return
 	
-	var tank_pos = _tank.global_position
+	var tank_pos = _tank.global_position + Vector3(0, 2, 0)  # Aim at tank center (slightly above ground)
 	
-	# Direction from tank to entry point (projectile approach direction)
-	var direction_from_tank = (_frozen_camera_position - tank_pos).normalized()
-	if direction_from_tank.length() < 0.01:
-		direction_from_tank = Vector3(0, 0, 1)  # Default forward
+	# Direction from tank to projectile entry point (projectile approach direction)
+	var approach_direction = (_frozen_camera_position - tank_pos).normalized()
+	if approach_direction.length() < 0.01:
+		approach_direction = Vector3(0, 0, 1)  # Default forward
 	
-	# Calculate camera position:
-	# - Start at the entry point (where projectile entered cutscene radius)
-	# - Move FURTHER BACK along the same line (away from tank) by 10-15 units
-	# - Add side offset for a better viewing angle
-	# - Add height offset
-	var camera_distance_back: float = 12.0  # Move 12 units further from tank
+	# Place camera to the SIDE of the approach path for a dramatic angle
+	# This ensures we see both the projectile coming in AND the tank
+	var side_direction = approach_direction.cross(Vector3.UP).normalized()
+	if side_direction.length() < 0.01:
+		side_direction = Vector3.RIGHT
 	
-	var camera_pos = _frozen_camera_position
-	camera_pos += direction_from_tank * camera_distance_back  # Move back along approach line
+	# Camera position: offset from tank, not from entry point
+	# This keeps tank centered regardless of where projectile enters
+	var camera_distance = 35.0  # Distance from tank
+	var side_offset_amount = 20.0  # How far to the side
+	var height_offset = 12.0  # How high above tank
 	
-	# Add side offset perpendicular to approach direction
-	var side = direction_from_tank.cross(Vector3.UP).normalized()
-	if side.length() < 0.01:
-		side = Vector3.RIGHT
-	camera_pos += side * (camera_side_offset * 0.5)  # Smaller side offset since we're behind
-	
-	# Add height
-	camera_pos.y += camera_height_above_tank
+	# Position camera to side and slightly behind the approach
+	var camera_pos = tank_pos
+	camera_pos += approach_direction * (camera_distance * 0.3)  # Slightly toward projectile
+	camera_pos += side_direction * side_offset_amount  # To the side
+	camera_pos.y += height_offset  # Above
 	
 	_cutscene_camera.global_position = camera_pos
 	_camera_position_set = true
 	
-	# Look at tank (the target)
-	_cutscene_camera.look_at(tank_pos + Vector3(0, 2, 0))  # Look slightly above tank center
+	# ALWAYS look at tank center - this keeps tank in middle of screen
+	_cutscene_camera.look_at(tank_pos)
 	
-	print("[CutsceneManager] Camera positioned at: ", camera_pos, " (entry point: ", _frozen_camera_position, ", looking at tank)")
+	print("[CutsceneManager] Camera at: ", camera_pos, " looking at tank: ", tank_pos)
 
 
 func process_cutscene(delta: float) -> void:
-	"""Process cutscene - camera tracks projectile but doesn't move."""
+	"""Process cutscene - camera keeps tank centered while also showing projectile approach."""
 	if not _is_playing_cutscene:
 		return
 	
 	_cutscene_time += delta
 	
-	# Camera stays in place but tracks the projectile/explosion
+	# Camera stays in place but tracks a weighted point between tank and projectile
 	if _cutscene_camera and is_instance_valid(_cutscene_camera):
 		var look_target: Vector3
 		
+		# Tank is always the primary focus
+		var tank_target = _tank.global_position + Vector3(0, 2, 0) if _tank and is_instance_valid(_tank) else Vector3.ZERO
+		
 		if _projectile and is_instance_valid(_projectile) and _projectile.visible:
-			# Track projectile while it's visible
-			look_target = _projectile.global_position
+			# Track point between projectile and tank - weighted toward tank to keep it centered
+			var projectile_pos = _projectile.global_position
+			# 70% tank, 30% projectile - this keeps tank mostly centered
+			look_target = tank_target.lerp(projectile_pos, 0.3)
 		elif _explosion_effect and is_instance_valid(_explosion_effect):
-			# Track explosion effect after projectile is hidden
+			# During explosion, look at explosion (which should be at/near tank)
 			look_target = _explosion_effect.global_position
-		elif _tank and is_instance_valid(_tank):
+		elif tank_target != Vector3.ZERO:
 			# Fallback to tank
-			look_target = _tank.global_position
+			look_target = tank_target
 		else:
 			return
 		
@@ -273,6 +278,86 @@ func _create_smoke_material(texture: Texture2D) -> StandardMaterial3D:
 	mat.albedo_color = Color(0.8, 0.8, 0.8, 0.8)  # Slightly grey
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return mat
+
+
+func _spawn_delayed_smoke(parent_node: Node) -> void:
+	"""Spawn smoke particles 1 second after the initial fire explosion."""
+	print("[CutsceneManager] Scheduling delayed smoke spawn...")
+	await get_tree().create_timer(1.0).timeout
+	
+	if not parent_node or not is_instance_valid(parent_node):
+		print("[CutsceneManager] Parent node invalid for delayed smoke")
+		return
+	
+	print("[CutsceneManager] Spawning delayed smoke at: ", _pending_smoke_position)
+	
+	# === SMOKE PARTICLES - LARGE BUT SPREAD OUT ===
+	_smoke_effect = GPUParticles3D.new()
+	_smoke_effect.name = "TankSmokeEffect"
+	parent_node.add_child(_smoke_effect)
+	_smoke_effect.global_position = _pending_smoke_position
+	
+	_smoke_effect.emitting = true
+	_smoke_effect.one_shot = false  # Continuous smoke that lingers!
+	_smoke_effect.explosiveness = 0.1  # Very spread out for continuous billowing
+	_smoke_effect.amount = 50  # REDUCED from 120 - fewer particles but same size
+	_smoke_effect.lifetime = 18.0  # Even longer lifetime
+	_smoke_effect.randomness = 0.5  # More organic variation
+	
+	# Smoke particle behavior - HUGE billowing clouds, spread wider
+	var smoke_process = ParticleProcessMaterial.new()
+	smoke_process.direction = Vector3(0, 1, 0)
+	smoke_process.spread = 90.0  # MUCH wider spread (was 60)
+	smoke_process.initial_velocity_min = 1.0  # Very slow = thick
+	smoke_process.initial_velocity_max = 5.0
+	smoke_process.gravity = Vector3(0, 1.5, 0)  # Gentle rise
+	smoke_process.scale_min = 60.0  # GIGANTIC
+	smoke_process.scale_max = 140.0  # ENORMOUS billowing clouds (bigger than before)
+	smoke_process.damping_min = 2.0
+	smoke_process.damping_max = 4.0
+	
+	# Wider emission shape - spread particles across larger area
+	smoke_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	smoke_process.emission_sphere_radius = 15.0  # Particles spawn in 15m radius
+	
+	# Scale curve - grow over time for billowing effect
+	var smoke_scale_curve = CurveTexture.new()
+	var smoke_curve = Curve.new()
+	smoke_curve.add_point(Vector2(0.0, 0.3))
+	smoke_curve.add_point(Vector2(0.2, 0.8))
+	smoke_curve.add_point(Vector2(0.5, 1.0))
+	smoke_curve.add_point(Vector2(0.8, 1.1))
+	smoke_curve.add_point(Vector2(1.0, 0.6))  # Shrink at end
+	smoke_scale_curve.curve = smoke_curve
+	smoke_process.scale_curve = smoke_scale_curve
+	
+	# Turbulence for fluid smoke motion
+	smoke_process.turbulence_enabled = true
+	smoke_process.turbulence_noise_strength = 4.0
+	smoke_process.turbulence_noise_scale = 2.5
+	smoke_process.turbulence_noise_speed = Vector3(0.4, 0.6, 0.4)
+	
+	# Smoke color gradient - LESS OPAQUE for spread out look
+	var smoke_gradient = GradientTexture1D.new()
+	var smoke_grad = Gradient.new()
+	smoke_grad.colors = PackedColorArray([
+		Color(0.1, 0.1, 0.1, 0.7),     # Dark, but not fully opaque
+		Color(0.2, 0.2, 0.2, 0.55),    # Dark grey, lower opacity
+		Color(0.35, 0.35, 0.35, 0.4),  # Medium grey
+		Color(0.5, 0.5, 0.5, 0.2),     # Light grey
+		Color(0.6, 0.6, 0.6, 0.0)      # Fading out
+	])
+	smoke_grad.offsets = PackedFloat32Array([0.0, 0.2, 0.45, 0.75, 1.0])
+	smoke_gradient.gradient = smoke_grad
+	smoke_process.color_ramp = smoke_gradient
+	
+	_smoke_effect.process_material = smoke_process
+	
+	# Smoke mesh with texture - HUGE for massive smoke coverage
+	var smoke_mesh = QuadMesh.new()
+	smoke_mesh.size = Vector2(18.0, 18.0)  # Even bigger mesh
+	smoke_mesh.material = _create_smoke_material(SMOKE_TEXTURE_1)
+	_smoke_effect.draw_pass_1 = smoke_mesh
 
 
 func _spawn_tank_explosion(position: Vector3) -> void:
@@ -391,68 +476,10 @@ func _spawn_tank_explosion(position: Vector3) -> void:
 	inner_mesh.material = _create_fire_material(FIRE_TEXTURE_2)
 	inner_fire.draw_pass_1 = inner_mesh
 	
-	# === SMOKE PARTICLES (follows fire) - MASSIVE THICK CLOUDS ===
-	_smoke_effect = GPUParticles3D.new()
-	_smoke_effect.name = "TankSmokeEffect"
-	parent_node.add_child(_smoke_effect)
-	_smoke_effect.global_position = position
-	
-	_smoke_effect.emitting = true
-	_smoke_effect.one_shot = false  # Continuous smoke that lingers!
-	_smoke_effect.explosiveness = 0.2  # Very spread out for continuous billowing
-	_smoke_effect.amount = 120  # More smoke particles
-	_smoke_effect.lifetime = 15.0  # Even longer lifetime
-	_smoke_effect.randomness = 0.4  # More organic variation
-	
-	# Smoke particle behavior - GIGANTIC billowing clouds
-	var smoke_process = ParticleProcessMaterial.new()
-	smoke_process.direction = Vector3(0, 1, 0)
-	smoke_process.spread = 60.0  # Wider spread
-	smoke_process.initial_velocity_min = 1.5  # Very slow = thick
-	smoke_process.initial_velocity_max = 6.0
-	smoke_process.gravity = Vector3(0, 2.0, 0)  # Gentle rise
-	smoke_process.scale_min = 50.0  # GIGANTIC
-	smoke_process.scale_max = 120.0  # ENORMOUS billowing clouds
-	smoke_process.damping_min = 2.5
-	smoke_process.damping_max = 5.0
-	
-	# Scale curve - grow over time for billowing effect
-	var smoke_scale_curve = CurveTexture.new()
-	var smoke_curve = Curve.new()
-	smoke_curve.add_point(Vector2(0.0, 0.4))
-	smoke_curve.add_point(Vector2(0.3, 1.0))
-	smoke_curve.add_point(Vector2(0.7, 1.2))  # Keeps growing
-	smoke_curve.add_point(Vector2(1.0, 0.8))  # Slight shrink at end
-	smoke_scale_curve.curve = smoke_curve
-	smoke_process.scale_curve = smoke_scale_curve
-	
-	# Turbulence for fluid smoke motion
-	smoke_process.turbulence_enabled = true
-	smoke_process.turbulence_noise_strength = 3.0
-	smoke_process.turbulence_noise_scale = 2.0
-	smoke_process.turbulence_noise_speed = Vector3(0.3, 0.5, 0.3)
-	
-	# Smoke color gradient - very thick and opaque
-	var smoke_gradient = GradientTexture1D.new()
-	var smoke_grad = Gradient.new()
-	smoke_grad.colors = PackedColorArray([
-		Color(0.12, 0.12, 0.12, 0.98),   # Almost black, very opaque
-		Color(0.2, 0.2, 0.2, 0.9),       # Very dark grey
-		Color(0.35, 0.35, 0.35, 0.75),   # Dark grey
-		Color(0.5, 0.5, 0.5, 0.4),       # Medium grey
-		Color(0.6, 0.6, 0.6, 0.0)        # Fading out slowly
-	])
-	smoke_grad.offsets = PackedFloat32Array([0.0, 0.15, 0.4, 0.7, 1.0])
-	smoke_gradient.gradient = smoke_grad
-	smoke_process.color_ramp = smoke_gradient
-	
-	_smoke_effect.process_material = smoke_process
-	
-	# Smoke mesh with texture - ENORMOUS for massive smoke coverage
-	var smoke_mesh = QuadMesh.new()
-	smoke_mesh.size = Vector2(15.0, 15.0)  # HUGE base mesh for massive smoke
-	smoke_mesh.material = _create_smoke_material(SMOKE_TEXTURE_1)
-	_smoke_effect.draw_pass_1 = smoke_mesh
+	# === SMOKE PARTICLES - DELAYED by 1 second after fire ===
+	# Store position and spawn smoke after delay
+	_pending_smoke_position = position
+	_spawn_delayed_smoke(parent_node)
 	
 	# === SECONDARY FIRE BURST (explosive outward blast) ===
 	var secondary_fire = GPUParticles3D.new()

@@ -17,15 +17,6 @@ textures = [[ExtResource("6_vlfo1"), ExtResource("5_cmh6r"), ExtResource("4_f53m
 
 [node name="ForestLevel" type="Node3D"]
 
-[node name="Lighting" type="Node3D" parent="."]
-transform = Transform3D(-0.59902364, -0.76615065, 0.2327744, 0, 0.29070225, 0.9568136, -0.80073136, 0.573154, -0.17413752, 0, 0, 0)
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Lighting"]
-
-[node name="Sun" type="DirectionalLight3D" parent="Lighting"]
-transform = Transform3D(0.9999999, 0, 0, -2.9802322e-08, 0.99999994, 2.2351742e-08, 1.4901161e-08, 0, 0.99999994, 0, 193.83542, 637.98737)
-shadow_enabled = true
-
 [node name="HTerrain" type="Node3D" parent="."]
 script = ExtResource("1_g4tci")
 _terrain_data = ExtResource("2_g4tci")
