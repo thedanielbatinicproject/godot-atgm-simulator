@@ -1021,8 +1021,10 @@ func _update_beep_audio(delta: float) -> void:
 	_beep_timer += delta
 	if _beep_timer >= _current_beep_interval:
 		_beep_timer = 0.0
-		if not _beep_player.playing:
-			_beep_player.play()
+		# Always restart the beep - don't wait for it to finish!
+		# This allows rapid beeping at high BPS rates
+		_beep_player.stop()  # Stop current beep if playing
+		_beep_player.play()  # Start new beep immediately
 
 
 func _stop_simulation_audio() -> void:
