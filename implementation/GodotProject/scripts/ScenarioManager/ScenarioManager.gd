@@ -34,6 +34,26 @@ var narrator
 var camera_manager
 var tank_movement: TankMovementController = null
 
+# Audio system
+var _propulsor_player: AudioStreamPlayer = null
+var _beep_player: AudioStreamPlayer = null
+var _explosion_player: AudioStreamPlayer = null
+var _music_player: AudioStreamPlayer = null
+var _fail_sfx_player: AudioStreamPlayer = null
+
+# Audio assets
+const SFX_PROPULSOR_LOOP = preload("res://assets/Audio/SIM_SFX/PropulsorLoop.wav")
+const SFX_HUD_BEEP = preload("res://assets/Audio/SIM_SFX/HUDBeep.wav")
+const SFX_EXPLOSION = preload("res://assets/Audio/SIM_SFX/MissleExplosion.wav")
+const SFX_FAIL = preload("res://assets/Audio/SIM_SFX/FailSfx.wav")
+const MUSIC_MAIN_MENU = preload("res://assets/Audio/Music/main_menu1.wav")
+
+# Audio state
+var _beep_timer: float = 0.0
+var _current_beep_interval: float = 1.5  # Starting interval
+var _initial_distance_for_audio: float = 0.0
+var _audio_initialized: bool = false
+
 # Current scenario data
 var current_scenario_data: ScenarioData = null
 var _scenario_root: Node = null
@@ -106,9 +126,9 @@ func _input(event: InputEvent) -> void:
 		elif state.is_state(ScenarioStateClass.State.PAUSED):
 			resume_scenario()
 	
-	# Camera switching
+	# Camera switching - ONLY during RUNNING state (not during cutscene/success/fail)
 	if event.is_action_pressed("switch_camera"):
-		if state.is_state(ScenarioStateClass.State.RUNNING) or state.is_state(ScenarioStateClass.State.CUTSCENE):
+		if state.is_state(ScenarioStateClass.State.RUNNING):
 			camera_manager.switch_camera()
 
 
@@ -124,6 +144,8 @@ func _process(delta: float) -> void:
 		# Process tank movement
 		if tank_movement:
 			tank_movement.process(delta)
+		# Update audio (propulsor pitch/volume, beep timing)
+		_update_audio(delta)
 	
 	if state.is_state(ScenarioStateClass.State.CUTSCENE):
 		# CRITICAL: Keep watching for terrain/tank collision during cutscene!
@@ -353,6 +375,9 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	state.transition_to(ScenarioStateClass.State.RUNNING)
 	player_control_changed.emit(false)  # Initially disabled until delay passes
 	
+	# Initialize and start audio system
+	_initialize_audio()
+	
 	scenario_started.emit()
 
 
@@ -581,11 +606,15 @@ func _on_projectile_hit_tank() -> void:
 	"""Called when projectile collides with tank - SUCCESS!"""
 	print("[ScenarioManager] Projectile hit tank!")
 	
+	# IMMEDIATELY play explosion sound and stop simulation audio!
+	_stop_simulation_audio()
+	_play_explosion_sound()
+	
 	# Get projectile position for explosion
 	var projectile = event_watcher.get_projectile()
 	var hit_pos = projectile.global_position if projectile else Vector3.ZERO
 	
-	# Play hit animation (handles explosion and projectile hiding)
+	# Play hit animation (handles visual explosion and projectile hiding)
 	cutscene_manager.play_hit_animation(hit_pos)
 	
 	# Narrator message
@@ -595,6 +624,10 @@ func _on_projectile_hit_tank() -> void:
 func _on_projectile_hit_ground(position: Vector3) -> void:
 	"""Called when projectile hits ground (misses tank) - FAILURE!"""
 	print("[ScenarioManager] Projectile hit ground at: ", position)
+	
+	# IMMEDIATELY play explosion sound and stop simulation audio!
+	_stop_simulation_audio()
+	_play_explosion_sound()
 	
 	# If we're still in RUNNING state, transition to cutscene first
 	if state.is_state(ScenarioStateClass.State.RUNNING):
@@ -608,9 +641,10 @@ func _on_projectile_hit_ground(position: Vector3) -> void:
 		if projectile and projectile.has_method("disable_user_input"):
 			projectile.disable_user_input()
 		
-		# Start cutscene camera (will track explosion)
+		# Start cutscene camera - TERRAIN MISS mode (camera looks at impact, not tank)
 		var tank = event_watcher.get_tank()
-		cutscene_manager.start_final_cutscene(projectile, tank)
+		var entry_pos = projectile.global_position if projectile else position
+		cutscene_manager.start_final_cutscene(projectile, tank, entry_pos, true, position)
 	
 	# Play miss animation (handles explosion and projectile hiding)
 	cutscene_manager.play_miss_animation(position)
@@ -639,11 +673,15 @@ func _on_cutscene_finished() -> void:
 
 
 func _on_hit_animation_finished() -> void:
+	# Play end scenario audio (success)
+	_play_end_scenario_audio(true)
 	# Show success screen while keeping camera active
 	_show_end_screen_overlay(true, "Target eliminated! Mission accomplished.")
 
 
 func _on_miss_animation_finished() -> void:
+	# Play end scenario audio (failure)
+	_play_end_scenario_audio(false)
 	# Show failure screen while keeping camera active
 	_show_end_screen_overlay(false, "Projectile missed the target. Tank survived.")
 
@@ -799,6 +837,9 @@ func _cleanup_scenario() -> void:
 	environment.cleanup()
 	camera_manager.cleanup()
 	
+	# Cleanup audio
+	_cleanup_audio()
+	
 	# Cleanup tank movement controller
 	if tank_movement:
 		tank_movement.queue_free()
@@ -818,3 +859,225 @@ func _cleanup_scenario() -> void:
 	_failure_screen_instance = null
 	_scenario_root = null
 	current_scenario_data = null
+
+
+# ============================================================================
+# AUDIO SYSTEM
+# ============================================================================
+
+func _initialize_audio() -> void:
+	"""Initialize audio players when simulation starts."""
+	print("[ScenarioManager] Initializing audio system...")
+	
+	# Create propulsor loop player
+	_propulsor_player = AudioStreamPlayer.new()
+	_propulsor_player.name = "PropulsorPlayer"
+	_propulsor_player.stream = SFX_PROPULSOR_LOOP
+	_propulsor_player.volume_db = -3.0  # Start at idle volume (louder than before)
+	_propulsor_player.pitch_scale = 0.8  # Start at lower pitch
+	_propulsor_player.bus = "SFX"  # Always use SFX bus
+	add_child(_propulsor_player)
+	_propulsor_player.play()
+	# Loop the propulsor sound
+	_propulsor_player.finished.connect(_on_propulsor_loop_finished)
+	
+	# Create beep player
+	_beep_player = AudioStreamPlayer.new()
+	_beep_player.name = "BeepPlayer"
+	_beep_player.stream = SFX_HUD_BEEP
+	_beep_player.volume_db = -3.0
+	_beep_player.bus = "SFX"  # Always use SFX bus
+	add_child(_beep_player)
+	
+	# Create explosion player
+	_explosion_player = AudioStreamPlayer.new()
+	_explosion_player.name = "ExplosionPlayer"
+	_explosion_player.stream = SFX_EXPLOSION
+	_explosion_player.volume_db = 0.0
+	_explosion_player.bus = "SFX"  # Always use SFX bus
+	add_child(_explosion_player)
+	
+	# Create fail SFX player
+	_fail_sfx_player = AudioStreamPlayer.new()
+	_fail_sfx_player.name = "FailSfxPlayer"
+	_fail_sfx_player.stream = SFX_FAIL
+	_fail_sfx_player.volume_db = 0.0
+	_fail_sfx_player.bus = "SFX"  # Always use SFX bus
+	add_child(_fail_sfx_player)
+	
+	# Create music player
+	_music_player = AudioStreamPlayer.new()
+	_music_player.name = "MusicPlayer"
+	_music_player.stream = MUSIC_MAIN_MENU
+	_music_player.volume_db = -6.0
+	_music_player.bus = "Music"  # Always use Music bus
+	add_child(_music_player)
+	
+	# Get initial distance for beep calculations
+	var projectile = event_watcher.get_projectile()
+	var tank = event_watcher.get_tank()
+	if projectile and tank:
+		_initial_distance_for_audio = projectile.global_position.distance_to(tank.global_position)
+	else:
+		_initial_distance_for_audio = 1000.0  # Default
+	
+	_beep_timer = 0.0
+	_current_beep_interval = 1.5
+	_audio_initialized = true
+	
+	# Play first beep immediately
+	_beep_player.play()
+	
+	print("[ScenarioManager] Audio initialized. Initial distance: %.1fm" % _initial_distance_for_audio)
+
+
+func _on_propulsor_loop_finished() -> void:
+	"""Loop the propulsor sound while active."""
+	if _propulsor_player and state.is_state(ScenarioStateClass.State.RUNNING):
+		_propulsor_player.play()
+
+
+func _update_audio(delta: float) -> void:
+	"""Update audio based on thrust and distance."""
+	if not _audio_initialized:
+		return
+	
+	# Update propulsor pitch/volume based on thrust
+	_update_propulsor_audio()
+	
+	# Update beep timing based on distance
+	_update_beep_audio(delta)
+
+
+func _update_propulsor_audio() -> void:
+	"""Update propulsor pitch and volume based on thrust input."""
+	if not _propulsor_player:
+		return
+	
+	var projectile = event_watcher.get_projectile()
+	if not projectile or not projectile.guidance:
+		return
+	
+	var throttle = projectile.guidance.throttle_input  # 0 to 1
+	
+	# Pitch: 0.8 at no thrust, 1.2 at full thrust
+	var target_pitch = lerpf(0.8, 1.2, throttle)
+	_propulsor_player.pitch_scale = target_pitch
+	
+	# Volume: -10dB at no thrust, -3dB at full thrust
+	var target_volume = lerpf(-10.0, -3.0, throttle)
+	_propulsor_player.volume_db = target_volume
+
+
+func _update_beep_audio(delta: float) -> void:
+	"""Update beep interval based ONLY on distance between projectile and tank.
+	Smaller distance = faster beep, larger distance = slower beep.
+	- At starting distance: 0.5 BPS (2.0s interval)
+	- At <50m from tank: 12 BPS (0.083s interval)
+	- At >1.5x starting distance: 0.2 BPS (5.0s interval)"""
+	if not _beep_player:
+		return
+	
+	var projectile = event_watcher.get_projectile()
+	var tank = event_watcher.get_tank()
+	if not projectile or not tank:
+		return
+	
+	# ONLY factor: straight-line distance between projectile and tank
+	var projectile_pos = projectile.global_position
+	var tank_pos = tank.global_position
+	var current_distance = projectile_pos.distance_to(tank_pos)
+	
+	# Distance thresholds
+	const CLOSE_DISTANCE = 50.0  # 12 BPS at this distance or closer
+	var start_distance = _initial_distance_for_audio  # 0.5 BPS at starting distance
+	var far_distance = start_distance * 1.5  # 0.2 BPS beyond this
+	
+	# Interval values (seconds between beeps)
+	const MIN_INTERVAL = 1.0 / 12.0  # 12 BPS = 0.083s (closest)
+	const START_INTERVAL = 1.0 / 0.5  # 0.5 BPS = 2.0s (at start)
+	const MAX_INTERVAL = 1.0 / 0.2   # 0.2 BPS = 5.0s (furthest)
+	
+	# Calculate interval based purely on distance
+	if current_distance <= CLOSE_DISTANCE:
+		# Very close - fastest beeping
+		_current_beep_interval = MIN_INTERVAL
+	elif current_distance >= far_distance:
+		# Very far - slowest beeping
+		_current_beep_interval = MAX_INTERVAL
+	elif current_distance >= start_distance:
+		# Between start and 1.5x start - linear slowdown
+		var t = (current_distance - start_distance) / (far_distance - start_distance)
+		_current_beep_interval = lerpf(START_INTERVAL, MAX_INTERVAL, t)
+	else:
+		# Between 50m and start distance - exponential speedup as distance decreases
+		var t = (current_distance - CLOSE_DISTANCE) / (start_distance - CLOSE_DISTANCE)
+		# t=0 at 50m (fastest), t=1 at start distance (0.5 BPS)
+		# Use cubic curve for dramatic speedup when close
+		var exp_t = pow(t, 2.5)
+		_current_beep_interval = lerpf(MIN_INTERVAL, START_INTERVAL, exp_t)
+	
+	# Update timer and play beep when interval reached
+	_beep_timer += delta
+	if _beep_timer >= _current_beep_interval:
+		_beep_timer = 0.0
+		if not _beep_player.playing:
+			_beep_player.play()
+
+
+func _stop_simulation_audio() -> void:
+	"""Stop propulsor and beep sounds (called on explosion)."""
+	if _propulsor_player:
+		_propulsor_player.stop()
+	# Beep can continue or stop - let's stop it
+	_audio_initialized = false
+
+
+func _play_explosion_sound() -> void:
+	"""Play explosion sound effect."""
+	if _explosion_player:
+		_explosion_player.play()
+
+
+func _play_end_scenario_audio(success: bool) -> void:
+	"""Play appropriate audio for scenario end.
+	Note: Explosion sound is already played at moment of impact."""
+	
+	if success:
+		# Success: just play main menu music after short delay
+		await get_tree().create_timer(1.5).timeout
+		if _music_player:
+			_music_player.play()
+	else:
+		# Fail: play fail SFX, then main menu music
+		if _fail_sfx_player:
+			_fail_sfx_player.play()
+			await _fail_sfx_player.finished
+		# Then play music
+		if _music_player:
+			_music_player.play()
+
+
+func _cleanup_audio() -> void:
+	"""Clean up all audio players."""
+	if _propulsor_player:
+		_propulsor_player.stop()
+		_propulsor_player.queue_free()
+		_propulsor_player = null
+	if _beep_player:
+		_beep_player.stop()
+		_beep_player.queue_free()
+		_beep_player = null
+	if _explosion_player:
+		_explosion_player.stop()
+		_explosion_player.queue_free()
+		_explosion_player = null
+	if _fail_sfx_player:
+		_fail_sfx_player.stop()
+		_fail_sfx_player.queue_free()
+		_fail_sfx_player = null
+	if _music_player:
+		_music_player.stop()
+		_music_player.queue_free()
+		_music_player = null
+	_audio_initialized = false

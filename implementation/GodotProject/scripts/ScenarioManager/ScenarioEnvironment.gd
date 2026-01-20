@@ -148,57 +148,89 @@ func _setup_sky() -> void:
 		push_error("[ScenarioEnvironment] Failed to load skybox: %s" % skybox_path)
 		return
 	
-	# Setup glow for sun/fire effects
-	env.glow_enabled = true
-	env.glow_intensity = 0.3
-	env.glow_strength = 0.8
-	env.glow_bloom = 0.15
+	# Get gradient-based lighting values
+	var daylight_factor = _get_daylight_factor(time)  # 0 = midnight, 1 = noon
+	
+	# GLOW: scales with daylight (no glow at deep night, subtle glow at twilight, full at day)
+	var glow_factor = _smooth_step(daylight_factor, 0.2, 0.5)  # Ramps up between 20% and 50% daylight
+	env.glow_enabled = glow_factor > 0.05
+	env.glow_intensity = lerpf(0.0, 0.3, glow_factor)
+	env.glow_strength = lerpf(0.2, 0.7, glow_factor)
+	env.glow_bloom = lerpf(0.0, 0.12, glow_factor)
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	
-	# Tonemap settings
+	# EXPOSURE: slightly lower at night to preserve darkness, but not too extreme
+	# 0.65 at midnight, 1.0 at noon
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = _get_exposure_for_time(time)
-	print("[ScenarioEnvironment] Tonemap exposure: %.2f" % env.tonemap_exposure)
+	env.tonemap_exposure = lerpf(0.65, 1.0, daylight_factor)
+	
+	# BACKGROUND ENERGY: controls skybox brightness
+	# 0.3 at midnight (stars visible but darker), 1.0 at noon
+	env.background_energy_multiplier = lerpf(0.3, 1.0, daylight_factor)
+	
+	print("[ScenarioEnvironment] Daylight factor: %.2f, exposure: %.2f, bg_energy: %.2f, glow: %.2f" % [
+		daylight_factor, env.tonemap_exposure, env.background_energy_multiplier, env.glow_intensity
+	])
 
 
 func _get_skybox_for_time(time: float) -> String:
-	"""Select appropriate skybox based on time of day."""
-	# Night: 21h - 5h
+	"""Select appropriate skybox based on time of day.
+	Note: Skyboxes are discrete assets, so we use thresholds here,
+	but all other lighting uses smooth gradients."""
+	# Deep night: 21h - 5h
 	if time >= 21.0 or time < 5.0:
 		return SKYBOX_NIGHT
 	
-	# Sunrise: 5h - 9h
-	if time >= 5.0 and time < 9.0:
+	# Dawn transition: 5h - 7h
+	if time >= 5.0 and time < 7.0:
 		return SKYBOX_SUNRISE
 	
-	# Day: 9h - 15h
-	if time >= 9.0 and time < 15.0:
+	# Morning: 7h - 9h (still sunrise colors)
+	if time >= 7.0 and time < 9.0:
+		return SKYBOX_SUNRISE
+	
+	# Day: 9h - 16h
+	if time >= 9.0 and time < 16.0:
 		# Use cloudy sky if high fog density
 		if _scenario_data.fog_density > 0.3:
 			return SKYBOX_CLOUDY_DAY
 		return SKYBOX_CLEAR_DAY
 	
-	# Afternoon: 15h - 17h (still clear day)
-	if time >= 15.0 and time < 17.0:
-		return SKYBOX_CLEAR_DAY
+	# Afternoon to sunset: 16h - 19h
+	if time >= 16.0 and time < 19.0:
+		return SKYBOX_SUNSET
 	
-	# Sunset: 17h - 21h
-	if time >= 17.0 and time < 21.0:
+	# Dusk transition: 19h - 21h
+	if time >= 19.0 and time < 21.0:
 		return SKYBOX_SUNSET
 	
 	return SKYBOX_CLEAR_DAY  # Fallback
 
 
-func _get_exposure_for_time(time: float) -> float:
-	"""Get camera exposure adjustment for time of day."""
-	# Night - slightly brighter exposure to see
-	if time < 5.0 or time >= 21.0:
-		return 1.3
-	# Twilight
-	if time < 7.0 or time >= 19.0:
-		return 1.1
-	# Day
-	return 1.0
+func _get_daylight_factor(time: float) -> float:
+	"""Returns a smooth 0-1 value representing daylight intensity.
+	0.0 = deep midnight (darkest)
+	1.0 = high noon (brightest)
+	Uses smooth cosine curve for natural day/night cycle."""
+	# Convert time to radians: 0h = PI (midnight), 12h = 0 (noon)
+	# This creates a smooth cosine wave peaking at noon
+	var radians = (time - 12.0) / 12.0 * PI
+	
+	# Cosine gives: -1 at midnight (time=0 or 24), +1 at noon (time=12)
+	# We transform to 0-1 range: 0 at midnight, 1 at noon
+	var raw_factor = (cos(radians) + 1.0) / 2.0
+	
+	# Apply power curve to make night darker and transitions sharper
+	# This makes twilight shorter and night/day more pronounced
+	return pow(raw_factor, 1.3)
+
+
+func _smooth_step(value: float, edge0: float, edge1: float) -> float:
+	"""Hermite interpolation for smooth transitions.
+	Returns 0 if value <= edge0, 1 if value >= edge1,
+	and smooth interpolation in between."""
+	var t = clampf((value - edge0) / (edge1 - edge0), 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
 
 
 func _create_celestial_light(parent: Node) -> void:
@@ -233,24 +265,38 @@ func _apply_fog_settings() -> void:
 		return
 	
 	var env = _world_environment.environment
-	var fog_density = _scenario_data.fog_density
+	var user_density = _scenario_data.fog_density
 	
-	if fog_density > 0.001:
+	if user_density > 0.001:
 		env.fog_enabled = true
 		env.fog_light_color = _scenario_data.fog_color
 		
-		# Convert user-friendly 0-1 density to actual fog parameters
-		# 0 = no fog, 0.5 = moderate visibility, 1.0 = very dense
-		env.fog_density = fog_density * 0.015  # Scale to reasonable range
-		env.fog_light_energy = 0.6 + (1.0 - fog_density) * 0.4
-		env.fog_sky_affect = 0.2 + fog_density * 0.5
-		env.fog_height = 150.0
-		env.fog_height_density = fog_density * 0.3
+		# VOLUMETRIC FOG with distance-based density
+		# User expects: 0 = no fog, 0.5 = moderate, 1.0 = very dense
+		# Fog should start at ~100m distance and increase with distance
 		
-		# Aerial perspective for distant objects
-		env.fog_aerial_perspective = fog_density * 0.6
+		# Use very low density - fog accumulates over distance
+		# 0.01 user value = barely visible at 500m
+		# 0.5 user value = visible haze starting at 200m
+		# 1.0 user value = dense fog, ~100m visibility
+		env.fog_mode = 0  # Exponential mode
+		env.fog_density = user_density * 0.0008  # MUCH lower base density
 		
-		print("[ScenarioEnvironment] Fog enabled: density=%.2f, color=%s" % [fog_density, _scenario_data.fog_color])
+		# Light energy affects how bright the fog appears
+		env.fog_light_energy = 0.8 + (1.0 - user_density) * 0.2
+		
+		# Sky affect - how much fog blends with sky at horizon
+		env.fog_sky_affect = 0.3 + user_density * 0.4
+		
+		# Height fog - denser near ground
+		env.fog_height = 50.0  # Height where fog starts to thin
+		env.fog_height_density = user_density * 0.1  # Subtle height falloff
+		
+		# Aerial perspective - objects fade with distance (key for realism)
+		# This makes distant objects appear hazier
+		env.fog_aerial_perspective = 0.3 + user_density * 0.5
+		
+		print("[ScenarioEnvironment] Volumetric fog: user_density=%.2f, actual=%.6f" % [user_density, env.fog_density])
 	else:
 		env.fog_enabled = false
 
@@ -260,53 +306,50 @@ func _apply_time_of_day() -> void:
 		return
 	
 	var time = _scenario_data.time_of_day
-	var is_night = time < 5.0 or time >= 21.0
-	var is_twilight = (time >= 5.0 and time < 7.0) or (time >= 19.0 and time < 21.0)
+	var daylight_factor = _get_daylight_factor(time)  # 0 = midnight, 1 = noon
 	
-	# Calculate sun/moon angle based on time of day
-	# At noon (12h), sun is highest (~70° from horizon)
-	# At midnight (0h), moon is at ~30° from horizon
-	var celestial_angle: float
-	if is_night:
-		# Moon path (simpler, lower in sky)
-		var night_progress = 0.0
-		if time >= 21.0:
-			night_progress = (time - 21.0) / 8.0  # 21h to 5h (wrapping)
-		else:
-			night_progress = (time + 3.0) / 8.0  # 0h to 5h
-		celestial_angle = -30.0 - sin(night_progress * PI) * 20.0  # Moon arc
-	else:
-		# Sun path
-		var noon_offset = absf(time - 12.0)  # 0 at noon, up to 7 at 5am/7pm
-		var sun_height = 1.0 - (noon_offset / 7.0)
-		sun_height = clampf(sun_height, 0.0, 1.0)
-		celestial_angle = -20.0 - sun_height * 55.0  # -20° at horizon to -75° at noon
+	# Calculate sun/moon angle based on time of day using smooth curve
+	# At noon (12h): sun at ~-70° (high in sky)
+	# At midnight (0h): moon at ~-25° (lower)
+	# Smooth sinusoidal path
+	var time_radians = (time - 6.0) / 12.0 * PI  # 6am = 0, 12pm = PI/2, 6pm = PI
+	var celestial_height = sin(time_radians)  # -1 to 1
+	var celestial_angle = -20.0 - (celestial_height + 1.0) / 2.0 * 55.0  # -20° to -75°
 	
 	_directional_light.rotation_degrees.x = celestial_angle
-	_directional_light.rotation_degrees.y = -30.0  # Slight yaw for interesting shadows
+	_directional_light.rotation_degrees.y = -30.0 + time * 2.5  # Rotates through day
 	
-	# Adjust light energy based on time
-	var energy = 1.0
-	if is_night:
-		energy = 0.15  # Moonlight
-		_directional_light.light_color = Color(0.6, 0.65, 0.8)  # Blue moonlight
-	elif is_twilight:
-		if time < 12.0:
-			# Morning twilight - warm
-			energy = lerpf(0.3, 0.9, (time - 5.0) / 2.0)
-			_directional_light.light_color = Color(1.0, 0.75, 0.5)  # Orange sunrise
-		else:
-			# Evening twilight - warm
-			energy = lerpf(0.9, 0.3, (time - 19.0) / 2.0)
-			_directional_light.light_color = Color(1.0, 0.6, 0.4)  # Red sunset
+	# LIGHT ENERGY: smooth gradient based on daylight factor
+	# Minimum 0.08 at midnight (subtle moonlight), maximum 0.85 at noon
+	var base_energy = lerpf(0.08, 0.85, daylight_factor)
+	
+	# LIGHT COLOR: gradient from blue (night) -> orange (twilight) -> white (day)
+	# Use daylight_factor to blend between colors
+	var light_color: Color
+	if daylight_factor < 0.15:
+		# Deep night: blue moonlight
+		light_color = Color(0.5, 0.55, 0.75)
+	elif daylight_factor < 0.35:
+		# Twilight transition: blend from blue to orange
+		var t = (daylight_factor - 0.15) / 0.2
+		light_color = Color(0.5, 0.55, 0.75).lerp(Color(1.0, 0.65, 0.4), t)
+	elif daylight_factor < 0.6:
+		# Morning/evening: blend from orange to neutral
+		var t = (daylight_factor - 0.35) / 0.25
+		light_color = Color(1.0, 0.65, 0.4).lerp(Color(1.0, 0.95, 0.9), t)
 	else:
-		# Full daylight
-		var warmth = absf(time - 12.0) / 5.0  # More warm color near edges
-		_directional_light.light_color = Color(1.0, 0.97 - warmth * 0.1, 0.92 - warmth * 0.15)
-		energy = 1.0
+		# Day: neutral white with slight warmth
+		light_color = Color(1.0, 0.98, 0.95)
 	
-	_directional_light.light_energy = energy
-	print("[ScenarioEnvironment] Light angle: %.1f°, energy: %.2f" % [celestial_angle, energy])
+	_directional_light.light_energy = base_energy
+	_directional_light.light_color = light_color
+	
+	# Shadow intensity: softer at night, sharper during day
+	_directional_light.shadow_opacity = lerpf(0.2, 0.75, daylight_factor)
+	
+	print("[ScenarioEnvironment] Time %.1fh: daylight=%.2f, angle=%.1f°, energy=%.2f" % [
+		time, daylight_factor, celestial_angle, base_energy
+	])
 
 
 func _apply_ambient_lighting() -> void:
@@ -315,26 +358,45 @@ func _apply_ambient_lighting() -> void:
 	
 	var env = _world_environment.environment
 	var time = _scenario_data.time_of_day
-	var is_night = time < 5.0 or time >= 21.0
+	var daylight_factor = _get_daylight_factor(time)
 	
 	# Set ambient source to sky for natural lighting
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_sky_contribution = 1.0
 	
-	# Apply user-specified energy with time-based multiplier
-	var time_multiplier = 1.0
-	if is_night:
-		time_multiplier = 0.2
-		env.ambient_light_color = Color(0.5, 0.55, 0.7)  # Blue tint
-	elif time < 7.0 or time >= 19.0:
-		time_multiplier = 0.5
-		env.ambient_light_color = Color(1.0, 0.85, 0.7)  # Warm tint
-	else:
-		env.ambient_light_color = Color(1.0, 1.0, 1.0)  # Neutral
+	# User expects ambient_light_energy to work as:
+	# 0 = dark (no ambient)
+	# 1 = sunset/medium intensity
+	# 2 = bright noon
+	var user_ambient = _scenario_data.ambient_light_energy
 	
-	env.ambient_light_energy = _scenario_data.ambient_light_energy * time_multiplier
-	print("[ScenarioEnvironment] Ambient energy: %.2f (base: %.2f, mult: %.2f)" % [
-		env.ambient_light_energy, _scenario_data.ambient_light_energy, time_multiplier
+	# Time-based multiplier using smooth gradient
+	# 0.08 at midnight (darker nights), 1.0 at noon
+	var time_multiplier = lerpf(0.08, 1.0, daylight_factor)
+	
+	# AMBIENT COLOR: smooth gradient from blue (night) to neutral (day)
+	# At night: blue tint for moonlight atmosphere
+	# At twilight: warm orange/pink tint
+	# At day: neutral white
+	if daylight_factor < 0.2:
+		# Night: blue tint
+		var night_intensity = 1.0 - (daylight_factor / 0.2)
+		env.ambient_light_color = Color(1.0, 1.0, 1.0).lerp(Color(0.4, 0.45, 0.65), night_intensity)
+	elif daylight_factor < 0.4:
+		# Twilight: transition from blue to warm
+		var t = (daylight_factor - 0.2) / 0.2
+		env.ambient_light_color = Color(0.4, 0.45, 0.65).lerp(Color(1.0, 0.85, 0.7), t)
+	elif daylight_factor < 0.6:
+		# Morning/evening: warm to neutral
+		var t = (daylight_factor - 0.4) / 0.2
+		env.ambient_light_color = Color(1.0, 0.85, 0.7).lerp(Color(1.0, 1.0, 1.0), t)
+	else:
+		# Day: neutral
+		env.ambient_light_color = Color(1.0, 1.0, 1.0)
+	
+	env.ambient_light_energy = user_ambient * time_multiplier
+	print("[ScenarioEnvironment] Ambient: energy=%.3f (base: %.2f × time_mult: %.3f), daylight=%.2f" % [
+		env.ambient_light_energy, user_ambient, time_multiplier, daylight_factor
 	])
 
 

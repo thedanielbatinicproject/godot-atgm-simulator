@@ -119,9 +119,10 @@ func _create_fallback_narrator_ui(ui_parent: Node) -> void:
 	margin.add_child(_subtitle_label)
 	_speech_bubble.add_child(margin)
 	
-	# Audio player
+	# Audio player - uses Voice bus for narrator speech
 	_audio_player = AudioStreamPlayer.new()
 	_audio_player.name = "AudioPlayer"
+	_audio_player.bus = "Voice"  # All narrator audio goes through Voice bus
 	_narrator_container.add_child(_audio_player)
 
 

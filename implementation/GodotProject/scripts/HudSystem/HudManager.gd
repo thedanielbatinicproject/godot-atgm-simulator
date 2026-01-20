@@ -7,6 +7,7 @@ class_name HudManager
 @onready var angles: Label = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer/Angles
 @onready var distance_label: Label = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer/MarginContainer/Distance
 @onready var projected_time: Label = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer/ProjectedTime
+@onready var point_arrow: Sprite2D = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer/BoxContainer/PointArrow
 
 # ============================================================================
 # HUD MANAGER
@@ -168,6 +169,9 @@ func _process(delta: float):
 	# Update distance bar (realtime)
 	_update_distance_bar()
 	
+	# Update point arrow (realtime - needs to track tank direction)
+	_update_point_arrow()
+	
 	# Update other displays every 0.5s (coordinates, angles, distance, time)
 	_update_timer += delta
 	if _update_timer >= UPDATE_INTERVAL:
@@ -325,3 +329,65 @@ func _calculate_time_to_impact() -> float:
 		base_time *= misalignment_factor
 	
 	return maxf(base_time, 0.0)
+
+
+func _update_point_arrow():
+	"""Update point_arrow to point toward tank from current camera's perspective.
+	Arrow is hidden when camera is looking directly at tank (±10 degrees).
+	Arrow rotation indicates direction to turn to face tank."""
+	if not point_arrow or not tank:
+		if point_arrow:
+			point_arrow.visible = false
+		return
+	
+	# Get the current active camera
+	var camera = get_viewport().get_camera_3d()
+	if not camera:
+		point_arrow.visible = false
+		return
+	
+	# Get camera and tank positions
+	var camera_pos = camera.global_position
+	var camera_forward = -camera.global_transform.basis.z  # Camera looks along -Z
+	var tank_pos = tank.global_position
+	
+	# Vector from camera to tank
+	var to_tank = (tank_pos - camera_pos).normalized()
+	
+	# Calculate angle between camera forward and direction to tank
+	var dot = camera_forward.dot(to_tank)
+	var angle_to_tank_rad = acos(clampf(dot, -1.0, 1.0))
+	var angle_to_tank_deg = rad_to_deg(angle_to_tank_rad)
+	
+	# Hide arrow if looking at tank within ±10 degrees
+	const HIDE_THRESHOLD_DEG = 10.0
+	if angle_to_tank_deg < HIDE_THRESHOLD_DEG:
+		point_arrow.visible = false
+		return
+	
+	# Show arrow and calculate rotation
+	point_arrow.visible = true
+	
+	# Project tank position onto camera's view plane to get 2D direction
+	# Get camera's right and up vectors
+	var camera_right = camera.global_transform.basis.x
+	var camera_up = camera.global_transform.basis.y
+	
+	# Project to_tank onto the camera's plane (perpendicular to forward)
+	# Remove the forward component
+	var to_tank_on_plane = to_tank - camera_forward * to_tank.dot(camera_forward)
+	to_tank_on_plane = to_tank_on_plane.normalized()
+	
+	# Get the 2D components (right = X, up = Y in screen space)
+	# Note: Negate screen_x because screen coordinates are mirrored
+	var screen_x = -to_tank_on_plane.dot(camera_right)  # Negative = invert for correct screen direction
+	var screen_y = to_tank_on_plane.dot(camera_up)      # Positive = up
+	
+	# Calculate rotation angle for the arrow
+	# Arrow defaults to pointing UP (0 degrees), so:
+	# - If tank is to the right, rotate clockwise (negative angle in Godot 2D)
+	# - atan2(x, y) gives angle from Y-axis (up)
+	var arrow_angle = atan2(screen_x, screen_y)
+	
+	# Set arrow rotation (Godot 2D rotation is counterclockwise positive)
+	point_arrow.rotation = -arrow_angle

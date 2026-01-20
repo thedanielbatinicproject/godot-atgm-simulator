@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://dljr351o146qo"]
+[gd_scene load_steps=5 format=3 uid="uid://dljr351o146qo"]
 
 [ext_resource type="Script" uid="uid://4wun8cgpeku8" path="res://scripts/HudSystem/HudManager.gd" id="1_hud"]
 [ext_resource type="Script" uid="uid://cyryd8prxxknv" path="res://scripts/HudSystem/ThrustBar.gd" id="2_thrust"]
+[ext_resource type="Texture2D" uid="uid://vj0m74f6ql46" path="res://assets/UI/MainMenu/Graphics/pointArrow.png" id="3_5ip4n"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="3_vphgt"]
 
 [node name="HUD" type="CanvasLayer"]
@@ -95,6 +96,20 @@ vertical_alignment = 1
 [node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="PointArrow" type="Sprite2D" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer/BoxContainer"]
+visible = false
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("3_5ip4n")
 
 [node name="BoxContainer4" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
 layout_mode = 2

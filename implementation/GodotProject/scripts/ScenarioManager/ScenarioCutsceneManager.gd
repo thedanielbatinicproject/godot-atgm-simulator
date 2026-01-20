@@ -50,16 +50,21 @@ var _smoke_effect: GPUParticles3D = null  # Secondary smoke particles
 var _is_animating: bool = false  # True during hit/miss animation
 var _frozen_camera_position: Vector3 = Vector3.ZERO  # Position where camera freezes
 var _pending_smoke_position: Vector3 = Vector3.ZERO  # Position for delayed smoke spawn
+var _is_terrain_miss: bool = false  # True if projectile missed tank completely (terrain hit)
+var _terrain_impact_position: Vector3 = Vector3.ZERO  # Where projectile hit terrain
 
 
-func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_position: Vector3 = Vector3.ZERO) -> void:
-	"""Start the final cutscene - camera freezes at projectile's entry point into cutscene sphere."""
+func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_position: Vector3 = Vector3.ZERO, is_terrain_miss: bool = false, terrain_impact_pos: Vector3 = Vector3.ZERO) -> void:
+	"""Start the final cutscene - camera freezes at projectile's entry point into cutscene sphere.
+	For terrain miss: camera locks on impact position instead of tracking tank."""
 	_projectile = projectile
 	_tank = tank
 	_is_playing_cutscene = true
 	_cutscene_time = 0.0
 	_camera_position_set = false
 	_is_animating = false
+	_is_terrain_miss = is_terrain_miss
+	_terrain_impact_position = terrain_impact_pos
 	
 	# Use the entry position if provided, otherwise use current projectile position
 	if projectile_entry_position != Vector3.ZERO:
@@ -99,6 +104,54 @@ func _create_cutscene_camera() -> void:
 
 
 func _position_camera_at_entry_point() -> void:
+	"""Position camera based on scenario:
+	- Tank hit/near miss: Camera positioned to keep tank centered
+	- Terrain miss (complete miss): Camera positioned to look at impact point"""
+	if not _cutscene_camera:
+		return
+	
+	if _is_terrain_miss and _terrain_impact_position != Vector3.ZERO:
+		# TERRAIN MISS: Camera looks at impact position, not tank
+		_position_camera_for_terrain_miss()
+	else:
+		# TANK HIT or near miss: Camera keeps tank centered
+		_position_camera_for_tank_centered()
+
+
+func _position_camera_for_terrain_miss() -> void:
+	"""Position camera for terrain miss - looks at impact point."""
+	var impact_pos = _terrain_impact_position
+	
+	# Get camera approach direction from frozen position (where projectile was)
+	var approach_direction = (_frozen_camera_position - impact_pos).normalized()
+	if approach_direction.length() < 0.01:
+		approach_direction = Vector3(0, 0, 1)
+	
+	# Side direction for offset
+	var side_direction = approach_direction.cross(Vector3.UP).normalized()
+	if side_direction.length() < 0.01:
+		side_direction = Vector3.RIGHT
+	
+	# Position camera at fixed distance from impact, looking at impact
+	var camera_distance = 40.0
+	var side_offset = 15.0
+	var height_offset = 15.0
+	
+	var camera_pos = impact_pos
+	camera_pos += approach_direction * camera_distance * 0.5  # Behind impact
+	camera_pos += side_direction * side_offset  # To the side
+	camera_pos.y = impact_pos.y + height_offset  # Above
+	
+	_cutscene_camera.global_position = camera_pos
+	_camera_position_set = true
+	
+	# Look at impact position
+	_cutscene_camera.look_at(impact_pos + Vector3(0, 2, 0))
+	
+	print("[CutsceneManager] Terrain miss camera at: ", camera_pos, " looking at impact: ", impact_pos)
+
+
+func _position_camera_for_tank_centered() -> void:
 	"""Position camera to always keep tank in center of screen.
 	Camera is placed at a good viewing angle from the projectile's approach direction."""
 	if not _cutscene_camera or not _tank:
@@ -139,34 +192,47 @@ func _position_camera_at_entry_point() -> void:
 
 
 func process_cutscene(delta: float) -> void:
-	"""Process cutscene - camera keeps tank centered while also showing projectile approach."""
+	"""Process cutscene - camera behavior depends on hit type.
+	Tank hit: Camera tracks tank/projectile.
+	Terrain miss: Camera stays locked on impact position."""
 	if not _is_playing_cutscene:
 		return
 	
 	_cutscene_time += delta
 	
-	# Camera stays in place but tracks a weighted point between tank and projectile
-	if _cutscene_camera and is_instance_valid(_cutscene_camera):
-		var look_target: Vector3
-		
-		# Tank is always the primary focus
-		var tank_target = _tank.global_position + Vector3(0, 2, 0) if _tank and is_instance_valid(_tank) else Vector3.ZERO
-		
-		if _projectile and is_instance_valid(_projectile) and _projectile.visible:
-			# Track point between projectile and tank - weighted toward tank to keep it centered
-			var projectile_pos = _projectile.global_position
-			# 70% tank, 30% projectile - this keeps tank mostly centered
-			look_target = tank_target.lerp(projectile_pos, 0.3)
-		elif _explosion_effect and is_instance_valid(_explosion_effect):
-			# During explosion, look at explosion (which should be at/near tank)
+	if not _cutscene_camera or not is_instance_valid(_cutscene_camera):
+		return
+	
+	# TERRAIN MISS: Camera stays locked on impact position
+	if _is_terrain_miss and _terrain_impact_position != Vector3.ZERO:
+		# Just look at impact point (camera position already set)
+		var look_target = _terrain_impact_position + Vector3(0, 2, 0)
+		if _explosion_effect and is_instance_valid(_explosion_effect):
 			look_target = _explosion_effect.global_position
-		elif tank_target != Vector3.ZERO:
-			# Fallback to tank
-			look_target = tank_target
-		else:
-			return
-		
 		_cutscene_camera.look_at(look_target)
+		return
+	
+	# TANK HIT/NEAR MISS: Track weighted point between tank and projectile
+	var look_target: Vector3
+	
+	# Tank is always the primary focus
+	var tank_target = _tank.global_position + Vector3(0, 2, 0) if _tank and is_instance_valid(_tank) else Vector3.ZERO
+	
+	if _projectile and is_instance_valid(_projectile) and _projectile.visible:
+		# Track point between projectile and tank - weighted toward tank to keep it centered
+		var projectile_pos = _projectile.global_position
+		# 70% tank, 30% projectile - this keeps tank mostly centered
+		look_target = tank_target.lerp(projectile_pos, 0.3)
+	elif _explosion_effect and is_instance_valid(_explosion_effect):
+		# During explosion, look at explosion (which should be at/near tank)
+		look_target = _explosion_effect.global_position
+	elif tank_target != Vector3.ZERO:
+		# Fallback to tank
+		look_target = tank_target
+	else:
+		return
+	
+	_cutscene_camera.look_at(look_target)
 
 
 func play_hit_animation(hit_position: Vector3) -> void:
@@ -281,7 +347,8 @@ func _create_smoke_material(texture: Texture2D) -> StandardMaterial3D:
 
 
 func _spawn_delayed_smoke(parent_node: Node) -> void:
-	"""Spawn smoke particles 1 second after the initial fire explosion."""
+	"""Spawn smoke particles 1 second after the initial fire explosion.
+	SPAWNS FAST AND THICK - lots of particles quickly!"""
 	print("[CutsceneManager] Scheduling delayed smoke spawn...")
 	await get_tree().create_timer(1.0).timeout
 	
@@ -291,7 +358,7 @@ func _spawn_delayed_smoke(parent_node: Node) -> void:
 	
 	print("[CutsceneManager] Spawning delayed smoke at: ", _pending_smoke_position)
 	
-	# === SMOKE PARTICLES - LARGE BUT SPREAD OUT ===
+	# === SMOKE PARTICLES - FAST & THICK ===
 	_smoke_effect = GPUParticles3D.new()
 	_smoke_effect.name = "TankSmokeEffect"
 	parent_node.add_child(_smoke_effect)
@@ -299,63 +366,64 @@ func _spawn_delayed_smoke(parent_node: Node) -> void:
 	
 	_smoke_effect.emitting = true
 	_smoke_effect.one_shot = false  # Continuous smoke that lingers!
-	_smoke_effect.explosiveness = 0.1  # Very spread out for continuous billowing
-	_smoke_effect.amount = 50  # REDUCED from 120 - fewer particles but same size
-	_smoke_effect.lifetime = 18.0  # Even longer lifetime
-	_smoke_effect.randomness = 0.5  # More organic variation
+	_smoke_effect.explosiveness = 0.85  # HIGH explosiveness = spawn quickly!
+	_smoke_effect.amount = 200  # LOTS of particles for thick smoke
+	_smoke_effect.lifetime = 12.0  # Long lifetime
+	_smoke_effect.randomness = 0.3  # Some variation
+	_smoke_effect.speed_scale = 1.5  # Faster animation
 	
-	# Smoke particle behavior - HUGE billowing clouds, spread wider
+	# Smoke particle behavior - THICK billowing clouds
 	var smoke_process = ParticleProcessMaterial.new()
 	smoke_process.direction = Vector3(0, 1, 0)
-	smoke_process.spread = 90.0  # MUCH wider spread (was 60)
-	smoke_process.initial_velocity_min = 1.0  # Very slow = thick
-	smoke_process.initial_velocity_max = 5.0
-	smoke_process.gravity = Vector3(0, 1.5, 0)  # Gentle rise
-	smoke_process.scale_min = 60.0  # GIGANTIC
-	smoke_process.scale_max = 140.0  # ENORMOUS billowing clouds (bigger than before)
-	smoke_process.damping_min = 2.0
-	smoke_process.damping_max = 4.0
+	smoke_process.spread = 85.0  # Wide spread for coverage
+	smoke_process.initial_velocity_min = 4.0  # Faster initial burst
+	smoke_process.initial_velocity_max = 15.0  # Fast expansion outward
+	smoke_process.gravity = Vector3(0, 2.5, 0)  # Rise faster
+	smoke_process.scale_min = 35.0  # Large
+	smoke_process.scale_max = 90.0  # Very large clouds
+	smoke_process.damping_min = 1.0
+	smoke_process.damping_max = 2.5
 	
-	# Wider emission shape - spread particles across larger area
+	# Emission from sphere - LARGER radius for spread
 	smoke_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	smoke_process.emission_sphere_radius = 15.0  # Particles spawn in 15m radius
+	smoke_process.emission_sphere_radius = 18.0  # Bigger emission area for spread
 	
-	# Scale curve - grow over time for billowing effect
+	# Scale curve - start big, grow bigger
 	var smoke_scale_curve = CurveTexture.new()
 	var smoke_curve = Curve.new()
-	smoke_curve.add_point(Vector2(0.0, 0.3))
-	smoke_curve.add_point(Vector2(0.2, 0.8))
-	smoke_curve.add_point(Vector2(0.5, 1.0))
-	smoke_curve.add_point(Vector2(0.8, 1.1))
-	smoke_curve.add_point(Vector2(1.0, 0.6))  # Shrink at end
+	smoke_curve.add_point(Vector2(0.0, 0.6))  # Start visible immediately
+	smoke_curve.add_point(Vector2(0.1, 0.9))  # Quick growth
+	smoke_curve.add_point(Vector2(0.3, 1.0))  # Full size fast
+	smoke_curve.add_point(Vector2(0.7, 1.0))  # Stay big
+	smoke_curve.add_point(Vector2(1.0, 0.4))  # Fade at end
 	smoke_scale_curve.curve = smoke_curve
 	smoke_process.scale_curve = smoke_scale_curve
 	
 	# Turbulence for fluid smoke motion
 	smoke_process.turbulence_enabled = true
-	smoke_process.turbulence_noise_strength = 4.0
-	smoke_process.turbulence_noise_scale = 2.5
-	smoke_process.turbulence_noise_speed = Vector3(0.4, 0.6, 0.4)
+	smoke_process.turbulence_noise_strength = 5.0
+	smoke_process.turbulence_noise_scale = 3.0
+	smoke_process.turbulence_noise_speed = Vector3(0.5, 0.8, 0.5)
 	
-	# Smoke color gradient - LESS OPAQUE for spread out look
+	# Smoke color gradient - THICK AND OPAQUE
 	var smoke_gradient = GradientTexture1D.new()
 	var smoke_grad = Gradient.new()
 	smoke_grad.colors = PackedColorArray([
-		Color(0.1, 0.1, 0.1, 0.7),     # Dark, but not fully opaque
-		Color(0.2, 0.2, 0.2, 0.55),    # Dark grey, lower opacity
-		Color(0.35, 0.35, 0.35, 0.4),  # Medium grey
-		Color(0.5, 0.5, 0.5, 0.2),     # Light grey
-		Color(0.6, 0.6, 0.6, 0.0)      # Fading out
+		Color(0.08, 0.08, 0.08, 0.95),   # Very dark, very opaque
+		Color(0.15, 0.15, 0.15, 0.9),    # Dark grey, high opacity
+		Color(0.25, 0.25, 0.25, 0.75),   # Medium dark
+		Color(0.4, 0.4, 0.4, 0.5),       # Medium grey
+		Color(0.55, 0.55, 0.55, 0.0)     # Fading out
 	])
-	smoke_grad.offsets = PackedFloat32Array([0.0, 0.2, 0.45, 0.75, 1.0])
+	smoke_grad.offsets = PackedFloat32Array([0.0, 0.15, 0.35, 0.65, 1.0])
 	smoke_gradient.gradient = smoke_grad
 	smoke_process.color_ramp = smoke_gradient
 	
 	_smoke_effect.process_material = smoke_process
 	
-	# Smoke mesh with texture - HUGE for massive smoke coverage
+	# Smoke mesh with texture - Large for good coverage
 	var smoke_mesh = QuadMesh.new()
-	smoke_mesh.size = Vector2(18.0, 18.0)  # Even bigger mesh
+	smoke_mesh.size = Vector2(14.0, 14.0)  # Good size
 	smoke_mesh.material = _create_smoke_material(SMOKE_TEXTURE_1)
 	_smoke_effect.draw_pass_1 = smoke_mesh
 
@@ -746,6 +814,41 @@ func cleanup() -> void:
 
 var _tank_debris: Array[RigidBody3D] = []  # Store references for cleanup
 
+
+func _get_debris_limit_for_quality() -> int:
+	"""Get debris count limit based on graphics quality setting.
+	Quality levels from Options menu (item IDs):
+	0 = Very High: 40 debris
+	1 = High: 35 debris
+	2 = Medium: 22 debris
+	3 = Low: 16 debris  
+	4 = Very Low: 8 debris
+	"""
+	# Try to get graphics settings from autoload singleton
+	var quality = 2  # Default to medium
+	if has_node("/root/GraphicsSettingsManager"):
+		var gsm = get_node("/root/GraphicsSettingsManager")
+		quality = gsm.graphics_settings.get("quality", 2)
+		print("[CutsceneManager] Graphics quality from settings: %d" % quality)
+	else:
+		print("[CutsceneManager] GraphicsSettingsManager not found, using default quality")
+	
+	# Map quality to debris limit (0=Very High, 4=Very Low)
+	match quality:
+		0:  # Very High
+			return 40
+		1:  # High
+			return 35
+		2:  # Medium
+			return 22
+		3:  # Low
+			return 16
+		4:  # Very Low
+			return 8
+		_:
+			return 22  # Default to medium
+
+
 func _dismantle_tank(explosion_center: Vector3) -> void:
 	"""Convert tank MeshInstance3D nodes to physics debris that collapses/explodes.
 	Optimized to avoid frame freeze by limiting debris count and using simpler collisions."""
@@ -767,8 +870,11 @@ func _dismantle_tank(explosion_center: Vector3) -> void:
 	
 	print("[CutsceneManager] Found %d mesh instances" % mesh_instances.size())
 	
-	# OPTIMIZATION: Limit debris to 8 largest pieces max
-	var max_debris = mini(mesh_instances.size(), 8)
+	# Get debris limit based on graphics quality setting
+	# Quality: 0=Low, 1=Medium, 2=High (from GraphicsSettingsManager)
+	var debris_limit = _get_debris_limit_for_quality()
+	var max_debris = mini(mesh_instances.size(), debris_limit)
+	print("[CutsceneManager] Debris limit: %d (quality-based)" % max_debris)
 	
 	# Get parent for debris (scene root)
 	var debris_parent = _tank.get_parent()
