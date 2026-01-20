@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://g377ixe5k4he"]
-
-[ext_resource type="PackedScene" uid="uid://6wkuks5u75ok" path="res://assets/Tanks/T-62A Main Battle Tank/t-62a_main_battle_tank.glb" id="1_e8vo2"]
-
-[node name="Sketchfab_Scene" instance=ExtResource("1_e8vo2")]
-
-[node name="Sketchfab_model" parent="." index="0"]
-transform = Transform3D(0.99999994, 0, 0, 0, -4.3711385e-08, 1, 0, -0.99999994, -4.371139e-08, 0, 0.775, 0)

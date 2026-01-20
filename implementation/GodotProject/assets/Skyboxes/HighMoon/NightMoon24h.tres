@@ -1,0 +1,6 @@
+[gd_resource type="PanoramaSkyMaterial" load_steps=2 format=3 uid="uid://c2w1swyg1w0kp"]
+
+[ext_resource type="Texture2D" uid="uid://dwvk061hdidgy" path="res://assets/Skyboxes/HighMoon/night-moon24h-sky.exr" id="1_m60l2"]
+
+[resource]
+panorama = ExtResource("1_m60l2")

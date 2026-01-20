@@ -49,7 +49,7 @@ metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
 transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 313.70923, 47.59298, 536.1737)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 625.01965, 72.240814, 611.82477)
+transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 625.01965, 68.11524, 611.82477)
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="."]
 transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 116.98044, -4.326767, 896.35706)

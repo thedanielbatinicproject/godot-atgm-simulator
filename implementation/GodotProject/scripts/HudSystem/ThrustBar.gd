@@ -22,14 +22,12 @@ class_name ThrustBar
 @export var border_width: float = 1.0
 
 @export_group("Layout")
-## Širina bara u pikselima
+## Širina bara u pikselima (only used when not in container)
 @export var bar_width: float = 12.0
-## Razmak od desnog ruba ekrana
-@export var margin_right: float = 20.0
-## Razmak od vrha ekrana (postotak)
-@export_range(0.0, 0.5, 0.01) var margin_top_percent: float = 0.15
-## Razmak od dna ekrana (postotak)
-@export_range(0.0, 0.5, 0.01) var margin_bottom_percent: float = 0.15
+## Padding unutar containera (postotak)
+@export_range(0.0, 0.5, 0.01) var padding_percent: float = 0.1
+## If true, use own size (from container). If false, calculate from viewport.
+@export var use_container_size: bool = true
 
 @export_group("Animation")
 ## Brzina animacije ispune (0 = instant)
@@ -73,24 +71,53 @@ func set_thrust_value(value: float):
 	target_thrust = clampf(value, 0.0, 1.0)
 
 func _draw():
-	var viewport_size = get_viewport_rect().size
+	var bar_x: float
+	var bar_y: float
+	var bar_w: float
+	var bar_h: float
 	
-	# Izračunaj dimenzije bara
-	var bar_height = viewport_size.y * (1.0 - margin_top_percent - margin_bottom_percent)
-	var bar_x = viewport_size.x - margin_right - bar_width
-	var bar_y = viewport_size.y * margin_top_percent
+	if use_container_size:
+		# Render inside container using own size
+		var own_size = size
+		if own_size.x <= 0 or own_size.y <= 0:
+			return  # Skip if size not ready yet
+		
+		var pad_pct = padding_percent if padding_percent != null else 0.1
+		var padding_h = own_size.x * pad_pct
+		var padding_v = own_size.y * pad_pct
+		
+		# Calculate bar dimensions within container
+		bar_w = own_size.x - (padding_h * 2.0)
+		bar_h = own_size.y - (padding_v * 2.0)
+		bar_x = padding_h
+		bar_y = padding_v
+		
+		# Reserve space for label if shown
+		if show_label:
+			var label_space = label_font_size + label_margin_top + 4.0
+			bar_h -= label_space
+		
+		if bar_w <= 0 or bar_h <= 0:
+			return  # Skip if invalid dimensions
+	else:
+		# Legacy: viewport-relative positioning (for backwards compatibility)
+		var viewport_size = get_viewport_rect().size
+		bar_h = viewport_size.y * 0.7  # Default 70% height
+		bar_w = bar_width
+		bar_x = viewport_size.x - 20.0 - bar_width
+		bar_y = viewport_size.y * 0.15
 	
-	var bar_rect = Rect2(bar_x, bar_y, bar_width, bar_height)
+	var bar_rect = Rect2(bar_x, bar_y, bar_w, bar_h)
 	
 	# 1. Nacrtaj pozadinu (transparentnija)
 	draw_rect(bar_rect, background_color, true)
 	
 	# 2. Nacrtaj ispunu (odozdo prema gore)
-	var fill_height = bar_height * current_thrust
+	var fill_height = bar_h * current_thrust
 	var fill_rect = Rect2(
 		bar_x,
-		bar_y + bar_height - fill_height,  # Počinje odozdo
-		bar_width,
+		bar_y + bar_h - fill_height,  # Počinje odozdo
+		bar_w,
 		fill_height
 	)
 	draw_rect(fill_rect, fill_color, true)
@@ -99,16 +126,18 @@ func _draw():
 	draw_rect(bar_rect, border_color, false, border_width)
 	
 	# 4. Opcijski: oznake za 25%, 50%, 75%
-	_draw_tick_marks(bar_x, bar_y, bar_height)
+	_draw_tick_marks(bar_x, bar_y, bar_h)
 	
 	# 5. Tekst ispod bara
 	if show_label:
-		_draw_label(bar_x, bar_y + bar_height)
+		_draw_label(bar_x, bar_y + bar_h, bar_w)
 
 func _draw_tick_marks(bar_x: float, bar_y: float, bar_height: float):
 	"""Nacrtaj male oznake na 25%, 50%, 75%."""
 	var tick_color = Color(1.0, 1.0, 1.0, 0.2)
-	var tick_width = bar_width * 0.4
+	# Use a fraction of bar width for tick marks
+	var bar_w = size.x - (size.x * padding_percent * 2.0) if use_container_size else bar_width
+	var tick_width = bar_w * 0.4
 	
 	for percent in [0.25, 0.5, 0.75]:
 		var y_pos = bar_y + bar_height * (1.0 - percent)
@@ -119,11 +148,15 @@ func _draw_tick_marks(bar_x: float, bar_y: float, bar_height: float):
 			1.0
 		)
 
-func _draw_label(bar_x: float, bar_bottom_y: float):
+func _draw_label(bar_x: float, bar_bottom_y: float, bar_w: float = -1.0):
 	"""Nacrtaj tekst ispod bara."""
 	var font: Font = label_font if label_font else ThemeDB.fallback_font
+	
+	# Determine bar width for centering
+	var actual_bar_width = bar_w if bar_w > 0 else bar_width
+	
 	var text_pos = Vector2(
-		bar_x + bar_width / 2.0,
+		bar_x + actual_bar_width / 2.0,
 		bar_bottom_y + label_margin_top + label_font_size
 	)
 	

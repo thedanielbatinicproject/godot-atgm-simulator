@@ -284,7 +284,7 @@ func _spawn_tank_explosion(position: Vector3) -> void:
 		return
 	print("[CutsceneManager] Tank explosion parent: ", parent_node.name)
 	
-	# === FIRE PARTICLES (main explosion) - OPTIMIZED ===
+	# === FIRE PARTICLES (main explosion) - MASSIVE VOLUMETRIC FLAMES ===
 	_explosion_effect = GPUParticles3D.new()
 	_explosion_effect.name = "TankFireEffect"
 	parent_node.add_child(_explosion_effect)
@@ -292,44 +292,106 @@ func _spawn_tank_explosion(position: Vector3) -> void:
 	
 	_explosion_effect.emitting = true
 	_explosion_effect.one_shot = true
-	_explosion_effect.explosiveness = 0.9  # Quick burst
-	_explosion_effect.amount = 100  # Fewer but bigger particles
-	_explosion_effect.lifetime = 2.5  # Fire duration
+	_explosion_effect.explosiveness = 0.7  # Slightly spread out for fluid motion
+	_explosion_effect.amount = 200  # MORE particles for volumetric look
+	_explosion_effect.lifetime = 3.0  # Longer fire duration
+	_explosion_effect.randomness = 0.3  # Add randomness for organic look
 	
-	# Fire particle behavior - BIG and dramatic
+	# Fire particle behavior - MASSIVE and fluid-like
 	var fire_process = ParticleProcessMaterial.new()
 	fire_process.direction = Vector3(0, 1, 0)
-	fire_process.spread = 80.0  # Wide spread
-	fire_process.initial_velocity_min = 10.0
-	fire_process.initial_velocity_max = 30.0
-	fire_process.gravity = Vector3(0, 4.0, 0)  # Fire rises
-	fire_process.scale_min = 6.0  # Bigger particles = fewer needed
-	fire_process.scale_max = 18.0  # Large flames
-	fire_process.damping_min = 2.0
-	fire_process.damping_max = 5.0
+	fire_process.spread = 60.0  # Tighter cone for rising flames
+	fire_process.initial_velocity_min = 8.0
+	fire_process.initial_velocity_max = 25.0
+	fire_process.gravity = Vector3(0, 6.0, 0)  # Strong upward pull
+	fire_process.scale_min = 25.0  # MASSIVE base particles
+	fire_process.scale_max = 65.0  # ENORMOUS flames
+	fire_process.damping_min = 1.5
+	fire_process.damping_max = 4.0
 	
-	# Fire color gradient (bright yellow -> orange -> dark red -> transparent)
+	# Scale over lifetime - grow then shrink for fluid billowing
+	var scale_curve = CurveTexture.new()
+	var scale_c = Curve.new()
+	scale_c.add_point(Vector2(0.0, 0.3))   # Start small
+	scale_c.add_point(Vector2(0.15, 1.2))  # Grow big quickly (billowing)
+	scale_c.add_point(Vector2(0.5, 1.0))   # Stay big
+	scale_c.add_point(Vector2(1.0, 0.2))   # Shrink at end
+	scale_curve.curve = scale_c
+	fire_process.scale_curve = scale_curve
+	
+	# Add turbulence for fluid motion
+	fire_process.turbulence_enabled = true
+	fire_process.turbulence_noise_strength = 2.5
+	fire_process.turbulence_noise_scale = 1.5
+	fire_process.turbulence_noise_speed = Vector3(0.8, 1.2, 0.8)
+	
+	# Fire color gradient (bright core -> orange flames -> dark edges)
 	var fire_gradient = GradientTexture1D.new()
 	var gradient = Gradient.new()
 	gradient.colors = PackedColorArray([
-		Color(1.0, 1.0, 0.5, 1.0),   # Bright yellow-white (start)
-		Color(1.0, 0.6, 0.1, 1.0),   # Orange
-		Color(0.9, 0.2, 0.0, 0.8),   # Red-orange
-		Color(0.3, 0.1, 0.0, 0.0)    # Dark, fading out
+		Color(1.0, 1.0, 0.7, 1.0),   # Bright white-yellow core
+		Color(1.0, 0.8, 0.2, 1.0),   # Golden yellow
+		Color(1.0, 0.5, 0.0, 0.95),  # Orange
+		Color(0.9, 0.25, 0.0, 0.8),  # Red-orange
+		Color(0.4, 0.1, 0.0, 0.3),   # Dark red embers
+		Color(0.15, 0.05, 0.0, 0.0)  # Fade to black
 	])
-	gradient.offsets = PackedFloat32Array([0.0, 0.25, 0.6, 1.0])
+	gradient.offsets = PackedFloat32Array([0.0, 0.1, 0.3, 0.5, 0.75, 1.0])
 	fire_gradient.gradient = gradient
 	fire_process.color_ramp = fire_gradient
 	
 	_explosion_effect.process_material = fire_process
 	
-	# Fire mesh with texture
+	# Fire mesh with texture - MASSIVE base mesh
 	var fire_mesh = QuadMesh.new()
-	fire_mesh.size = Vector2(1.0, 1.0)
+	fire_mesh.size = Vector2(6.0, 6.0)  # HUGE base mesh for massive fire
 	fire_mesh.material = _create_fire_material(FIRE_TEXTURE_1)
 	_explosion_effect.draw_pass_1 = fire_mesh
 	
-	# === SMOKE PARTICLES (follows fire) - THICK BILLOWING CLOUDS (OPTIMIZED) ===
+	# === INNER FIRE LAYER (hot core) ===
+	var inner_fire = GPUParticles3D.new()
+	inner_fire.name = "InnerFireCore"
+	parent_node.add_child(inner_fire)
+	inner_fire.global_position = position
+	
+	inner_fire.emitting = true
+	inner_fire.one_shot = true
+	inner_fire.explosiveness = 0.8
+	inner_fire.amount = 80
+	inner_fire.lifetime = 2.0
+	
+	var inner_process = ParticleProcessMaterial.new()
+	inner_process.direction = Vector3(0, 1, 0)
+	inner_process.spread = 40.0
+	inner_process.initial_velocity_min = 5.0
+	inner_process.initial_velocity_max = 15.0
+	inner_process.gravity = Vector3(0, 8.0, 0)
+	inner_process.scale_min = 18.0  # Larger core
+	inner_process.scale_max = 40.0  # Much bigger
+	inner_process.turbulence_enabled = true
+	inner_process.turbulence_noise_strength = 1.5
+	
+	# Hot white-yellow core gradient
+	var core_gradient = GradientTexture1D.new()
+	var core_grad = Gradient.new()
+	core_grad.colors = PackedColorArray([
+		Color(1.0, 1.0, 1.0, 1.0),   # White hot
+		Color(1.0, 0.95, 0.6, 1.0),  # Bright yellow
+		Color(1.0, 0.7, 0.2, 0.8),   # Golden
+		Color(1.0, 0.4, 0.0, 0.0)    # Fade
+	])
+	core_grad.offsets = PackedFloat32Array([0.0, 0.2, 0.5, 1.0])
+	core_gradient.gradient = core_grad
+	inner_process.color_ramp = core_gradient
+	
+	inner_fire.process_material = inner_process
+	
+	var inner_mesh = QuadMesh.new()
+	inner_mesh.size = Vector2(5.0, 5.0)  # LARGER core mesh
+	inner_mesh.material = _create_fire_material(FIRE_TEXTURE_2)
+	inner_fire.draw_pass_1 = inner_mesh
+	
+	# === SMOKE PARTICLES (follows fire) - MASSIVE THICK CLOUDS ===
 	_smoke_effect = GPUParticles3D.new()
 	_smoke_effect.name = "TankSmokeEffect"
 	parent_node.add_child(_smoke_effect)
@@ -337,63 +399,94 @@ func _spawn_tank_explosion(position: Vector3) -> void:
 	
 	_smoke_effect.emitting = true
 	_smoke_effect.one_shot = false  # Continuous smoke that lingers!
-	_smoke_effect.explosiveness = 0.3  # Spread out emission for continuous billowing
-	_smoke_effect.amount = 80  # FEWER particles = better performance
-	_smoke_effect.lifetime = 12.0  # VERY long lifetime = thick persistent cloud
+	_smoke_effect.explosiveness = 0.2  # Very spread out for continuous billowing
+	_smoke_effect.amount = 120  # More smoke particles
+	_smoke_effect.lifetime = 15.0  # Even longer lifetime
+	_smoke_effect.randomness = 0.4  # More organic variation
 	
-	# Smoke particle behavior - HUGE billowing clouds
+	# Smoke particle behavior - GIGANTIC billowing clouds
 	var smoke_process = ParticleProcessMaterial.new()
 	smoke_process.direction = Vector3(0, 1, 0)
-	smoke_process.spread = 45.0  # Tighter initial spread, expands with scale
-	smoke_process.initial_velocity_min = 2.0  # Slower = denser looking
-	smoke_process.initial_velocity_max = 8.0
-	smoke_process.gravity = Vector3(0, 1.5, 0)  # Gentle rise
-	smoke_process.scale_min = 15.0  # HUGE particles
-	smoke_process.scale_max = 45.0  # MASSIVE billowing clouds
-	smoke_process.damping_min = 3.0
-	smoke_process.damping_max = 6.0
+	smoke_process.spread = 60.0  # Wider spread
+	smoke_process.initial_velocity_min = 1.5  # Very slow = thick
+	smoke_process.initial_velocity_max = 6.0
+	smoke_process.gravity = Vector3(0, 2.0, 0)  # Gentle rise
+	smoke_process.scale_min = 50.0  # GIGANTIC
+	smoke_process.scale_max = 120.0  # ENORMOUS billowing clouds
+	smoke_process.damping_min = 2.5
+	smoke_process.damping_max = 5.0
 	
-	# Smoke color gradient - denser, more opaque
+	# Scale curve - grow over time for billowing effect
+	var smoke_scale_curve = CurveTexture.new()
+	var smoke_curve = Curve.new()
+	smoke_curve.add_point(Vector2(0.0, 0.4))
+	smoke_curve.add_point(Vector2(0.3, 1.0))
+	smoke_curve.add_point(Vector2(0.7, 1.2))  # Keeps growing
+	smoke_curve.add_point(Vector2(1.0, 0.8))  # Slight shrink at end
+	smoke_scale_curve.curve = smoke_curve
+	smoke_process.scale_curve = smoke_scale_curve
+	
+	# Turbulence for fluid smoke motion
+	smoke_process.turbulence_enabled = true
+	smoke_process.turbulence_noise_strength = 3.0
+	smoke_process.turbulence_noise_scale = 2.0
+	smoke_process.turbulence_noise_speed = Vector3(0.3, 0.5, 0.3)
+	
+	# Smoke color gradient - very thick and opaque
 	var smoke_gradient = GradientTexture1D.new()
 	var smoke_grad = Gradient.new()
 	smoke_grad.colors = PackedColorArray([
-		Color(0.15, 0.15, 0.15, 0.95),   # Very dark, very opaque
-		Color(0.25, 0.25, 0.25, 0.85),   # Dark grey
-		Color(0.4, 0.4, 0.4, 0.6),       # Medium grey
-		Color(0.5, 0.5, 0.5, 0.0)        # Fading out slowly
+		Color(0.12, 0.12, 0.12, 0.98),   # Almost black, very opaque
+		Color(0.2, 0.2, 0.2, 0.9),       # Very dark grey
+		Color(0.35, 0.35, 0.35, 0.75),   # Dark grey
+		Color(0.5, 0.5, 0.5, 0.4),       # Medium grey
+		Color(0.6, 0.6, 0.6, 0.0)        # Fading out slowly
 	])
-	smoke_grad.offsets = PackedFloat32Array([0.0, 0.2, 0.6, 1.0])
+	smoke_grad.offsets = PackedFloat32Array([0.0, 0.15, 0.4, 0.7, 1.0])
 	smoke_gradient.gradient = smoke_grad
 	smoke_process.color_ramp = smoke_gradient
 	
 	_smoke_effect.process_material = smoke_process
 	
-	# Smoke mesh with texture - EXTRA LARGE for thick billowing clouds
+	# Smoke mesh with texture - ENORMOUS for massive smoke coverage
 	var smoke_mesh = QuadMesh.new()
-	smoke_mesh.size = Vector2(5.0, 5.0)  # Much bigger base mesh
+	smoke_mesh.size = Vector2(15.0, 15.0)  # HUGE base mesh for massive smoke
 	smoke_mesh.material = _create_smoke_material(SMOKE_TEXTURE_1)
 	_smoke_effect.draw_pass_1 = smoke_mesh
 	
-	# === SECONDARY FIRE BURST (adds more drama) ===
+	# === SECONDARY FIRE BURST (explosive outward blast) ===
 	var secondary_fire = GPUParticles3D.new()
 	secondary_fire.name = "SecondaryFireBurst"
 	parent_node.add_child(secondary_fire)
-	secondary_fire.global_position = position + Vector3(0, 1, 0)
+	secondary_fire.global_position = position + Vector3(0, 1.5, 0)
 	
 	secondary_fire.emitting = true
 	secondary_fire.one_shot = true
-	secondary_fire.explosiveness = 0.98
-	secondary_fire.amount = 60  # Optimized - fewer but bigger
-	secondary_fire.lifetime = 1.5
+	secondary_fire.explosiveness = 0.95
+	secondary_fire.amount = 150  # More particles for dense burst
+	secondary_fire.lifetime = 2.0
 	
 	var secondary_process = ParticleProcessMaterial.new()
 	secondary_process.direction = Vector3(0, 1, 0)
-	secondary_process.spread = 50.0
-	secondary_process.initial_velocity_min = 18.0
-	secondary_process.initial_velocity_max = 40.0
-	secondary_process.gravity = Vector3(0, -5.0, 0)  # Falls after burst
-	secondary_process.scale_min = 4.0  # Bigger
-	secondary_process.scale_max = 10.0  # Bigger
+	secondary_process.spread = 85.0  # Very wide explosive spread
+	secondary_process.initial_velocity_min = 15.0
+	secondary_process.initial_velocity_max = 45.0
+	secondary_process.gravity = Vector3(0, -3.0, 0)  # Slower fall
+	secondary_process.scale_min = 18.0  # MASSIVE
+	secondary_process.scale_max = 45.0  # ENORMOUS
+	
+	# Scale animation for fluid bursting
+	var burst_scale = CurveTexture.new()
+	var burst_curve = Curve.new()
+	burst_curve.add_point(Vector2(0.0, 0.5))
+	burst_curve.add_point(Vector2(0.2, 1.3))  # Quick expansion
+	burst_curve.add_point(Vector2(0.6, 0.8))
+	burst_curve.add_point(Vector2(1.0, 0.1))
+	burst_scale.curve = burst_curve
+	secondary_process.scale_curve = burst_scale
+	
+	secondary_process.turbulence_enabled = true
+	secondary_process.turbulence_noise_strength = 2.0
 	
 	# Bright initial burst gradient
 	var burst_gradient = GradientTexture1D.new()
@@ -411,7 +504,7 @@ func _spawn_tank_explosion(position: Vector3) -> void:
 	secondary_fire.process_material = secondary_process
 	
 	var burst_mesh = QuadMesh.new()
-	burst_mesh.size = Vector2(1.5, 1.5)
+	burst_mesh.size = Vector2(4.0, 4.0)  # Larger burst mesh
 	burst_mesh.material = _create_fire_material(FIRE_TEXTURE_2)
 	secondary_fire.draw_pass_1 = burst_mesh
 	
@@ -627,11 +720,15 @@ func cleanup() -> void:
 var _tank_debris: Array[RigidBody3D] = []  # Store references for cleanup
 
 func _dismantle_tank(explosion_center: Vector3) -> void:
-	"""Convert tank MeshInstance3D nodes to physics debris that collapses/explodes."""
+	"""Convert tank MeshInstance3D nodes to physics debris that collapses/explodes.
+	Optimized to avoid frame freeze by limiting debris count and using simpler collisions."""
 	if not _tank or not is_instance_valid(_tank):
 		return
 	
 	print("[CutsceneManager] Dismantling tank...")
+	
+	# Hide original tank FIRST (immediate visual feedback)
+	_tank.visible = false
 	
 	# Collect all MeshInstance3D nodes
 	var mesh_instances: Array[MeshInstance3D] = []
@@ -641,30 +738,30 @@ func _dismantle_tank(explosion_center: Vector3) -> void:
 		print("[CutsceneManager] No MeshInstance3D found in tank")
 		return
 	
-	print("[CutsceneManager] Found %d mesh instances to dismantle" % mesh_instances.size())
+	print("[CutsceneManager] Found %d mesh instances" % mesh_instances.size())
+	
+	# OPTIMIZATION: Limit debris to 8 largest pieces max
+	var max_debris = mini(mesh_instances.size(), 8)
 	
 	# Get parent for debris (scene root)
 	var debris_parent = _tank.get_parent()
 	if not debris_parent:
 		return
 	
-	# Convert each mesh to physics debris
-	for i in range(mesh_instances.size()):
+	# Convert each mesh to physics debris (limited count)
+	for i in range(max_debris):
 		var mesh_instance = mesh_instances[i]
 		if not is_instance_valid(mesh_instance):
 			continue
 		
-		# Skip if mesh is null or too small
+		# Skip if mesh is null
 		if not mesh_instance.mesh:
 			continue
 		
-		# Create rigid body debris
-		var debris = _create_debris_from_mesh(mesh_instance, explosion_center, debris_parent, i)
+		# Create rigid body debris with SIMPLIFIED collision
+		var debris = _create_debris_from_mesh_fast(mesh_instance, explosion_center, debris_parent, i)
 		if debris:
 			_tank_debris.append(debris)
-	
-	# Hide original tank after creating debris
-	_tank.visible = false
 	
 	print("[CutsceneManager] Created %d debris pieces" % _tank_debris.size())
 
@@ -680,6 +777,11 @@ func _collect_mesh_instances(node: Node, result: Array[MeshInstance3D]) -> void:
 
 func _create_debris_from_mesh(mesh_instance: MeshInstance3D, explosion_center: Vector3, parent: Node, index: int) -> RigidBody3D:
 	"""Create a RigidBody3D debris piece from a MeshInstance3D."""
+	return _create_debris_from_mesh_fast(mesh_instance, explosion_center, parent, index)
+
+
+func _create_debris_from_mesh_fast(mesh_instance: MeshInstance3D, explosion_center: Vector3, parent: Node, index: int) -> RigidBody3D:
+	"""Create a RigidBody3D debris piece with optimized collision (no convex hull calculation)."""
 	# Create rigid body
 	var debris = RigidBody3D.new()
 	debris.name = "TankDebris_%d" % index

@@ -25,6 +25,14 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/DistanceToTank"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 200
+theme_override_constants/margin_bottom = 20
+
 [node name="BoxContainer2" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -54,17 +62,35 @@ theme_override_constants/margin_top = 10
 
 [node name="Coordinates" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer/MarginContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_fonts/font = ExtResource("3_vphgt")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 25
 text = "X: 112.24 | Y: 222.22 | Z: 002.22"
-horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 10
+
+[node name="Angles" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+text = "Pitch: 14° | Yaw: 15° | Roll: 22°"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -75,17 +101,70 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 10
+
+[node name="Distance" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+text = "Distance to target: 094.2m"
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 10
+
+[node name="ProjectedTime" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+text = "Estimated duration until impact: 12s"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="BoxContainer3" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
-[node name="ThrustBar" type="Control" parent="BoxContainer/VBoxContainer/BoxContainer3"]
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 200
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 20
+
+[node name="ThrustBar" type="Control" parent="BoxContainer/VBoxContainer/BoxContainer3/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("2_thrust")
 fill_color = Color(0.78822935, 0.033843208, 0.2134285, 0.84705883)
+padding_percent = 0.0
 label_font = ExtResource("3_vphgt")
 label_font_size = 12

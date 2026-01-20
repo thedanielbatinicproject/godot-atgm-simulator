@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148/FGM-148.tres" id="3_h2wk0"]
 [ext_resource type="Texture2D" uid="uid://bx2sd7a86s5mc" path="res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png" id="3_va8r5"]
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="4_h2wk0"]
-[ext_resource type="PackedScene" uid="uid://g377ixe5k4he" path="res://assets/Tanks/T-62A Main Battle Tank/T-62A.tscn" id="6_h2wk0"]
+[ext_resource type="PackedScene" uid="uid://g377ixe5k4he" path="res://assets/Tanks/T-62A Main Battle Tank/T-62A Main Battle Tank.tscn" id="6_h2wk0"]
 [ext_resource type="AudioStream" uid="uid://bodjkeo8p2u51" path="res://assets/Audio/UI_SFX/apply_deny.wav" id="7_h2wk0"]
 
 [resource]
@@ -17,8 +17,8 @@ scenario_description = "Learn how to control rocket in this simple environment. 
 level_scene = ExtResource("1_fqmhx")
 tank_scene = ExtResource("6_h2wk0")
 tank_name = "T-62A Main Battle Tank"
-tank_path_positions = PackedVector2Array(313.709, 536.174, 625.02, 611.825, 116.98, 896.357)
-tank_path_speeds = Array[float]([45.0, 25.0, 5.0])
+tank_path_positions = PackedVector2Array(313.709, 536.174, 625.02, 611.825)
+tank_path_speeds = Array[float]([50.0, 25.0])
 projectile_scene = ExtResource("2_pn45g")
 rocket_data = ExtResource("3_h2wk0")
 initial_position = Vector3(315.751, 400, 415.915)
