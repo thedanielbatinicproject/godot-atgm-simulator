@@ -8,13 +8,82 @@
 layer = 10
 script = ExtResource("1_hud")
 
-[node name="ThrustBar" type="Control" parent="."]
-layout_mode = 3
+[node name="BoxContainer" type="BoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="VBoxContainer" type="HBoxContainer" parent="BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DistanceToTank" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="BoxContainer2" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="XYZ" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 10
+
+[node name="Coordinates" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 30
+text = "X: 112.24 | Y: 222.22 | Z: 002.22"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BoxContainer4" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="BoxContainer3" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="ThrustBar" type="Control" parent="BoxContainer/VBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("2_thrust")
 fill_color = Color(0.78822935, 0.033843208, 0.2134285, 0.84705883)

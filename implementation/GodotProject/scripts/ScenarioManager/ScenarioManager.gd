@@ -89,6 +89,7 @@ func _connect_signals() -> void:
 	event_watcher.projectile_hit_ground.connect(_on_projectile_hit_ground)
 	event_watcher.projectile_out_of_bounds.connect(_on_projectile_out_of_bounds)
 	event_watcher.cutscene_distance_reached.connect(_on_cutscene_distance_reached)
+	event_watcher.terrain_cutscene_distance_reached.connect(_on_terrain_cutscene_distance_reached)
 	event_watcher.scenario_timeout.connect(_on_scenario_timeout)
 	event_watcher.player_control_delay_finished.connect(_on_player_control_delay_finished)
 	
@@ -125,6 +126,9 @@ func _process(delta: float) -> void:
 			tank_movement.process(delta)
 	
 	if state.is_state(ScenarioStateClass.State.CUTSCENE):
+		# CRITICAL: Keep watching for terrain/tank collision during cutscene!
+		# The projectile is still flying and needs collision detection
+		event_watcher.process(delta)
 		cutscene_manager.process_cutscene(delta)
 		camera_manager.process(delta)
 		# Continue tank movement during cutscene (until stopped)
@@ -262,13 +266,22 @@ func _setup_tank_movement() -> void:
 		push_warning("[ScenarioManager] Tank node not found for movement setup")
 		return
 	
-	# Get physics space state
-	var space_state: PhysicsDirectSpaceState3D = null
-	if tank is Node3D:
-		space_state = tank.get_world_3d().direct_space_state
-	
-	if not space_state:
-		push_error("[ScenarioManager] Could not get physics space state for tank movement")
+	# CRITICAL: Set path data as meta on tank node BEFORE creating controller
+	# The TankMovementController reads this data from the tank's meta
+	if current_scenario_data:
+		tank.set_meta("tank_path_positions_2d", current_scenario_data.tank_path_positions)
+		tank.set_meta("tank_path_speeds", current_scenario_data.tank_path_speeds)
+		tank.set_meta("tank_initial_delay", current_scenario_data.tank_initial_delay)
+		
+		print("[ScenarioManager] Tank path data set:")
+		print("  - Path positions: %d points" % current_scenario_data.tank_path_positions.size())
+		for i in range(current_scenario_data.tank_path_positions.size()):
+			var pos = current_scenario_data.tank_path_positions[i]
+			print("    Point %d: (%.1f, %.1f)" % [i, pos.x, pos.y])
+		print("  - Path speeds: %s" % str(current_scenario_data.tank_path_speeds))
+		print("  - Initial delay: %.1f s" % current_scenario_data.tank_initial_delay)
+	else:
+		push_error("[ScenarioManager] No scenario data available for tank path!")
 		return
 	
 	# Create tank movement controller
@@ -276,8 +289,8 @@ func _setup_tank_movement() -> void:
 	tank_movement.name = "TankMovementController"
 	add_child(tank_movement)
 	
-	# Setup the controller
-	tank_movement.setup(tank, space_state)
+	# Setup the controller with tank and scenario root (to find HTerrain)
+	tank_movement.setup(tank, _scenario_root)
 	
 	print("[ScenarioManager] Tank movement controller initialized")
 
@@ -496,13 +509,26 @@ func _set_hud_visible(visible: bool) -> void:
 		_hud_instance.visible = visible
 
 
+func _set_input_controls_visible(visible: bool) -> void:
+	"""Show or hide the input controls (StickController circle/dot)."""
+	if _input_manager:
+		# Find the UIRoot which contains StickController visuals
+		var ui_root = _input_manager.get_node_or_null("UIRoot")
+		if ui_root:
+			ui_root.visible = visible
+		# Also disable/enable controls functionality
+		if _input_manager.has_method("set_controls_enabled"):
+			_input_manager.set_controls_enabled(visible)
+
+
 func _on_cutscene_distance_reached() -> void:
 	if not state.can_transition_to(ScenarioStateClass.State.CUTSCENE):
 		return
 	
-	# Disable player control and hide HUD
+	# Disable player control and hide HUD and input controls
 	player_control_changed.emit(false)
 	_set_hud_visible(false)
+	_set_input_controls_visible(false)  # Hide circle and dot
 	
 	# Start cutscene
 	state.transition_to(ScenarioStateClass.State.CUTSCENE)
@@ -510,12 +536,45 @@ func _on_cutscene_distance_reached() -> void:
 	var projectile = event_watcher.get_projectile()
 	var tank = event_watcher.get_tank()
 	
+	# Capture projectile position NOW - this is where camera will freeze
+	var projectile_entry_position = projectile.global_position if projectile else Vector3.ZERO
+	
 	# Disable user input during cutscene - physics simulation continues!
 	# The projectile will keep flying until it hits the tank (collision detected)
 	if projectile and projectile.has_method("disable_user_input"):
 		projectile.disable_user_input()
 	
-	cutscene_manager.start_final_cutscene(projectile, tank)
+	# Pass projectile entry position for camera placement
+	cutscene_manager.start_final_cutscene(projectile, tank, projectile_entry_position)
+
+
+func _on_terrain_cutscene_distance_reached() -> void:
+	"""Called when projectile approaches terrain (about to hit ground)."""
+	if not state.can_transition_to(ScenarioStateClass.State.CUTSCENE):
+		return
+	
+	print("[ScenarioManager] Projectile approaching terrain - starting cutscene")
+	
+	# Disable player control and hide HUD and input controls
+	player_control_changed.emit(false)
+	_set_hud_visible(false)
+	_set_input_controls_visible(false)
+	
+	# Start cutscene
+	state.transition_to(ScenarioStateClass.State.CUTSCENE)
+	
+	var projectile = event_watcher.get_projectile()
+	var tank = event_watcher.get_tank()
+	
+	# Capture projectile position NOW - this is where camera will freeze
+	var projectile_entry_position = projectile.global_position if projectile else Vector3.ZERO
+	
+	# Disable user input during cutscene
+	if projectile and projectile.has_method("disable_user_input"):
+		projectile.disable_user_input()
+	
+	# Pass projectile entry position for camera placement
+	cutscene_manager.start_final_cutscene(projectile, tank, projectile_entry_position)
 
 
 func _on_projectile_hit_tank() -> void:
@@ -542,6 +601,7 @@ func _on_projectile_hit_ground(position: Vector3) -> void:
 		state.transition_to(ScenarioStateClass.State.CUTSCENE)
 		player_control_changed.emit(false)
 		_set_hud_visible(false)
+		_set_input_controls_visible(false)  # Hide circle and dot
 		
 		# Disable user input
 		var projectile = event_watcher.get_projectile()

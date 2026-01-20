@@ -14,3 +14,11 @@ offset_left = 186.0
 offset_top = 155.0
 offset_right = 823.0
 offset_bottom = 394.0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 434.0
+offset_top = 82.0
+offset_right = 602.0
+offset_bottom = 142.0
+text = "FAIL"
