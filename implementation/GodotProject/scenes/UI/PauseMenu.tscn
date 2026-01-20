@@ -1,17 +1,157 @@
-[gd_scene format=3 uid="uid://ceudt8xmtutkl"]
+[gd_scene load_steps=9 format=3 uid="uid://ceudt8xmtutkl"]
+
+[ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="1_6q0ex"]
+[ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_4r2wj"]
+[ext_resource type="Script" uid="uid://cfntad3d2pups" path="res://scripts/UI/MenuCursorController.gd" id="10_cursor"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avwb0"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.09985284, 0.09985284, 0.09985284, 0.735)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_73e60"]
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 55
+corner_radius_top_right = 55
+corner_radius_bottom_right = 55
+corner_radius_bottom_left = 55
+shadow_color = Color(1, 1, 1, 0.6)
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_onjwa"]
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 55
+corner_radius_top_right = 55
+corner_radius_bottom_right = 55
+corner_radius_bottom_left = 55
+shadow_color = Color(1, 1, 1, 0.6)
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3m1qe"]
+bg_color = Color(0, 0, 0, 0.6784314)
+corner_radius_top_left = 55
+corner_radius_top_right = 55
+corner_radius_bottom_right = 55
+corner_radius_bottom_left = 55
+shadow_color = Color(1, 1, 1, 0.6)
+shadow_size = 3
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_77ihb"]
 
 [node name="PauseMenu" type="Control"]
+process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("10_cursor")
 
-[node name="Label" type="Label" parent="."]
-layout_mode = 0
-offset_left = 277.0
-offset_top = 137.0
-offset_right = 564.0
-offset_bottom = 287.0
-text = "PAUSE"
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_avwb0")
+
+[node name="HBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BoxContainer" type="BoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_6q0ex")
+theme_override_font_sizes/font_size = 60
+text = "GAME PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer3" type="BoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="BoxContainer3" type="BoxContainer" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="Resume" type="Button" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_4r2wj")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_73e60")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_onjwa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3m1qe")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_77ihb")
+text = "RESUME"
+
+[node name="RestartScenario" type="Button" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_4r2wj")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_73e60")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_onjwa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3m1qe")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_77ihb")
+text = "RESTART
+SCENARIO"
+
+[node name="MainMenu" type="Button" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_4r2wj")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_73e60")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_onjwa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3m1qe")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_77ihb")
+text = "MAIN MENU"
+
+[node name="BoxContainer2" type="BoxContainer" parent="HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5

@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://ce3fl6txhc1rk"]
+[gd_scene load_steps=10 format=3 uid="uid://ce3fl6txhc1rk"]
 
 [ext_resource type="VideoStream" uid="uid://cvgrannfv5p1j" path="res://assets/UI/MainMenu/Graphics/bg_loop_blurred.ogv" id="1_6r3k4"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="2_0sn3p"]
 [ext_resource type="FontFile" uid="uid://creniyu20qcyq" path="res://assets/UI/Fonts/Stormfaze.otf" id="2_jg1n8"]
+[ext_resource type="Script" path="res://scripts/UI/LoadingScreenController.gd" id="10_cursor"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iefxc"]
 
@@ -40,6 +41,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("10_cursor")
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
 layout_mode = 1

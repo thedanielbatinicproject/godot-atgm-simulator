@@ -774,7 +774,7 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_1p68v")
 theme_override_font_sizes/font_size = 30
-text = "ON JOYSTICK USE L2 AND R2 
+text = "USE L2 AND R2 ON CONTROLLER
 TO SCROLL THROUGH LIST"
 horizontal_alignment = 1
 vertical_alignment = 1

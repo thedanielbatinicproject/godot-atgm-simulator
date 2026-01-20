@@ -54,6 +54,19 @@ var _current_beep_interval: float = 1.5  # Starting interval
 var _initial_distance_for_audio: float = 0.0
 var _audio_initialized: bool = false
 
+# Mission stats for success screen
+var _mission_start_time: float = 0.0
+var _mission_end_time: float = 0.0
+var _max_velocity_reached: float = 0.0
+var _total_distance_traveled: float = 0.0
+var _last_projectile_position: Vector3 = Vector3.ZERO
+
+# Cursor state for simulation (hide when using joystick)
+var _using_joystick_in_sim: bool = false
+var _last_mouse_time_sim: float = 0.0
+var _last_joystick_time_sim: float = 0.0
+const JOYSTICK_DEADZONE_SIM: float = 0.15
+
 # Current scenario data
 var current_scenario_data: ScenarioData = null
 var _scenario_root: Node = null
@@ -120,6 +133,7 @@ func _connect_signals() -> void:
 	cutscene_manager.tank_should_stop.connect(_on_tank_should_stop)
 
 func _input(event: InputEvent) -> void:
+	# Handle pause toggle
 	if event.is_action_pressed("pause_toggle"):
 		if state.is_state(ScenarioStateClass.State.RUNNING):
 			pause_scenario()
@@ -130,6 +144,43 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("switch_camera"):
 		if state.is_state(ScenarioStateClass.State.RUNNING):
 			camera_manager.switch_camera()
+	
+	# Track joystick vs mouse input during simulation for cursor hiding
+	if state.is_state(ScenarioStateClass.State.RUNNING) or state.is_state(ScenarioStateClass.State.CUTSCENE):
+		_handle_simulation_cursor_input(event)
+
+
+func _handle_simulation_cursor_input(event: InputEvent) -> void:
+	"""Track input device and hide/show cursor during simulation."""
+	# --- Mouse input ---
+	if event is InputEventMouseMotion or event is InputEventMouseButton:
+		var current_time = Time.get_ticks_msec() / 1000.0
+		
+		# Ignore if joystick was used very recently (prevent false triggers)
+		if current_time - _last_joystick_time_sim < 0.1:
+			return
+		
+		_last_mouse_time_sim = current_time
+		
+		if _using_joystick_in_sim:
+			_using_joystick_in_sim = false
+			# Show cursor when mouse is used (but still hidden during simulation)
+			# We keep cursor hidden during active gameplay - only menus need it
+	
+	# --- Gamepad input ---
+	elif event is InputEventJoypadMotion or event is InputEventJoypadButton:
+		var x := Input.get_action_strength("steer_right") - Input.get_action_strength("steer_left")
+		var y := Input.get_action_strength("pitch_down") - Input.get_action_strength("pitch_up")
+		var throttle := Input.get_action_strength("thrust")
+		var mag := Vector2(x, y).length()
+		
+		if mag > JOYSTICK_DEADZONE_SIM or throttle > JOYSTICK_DEADZONE_SIM or event is InputEventJoypadButton:
+			_last_joystick_time_sim = Time.get_ticks_msec() / 1000.0
+			
+			if not _using_joystick_in_sim:
+				_using_joystick_in_sim = true
+				# Hide cursor when joystick is being used
+				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
 
 func _process(delta: float) -> void:
@@ -146,6 +197,8 @@ func _process(delta: float) -> void:
 			tank_movement.process(delta)
 		# Update audio (propulsor pitch/volume, beep timing)
 		_update_audio(delta)
+		# Track mission stats
+		_update_mission_stats()
 	
 	if state.is_state(ScenarioStateClass.State.CUTSCENE):
 		# CRITICAL: Keep watching for terrain/tank collision during cutscene!
@@ -190,6 +243,13 @@ func pause_scenario() -> void:
 		return
 	
 	state.transition_to(ScenarioStateClass.State.PAUSED)
+	
+	# Pause audio streams immediately (before tree pause)
+	_pause_audio()
+	
+	# Show cursor for pause menu (menu script will handle joystick/mouse switching)
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 	get_tree().paused = true
 	_show_pause_menu()
 	scenario_paused.emit()
@@ -202,6 +262,14 @@ func resume_scenario() -> void:
 	_hide_pause_menu()
 	get_tree().paused = false
 	state.transition_to(ScenarioStateClass.State.RUNNING)
+	
+	# Resume audio that was paused
+	_resume_audio()
+	
+	# Hide cursor again if using joystick during simulation
+	if _using_joystick_in_sim:
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	
 	scenario_resumed.emit()
 
 
@@ -374,6 +442,9 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Transition to running (player control depends on delay)
 	state.transition_to(ScenarioStateClass.State.RUNNING)
 	player_control_changed.emit(false)  # Initially disabled until delay passes
+	
+	# Reset mission stats for new scenario
+	_reset_mission_stats()
 	
 	# Initialize and start audio system
 	_initialize_audio()
@@ -736,31 +807,22 @@ func _create_hud() -> void:
 	_pause_menu_instance = PAUSE_MENU_SCENE.instantiate()
 	_pause_menu_instance.visible = false
 	_hud_layer.add_child(_pause_menu_instance)
-	# Connect signals if available
-	if _pause_menu_instance.has_signal("resume_pressed"):
-		_pause_menu_instance.connect("resume_pressed", resume_scenario)
-	if _pause_menu_instance.has_signal("exit_pressed"):
-		_pause_menu_instance.connect("exit_pressed", exit_scenario)
+	# Connect buttons directly
+	_connect_pause_menu_buttons()
 	
 	# Preload and add Mission Success Screen (hidden)
 	_success_screen_instance = MISSION_SUCCESS_SCENE.instantiate()
 	_success_screen_instance.visible = false
 	_hud_layer.add_child(_success_screen_instance)
-	# Connect exit signal if available
-	if _success_screen_instance.has_signal("exit_pressed"):
-		_success_screen_instance.connect("exit_pressed", exit_scenario)
-	if _success_screen_instance.has_signal("retry_pressed"):
-		_success_screen_instance.connect("retry_pressed", _retry_scenario)
+	# Connect buttons directly
+	_connect_success_screen_buttons()
 	
 	# Preload and add Mission Failure Screen (hidden)
 	_failure_screen_instance = MISSION_FAILURE_SCENE.instantiate()
 	_failure_screen_instance.visible = false
 	_hud_layer.add_child(_failure_screen_instance)
-	# Connect exit signal if available
-	if _failure_screen_instance.has_signal("exit_pressed"):
-		_failure_screen_instance.connect("exit_pressed", exit_scenario)
-	if _failure_screen_instance.has_signal("retry_pressed"):
-		_failure_screen_instance.connect("retry_pressed", _retry_scenario)
+	# Connect buttons directly
+	_connect_failure_screen_buttons()
 
 
 func _retry_scenario() -> void:
@@ -812,21 +874,117 @@ func _show_end_screen(success: bool, reason: String) -> void:
 	if _pause_menu_instance:
 		_pause_menu_instance.visible = false
 	
+	# Record end time
+	_mission_end_time = get_scenario_time()
+	
+	# Show cursor for end screen buttons (menu script will handle joystick/mouse switching)
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 	# Show appropriate end screen
 	if success:
 		if _success_screen_instance:
 			_success_screen_instance.visible = true
+			# Update success details label
+			_update_success_details()
 		if _failure_screen_instance:
 			_failure_screen_instance.visible = false
 	else:
 		if _failure_screen_instance:
 			_failure_screen_instance.visible = true
-			# Update failure reason label
-			var reason_label = _failure_screen_instance.get_node_or_null("FailureReason")
+			# Update failure reason label - search deeper in hierarchy
+			var reason_label = _failure_screen_instance.get_node_or_null("HBoxContainer/BoxContainer2/MarginContainer/FailureReason")
 			if reason_label:
 				reason_label.text = reason
 		if _success_screen_instance:
 			_success_screen_instance.visible = false
+
+
+func _update_success_details() -> void:
+	"""Update the success details label with mission stats."""
+	if not _success_screen_instance:
+		return
+	
+	var details_label = _success_screen_instance.get_node_or_null("HBoxContainer/BoxContainer2/MarginContainer/SuccessDetails")
+	if not details_label:
+		return
+	
+	var mission_time = _mission_end_time
+	var minutes = int(mission_time) / 60
+	var seconds = fmod(mission_time, 60.0)
+	
+	# Format: "Time: 1:23.4 | Max Speed: 342 m/s | Distance: 1.2 km"
+	var time_str = "%d:%05.2f" % [minutes, seconds]
+	var speed_str = "%.0f m/s" % _max_velocity_reached
+	var dist_str = "%.1f km" % (_total_distance_traveled / 1000.0)
+	
+	details_label.text = "Time: %s | Max: %s | Dist: %s" % [time_str, speed_str, dist_str]
+
+
+func _connect_pause_menu_buttons() -> void:
+	"""Connect pause menu buttons directly."""
+	if not _pause_menu_instance:
+		return
+	
+	# Path: HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer/ButtonName
+	var button_container = _pause_menu_instance.get_node_or_null("HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer")
+	if not button_container:
+		push_warning("[ScenarioManager] Could not find pause menu button container")
+		return
+	
+	var resume_btn = button_container.get_node_or_null("Resume")
+	var restart_btn = button_container.get_node_or_null("RestartScenario")
+	var mainmenu_btn = button_container.get_node_or_null("MainMenu")
+	
+	if resume_btn:
+		resume_btn.pressed.connect(resume_scenario)
+	if restart_btn:
+		restart_btn.pressed.connect(_retry_scenario)
+	if mainmenu_btn:
+		mainmenu_btn.pressed.connect(exit_scenario)
+	
+	print("[ScenarioManager] Pause menu buttons connected")
+
+
+func _connect_success_screen_buttons() -> void:
+	"""Connect success screen buttons directly."""
+	if not _success_screen_instance:
+		return
+	
+	var button_container = _success_screen_instance.get_node_or_null("HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer")
+	if not button_container:
+		push_warning("[ScenarioManager] Could not find success screen button container")
+		return
+	
+	var restart_btn = button_container.get_node_or_null("RestartScenario")
+	var mainmenu_btn = button_container.get_node_or_null("MainMenu")
+	
+	if restart_btn:
+		restart_btn.pressed.connect(_retry_scenario)
+	if mainmenu_btn:
+		mainmenu_btn.pressed.connect(exit_scenario)
+	
+	print("[ScenarioManager] Success screen buttons connected")
+
+
+func _connect_failure_screen_buttons() -> void:
+	"""Connect failure screen buttons directly."""
+	if not _failure_screen_instance:
+		return
+	
+	var button_container = _failure_screen_instance.get_node_or_null("HBoxContainer/BoxContainer3/MarginContainer/HBoxContainer/BoxContainer3/VBoxContainer")
+	if not button_container:
+		push_warning("[ScenarioManager] Could not find failure screen button container")
+		return
+	
+	var restart_btn = button_container.get_node_or_null("RestartScenario")
+	var mainmenu_btn = button_container.get_node_or_null("MainMenu")
+	
+	if restart_btn:
+		restart_btn.pressed.connect(_retry_scenario)
+	if mainmenu_btn:
+		mainmenu_btn.pressed.connect(exit_scenario)
+	
+	print("[ScenarioManager] Failure screen buttons connected")
 
 
 func _cleanup_scenario() -> void:
@@ -873,7 +1031,7 @@ func _initialize_audio() -> void:
 	_propulsor_player = AudioStreamPlayer.new()
 	_propulsor_player.name = "PropulsorPlayer"
 	_propulsor_player.stream = SFX_PROPULSOR_LOOP
-	_propulsor_player.volume_db = -3.0  # Start at idle volume (louder than before)
+	_propulsor_player.volume_db = -5.0  # Start at idle volume
 	_propulsor_player.pitch_scale = 0.8  # Start at lower pitch
 	_propulsor_player.bus = "SFX"  # Always use SFX bus
 	add_child(_propulsor_player)
@@ -885,7 +1043,7 @@ func _initialize_audio() -> void:
 	_beep_player = AudioStreamPlayer.new()
 	_beep_player.name = "BeepPlayer"
 	_beep_player.stream = SFX_HUD_BEEP
-	_beep_player.volume_db = -3.0
+	_beep_player.volume_db = -8.0  # Lowered - beep is subtle background audio
 	_beep_player.bus = "SFX"  # Always use SFX bus
 	add_child(_beep_player)
 	
@@ -937,6 +1095,60 @@ func _on_propulsor_loop_finished() -> void:
 		_propulsor_player.play()
 
 
+func _pause_audio() -> void:
+	"""Instantly pause all audio streams when game is paused."""
+	if not _audio_initialized:
+		return
+	
+	# Use stream_paused to instantly freeze audio (not stop)
+	if _propulsor_player:
+		_propulsor_player.stream_paused = true
+	if _beep_player:
+		_beep_player.stream_paused = true
+
+
+func _resume_audio() -> void:
+	"""Resume audio after unpausing."""
+	if not _audio_initialized:
+		return
+	
+	# Unpause the streams
+	if _propulsor_player:
+		_propulsor_player.stream_paused = false
+		# If it somehow stopped, restart it
+		if not _propulsor_player.playing:
+			_propulsor_player.play()
+	if _beep_player:
+		_beep_player.stream_paused = false
+
+
+func _reset_mission_stats() -> void:
+	"""Reset mission stats at the start of a new scenario."""
+	_mission_start_time = 0.0
+	_mission_end_time = 0.0
+	_max_velocity_reached = 0.0
+	_total_distance_traveled = 0.0
+	_last_projectile_position = Vector3.ZERO
+
+
+func _update_mission_stats() -> void:
+	"""Track mission stats: max velocity and total distance traveled."""
+	var projectile = event_watcher.get_projectile()
+	if not projectile:
+		return
+	
+	# Track max velocity
+	var current_velocity = projectile.state.velocity.length() if projectile.state else 0.0
+	if current_velocity > _max_velocity_reached:
+		_max_velocity_reached = current_velocity
+	
+	# Track distance traveled
+	var current_pos = projectile.global_position
+	if _last_projectile_position != Vector3.ZERO:
+		_total_distance_traveled += _last_projectile_position.distance_to(current_pos)
+	_last_projectile_position = current_pos
+
+
 func _update_audio(delta: float) -> void:
 	"""Update audio based on thrust and distance."""
 	if not _audio_initialized:
@@ -964,8 +1176,8 @@ func _update_propulsor_audio() -> void:
 	var target_pitch = lerpf(0.8, 1.2, throttle)
 	_propulsor_player.pitch_scale = target_pitch
 	
-	# Volume: -10dB at no thrust, -3dB at full thrust
-	var target_volume = lerpf(-10.0, -3.0, throttle)
+	# Volume: -5dB at no thrust, +2dB at full thrust (raised overall)
+	var target_volume = lerpf(-5.0, 2.0, throttle)
 	_propulsor_player.volume_db = target_volume
 
 
