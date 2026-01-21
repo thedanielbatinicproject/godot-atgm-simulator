@@ -1,0 +1,57 @@
+[gd_scene load_steps=16 format=3 uid="uid://eu2uclptk8vc"]
+
+[ext_resource type="PackedScene" uid="uid://cjeiqcypesms" path="res://assets/Terrain/SisakSela/SisakSelaTerrainPrototype.glb" id="1_r7fsb"]
+[ext_resource type="Script" uid="uid://c3hcoqnoqhrb4" path="res://addons/zylann.hterrain/hterrain.gd" id="2_dgpi8"]
+[ext_resource type="Resource" uid="uid://ipod3nhtww04" path="res://assets/Terrain/SisakSela/data.hterrain" id="3_x8ji0"]
+[ext_resource type="Script" uid="uid://bgt7apg0qnkgk" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="4_c4p76"]
+[ext_resource type="Texture2D" uid="uid://cjwe8e0hiscet" path="res://scenes/Levels/SisakSela/SisakSela_slot0_albedo_bump.png" id="5_i0ebb"]
+[ext_resource type="Texture2D" uid="uid://gdegl0rlygm" path="res://scenes/Levels/SisakSela/SisakSela_slot1_albedo_bump.png" id="6_di8c3"]
+[ext_resource type="Texture2D" uid="uid://jwxmalung5ad" path="res://scenes/Levels/SisakSela/SisakSela_slot2_albedo_bump.png" id="7_b04dp"]
+[ext_resource type="Texture2D" uid="uid://b6lr6autj15m6" path="res://scenes/Levels/SisakSela/SisakSela_slot3_albedo_bump.png" id="8_ea4gj"]
+[ext_resource type="Texture2D" uid="uid://byesaenhipfp2" path="res://scenes/Levels/SisakSela/SisakSela_slot0_normal_roughness.png" id="9_41qii"]
+[ext_resource type="Texture2D" uid="uid://br8ssv34puuwv" path="res://scenes/Levels/SisakSela/SisakSela_slot1_normal_roughness.png" id="10_y7vxb"]
+[ext_resource type="Texture2D" uid="uid://b7auauf8yohm3" path="res://scenes/Levels/SisakSela/SisakSela_slot2_normal_roughness.png" id="11_iis1h"]
+[ext_resource type="Texture2D" uid="uid://c2qys1gs7fi3i" path="res://scenes/Levels/SisakSela/SisakSela_slot3_normal_roughness.png" id="12_tsnyt"]
+[ext_resource type="Script" uid="uid://bu35icu0qa0m6" path="res://addons/zylann.hterrain/hterrain_detail_layer.gd" id="13_b04dp"]
+[ext_resource type="Texture2D" uid="uid://6jmdwj3vn6m0" path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" id="14_ea4gj"]
+
+[sub_resource type="Resource" id="Resource_juuth"]
+script = ExtResource("4_c4p76")
+mode = 0
+textures = [[ExtResource("5_i0ebb"), ExtResource("6_di8c3"), ExtResource("7_b04dp"), ExtResource("8_ea4gj")], [ExtResource("9_41qii"), ExtResource("10_y7vxb"), ExtResource("11_iis1h"), ExtResource("12_tsnyt")]]
+
+[node name="SisakSela" type="Node3D"]
+
+[node name="SisakSelaTerrainPrototype" parent="." instance=ExtResource("1_r7fsb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4602.273, 71.36926, 2988.9575)
+visible = false
+
+[node name="HTerrain" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15000, 0, -15000)
+script = ExtResource("2_dgpi8")
+map_scale = Vector3(30, 1, 30)
+_terrain_data = ExtResource("3_x8ji0")
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource("Resource_juuth")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 0.4
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = true
+shader_params/u_tile_reduction = Vector4(23.595, 4.835, 4.77, 4.21)
+metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
+
+[node name="HTerrainDetailLayer" type="Node3D" parent="HTerrain"]
+script = ExtResource("13_b04dp")
+shader_params/u_globalmap_tint_bottom = null
+shader_params/u_globalmap_tint_top = null
+shader_params/u_bottom_ao = null
+shader_params/u_instance_scale = null
+shader_params/u_roughness = null
+metadata/_editor_icon = ExtResource("14_ea4gj")
