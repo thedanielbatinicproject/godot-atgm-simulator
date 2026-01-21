@@ -1,22 +1,220 @@
-[gd_scene load_steps=4 format=3 uid="uid://dljr351o146qo"]
+[gd_scene load_steps=5 format=3 uid="uid://dljr351o146qo"]
 
 [ext_resource type="Script" uid="uid://4wun8cgpeku8" path="res://scripts/HudSystem/HudManager.gd" id="1_hud"]
 [ext_resource type="Script" uid="uid://cyryd8prxxknv" path="res://scripts/HudSystem/ThrustBar.gd" id="2_thrust"]
+[ext_resource type="Texture2D" uid="uid://vj0m74f6ql46" path="res://assets/UI/MainMenu/Graphics/pointArrow.png" id="3_5ip4n"]
 [ext_resource type="FontFile" uid="uid://cs3ocbk0naj0c" path="res://assets/UI/Fonts/Neuropol.otf" id="3_vphgt"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_hud")
 
-[node name="ThrustBar" type="Control" parent="."]
-layout_mode = 3
+[node name="BoxContainer" type="BoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="VBoxContainer" type="HBoxContainer" parent="BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DistanceToTank" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/DistanceToTank"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 200
+theme_override_constants/margin_bottom = 20
+
+[node name="BoxContainer2" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="XYZ" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 10
+
+[node name="Coordinates" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 10
+
+[node name="Angles" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="PointArrow" type="Sprite2D" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer/BoxContainer"]
+visible = false
+scale = Vector2(1.15, 1.15)
+texture = ExtResource("3_5ip4n")
+
+[node name="BoxContainer4" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 10
+
+[node name="Distance" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="VBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Label" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 18
+text = "Selected vison: "
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="CameraTypeText" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CameraIconContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_bottom = 10
+
+[node name="ProjectedTime" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 25
+text = "Estimated duration until impact: >999s"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BoxContainer3" type="HBoxContainer" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 200
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 20
+
+[node name="ThrustBar" type="Control" parent="BoxContainer/VBoxContainer/BoxContainer3/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("2_thrust")
 fill_color = Color(0.78822935, 0.033843208, 0.2134285, 0.84705883)
+padding_percent = 0.0
 label_font = ExtResource("3_vphgt")
 label_font_size = 12

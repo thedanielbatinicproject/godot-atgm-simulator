@@ -1,0 +1,6 @@
+[gd_resource type="PanoramaSkyMaterial" load_steps=2 format=3 uid="uid://cfewx4ia1umdd"]
+
+[ext_resource type="Texture2D" uid="uid://njqf1l2hf151" path="res://assets/Skyboxes/SunsetSky/sunset-around18h-sky.exr" id="1_dtql4"]
+
+[resource]
+panorama = ExtResource("1_dtql4")

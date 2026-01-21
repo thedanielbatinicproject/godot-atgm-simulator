@@ -24,6 +24,16 @@ var scenario_data: ScenarioData  # Set via initialize() at runtime
 # Debug opcija: koristi gravitaciju u simulaciji
 @export var calculate_gravity: bool = true
 
+# PHYSICS DEBUG - Enable to diagnose runaway velocity/position issues
+# Set to true to get detailed frame-by-frame logging when values exceed thresholds
+@export var physics_debug_enabled: bool = true
+const PHYSICS_DEBUG_VELOCITY_THRESHOLD: float = 500.0  # Log if velocity exceeds this
+const PHYSICS_DEBUG_POSITION_THRESHOLD: float = 10000.0  # Log if position exceeds this
+const PHYSICS_DEBUG_ACCEL_THRESHOLD: float = 1000.0  # Log if acceleration exceeds this
+var _physics_debug_frame_count: int = 0
+var _last_position: Vector3 = Vector3.ZERO
+var _last_velocity: Vector3 = Vector3.ZERO
+
 # Flag to track initialization
 var _initialized: bool = false
 
@@ -194,6 +204,62 @@ func _physics_process(delta: float):
 	# ========== TRANSLACIJA ==========
 	var f_total = forces.calculate_total(state, current_guidance, elapsed_time)
 	var acceleration = f_total / rocket_data.mass
+	
+	# ========== PHYSICS DEBUG - Detect runaway values ==========
+	if physics_debug_enabled:
+		_physics_debug_frame_count += 1
+		var should_log = false
+		var reason = ""
+		
+		# Check for excessive values
+		if acceleration.length() > PHYSICS_DEBUG_ACCEL_THRESHOLD:
+			should_log = true
+			reason += "ACCEL_EXCESSIVE "
+		if state.velocity.length() > PHYSICS_DEBUG_VELOCITY_THRESHOLD:
+			should_log = true
+			reason += "VEL_EXCESSIVE "
+		if state.position.length() > PHYSICS_DEBUG_POSITION_THRESHOLD:
+			should_log = true
+			reason += "POS_EXCESSIVE "
+		
+		# Check for sudden jumps
+		var pos_delta = (state.position - _last_position).length()
+		var vel_delta = (state.velocity - _last_velocity).length()
+		if pos_delta > 100.0 and _physics_debug_frame_count > 1:
+			should_log = true
+			reason += "POS_JUMP(%.1f) " % pos_delta
+		if vel_delta > 50.0 and _physics_debug_frame_count > 1:
+			should_log = true
+			reason += "VEL_JUMP(%.1f) " % vel_delta
+		
+		if should_log:
+			# Get individual force components for detailed analysis
+			var f_gravity = forces.calculate_gravity(state)
+			var f_buoyancy = forces.calculate_buoyancy(state)
+			var f_thrust = forces.calculate_thrust(state, current_guidance, elapsed_time)
+			var f_drag = forces.calculate_drag(state)
+			var f_alignment = forces.calculate_velocity_alignment(state)
+			
+			print("")
+			print("[PHYSICS_DEBUG] Frame %d - %s" % [_physics_debug_frame_count, reason])
+			print("  dt=%.6f, elapsed=%.3f" % [delta, elapsed_time])
+			print("  Position: [%.1f, %.1f, %.1f] (len=%.1f)" % [state.position.x, state.position.y, state.position.z, state.position.length()])
+			print("  Velocity: [%.1f, %.1f, %.1f] (len=%.1f)" % [state.velocity.x, state.velocity.y, state.velocity.z, state.velocity.length()])
+			print("  Accel:    [%.1f, %.1f, %.1f] (len=%.1f)" % [acceleration.x, acceleration.y, acceleration.z, acceleration.length()])
+			print("  --- FORCE BREAKDOWN ---")
+			print("  F_gravity:   [%.1f, %.1f, %.1f] (len=%.1f)" % [f_gravity.x, f_gravity.y, f_gravity.z, f_gravity.length()])
+			print("  F_buoyancy:  [%.1f, %.1f, %.1f] (len=%.1f)" % [f_buoyancy.x, f_buoyancy.y, f_buoyancy.z, f_buoyancy.length()])
+			print("  F_thrust:    [%.1f, %.1f, %.1f] (len=%.1f)" % [f_thrust.x, f_thrust.y, f_thrust.z, f_thrust.length()])
+			print("  F_drag:      [%.1f, %.1f, %.1f] (len=%.1f)" % [f_drag.x, f_drag.y, f_drag.z, f_drag.length()])
+			print("  F_alignment: [%.1f, %.1f, %.1f] (len=%.1f) <-- SUSPECT!" % [f_alignment.x, f_alignment.y, f_alignment.z, f_alignment.length()])
+			print("  F_total:     [%.1f, %.1f, %.1f] (len=%.1f)" % [f_total.x, f_total.y, f_total.z, f_total.length()])
+			print("  --- END FORCES ---")
+			print("  Guidance: thrust=%.3f, gimbal=[%.3f, %.3f]" % [current_guidance.x, current_guidance.y, current_guidance.z])
+			print("  Angular:  [%.3f, %.3f, %.3f] rad/s" % [state.angular_velocity.x, state.angular_velocity.y, state.angular_velocity.z])
+			print("  Rotation basis Z: [%.3f, %.3f, %.3f]" % [state.rotation_basis.z.x, state.rotation_basis.z.y, state.rotation_basis.z.z])
+		
+		_last_position = state.position
+		_last_velocity = state.velocity
 	
 	# Euler integracija
 	state.velocity = state.velocity + acceleration * delta

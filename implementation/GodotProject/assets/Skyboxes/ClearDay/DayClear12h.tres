@@ -1,0 +1,6 @@
+[gd_resource type="PanoramaSkyMaterial" load_steps=2 format=3 uid="uid://dp1033o0alhnm"]
+
+[ext_resource type="Texture2D" uid="uid://v627qn0yah8t" path="res://assets/Skyboxes/ClearDay/day-clear12h-sky.exr" id="1_l7t1n"]
+
+[resource]
+panorama = ExtResource("1_l7t1n")

@@ -146,6 +146,11 @@ func calculate_velocity_alignment(state: StateVariables) -> Vector3:
 	
 	var force_mag = k * rho * A_side * v_perp_mag * v_perp_mag
 	
+	# CAP alignment force to max thrust to prevent runaway feedback loop
+	var max_alignment_force = rocket_data.max_thrust
+	if force_mag > max_alignment_force:
+		force_mag = max_alignment_force
+	
 	# Smjer sile: od v_perp prema z_proj (rotira brzinu prema nosu)
 	var v_perp_unit = v_perp / v_perp_mag
 	
