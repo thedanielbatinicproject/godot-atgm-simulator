@@ -52,11 +52,13 @@ var _frozen_camera_position: Vector3 = Vector3.ZERO  # Position where camera fre
 var _pending_smoke_position: Vector3 = Vector3.ZERO  # Position for delayed smoke spawn
 var _is_terrain_miss: bool = false  # True if projectile missed tank completely (terrain hit)
 var _terrain_impact_position: Vector3 = Vector3.ZERO  # Where projectile hit terrain
+var _cutscene_camera_distance: float = 50.0  # Distance from impact for camera positioning
 
 
-func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_position: Vector3 = Vector3.ZERO, is_terrain_miss: bool = false, terrain_impact_pos: Vector3 = Vector3.ZERO) -> void:
+func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_position: Vector3 = Vector3.ZERO, is_terrain_miss: bool = false, terrain_impact_pos: Vector3 = Vector3.ZERO, camera_distance: float = 50.0) -> void:
 	"""Start the final cutscene - camera freezes at projectile's entry point into cutscene sphere.
-	For terrain miss: camera locks on impact position instead of tracking tank."""
+	For terrain miss: camera locks on impact position instead of tracking tank.
+	camera_distance: Distance from impact to position camera (use final_cutscene_start_distance)."""
 	_projectile = projectile
 	_tank = tank
 	_is_playing_cutscene = true
@@ -65,6 +67,7 @@ func start_final_cutscene(projectile: Node3D, tank: Node3D, projectile_entry_pos
 	_is_animating = false
 	_is_terrain_miss = is_terrain_miss
 	_terrain_impact_position = terrain_impact_pos
+	_cutscene_camera_distance = camera_distance
 	
 	# Use the entry position if provided, otherwise use current projectile position
 	if projectile_entry_position != Vector3.ZERO:
@@ -119,41 +122,45 @@ func _position_camera_at_entry_point() -> void:
 
 
 func _position_camera_for_terrain_miss() -> void:
-	"""Position camera for terrain miss - looks at impact point."""
+	"""Position camera for terrain/obstacle miss - positioned along projectile path.
+	Camera is placed at final_cutscene_start_distance from impact, along the projectile's trajectory."""
 	var impact_pos = _terrain_impact_position
 	
-	# Get camera approach direction from frozen position (where projectile was)
-	var approach_direction = (_frozen_camera_position - impact_pos).normalized()
-	if approach_direction.length() < 0.01:
-		approach_direction = Vector3(0, 0, 1)
+	# Get approach direction from frozen position (where projectile was) toward impact
+	# This is the projectile's flight direction
+	var flight_direction = (impact_pos - _frozen_camera_position).normalized()
+	if flight_direction.length() < 0.01:
+		flight_direction = Vector3(0, 0, -1)  # Default forward
 	
-	# Side direction for offset
-	var side_direction = approach_direction.cross(Vector3.UP).normalized()
+	# Position camera along the projectile's path, at cutscene distance BEFORE impact
+	# Use + instead of - because frozen_pos might be at/past impact point (raycast detection)
+	var camera_distance = maxf(_cutscene_camera_distance, 20.0)  # Minimum 20m for safety
+	
+	# Camera position: at cutscene distance from impact, OPPOSITE to flight direction
+	# This places camera where projectile came from
+	var camera_pos = impact_pos + (flight_direction * camera_distance)
+	
+	# Add slight offset to the side and up for better viewing angle
+	var side_direction = flight_direction.cross(Vector3.UP).normalized()
 	if side_direction.length() < 0.01:
 		side_direction = Vector3.RIGHT
 	
-	# Position camera at fixed distance from impact, looking at impact
-	var camera_distance = 40.0
-	var side_offset = 15.0
-	var height_offset = 15.0
-	
-	var camera_pos = impact_pos
-	camera_pos += approach_direction * camera_distance * 0.5  # Behind impact
-	camera_pos += side_direction * side_offset  # To the side
-	camera_pos.y = impact_pos.y + height_offset  # Above
+	camera_pos += side_direction * (camera_distance * 0.15)  # Small side offset
+	camera_pos.y += camera_distance * 0.2  # Slightly above
 	
 	_cutscene_camera.global_position = camera_pos
 	_camera_position_set = true
 	
-	# Look at impact position
+	# Look at impact position (slightly above ground level)
 	_cutscene_camera.look_at(impact_pos + Vector3(0, 2, 0))
 	
-	print("[CutsceneManager] Terrain miss camera at: ", camera_pos, " looking at impact: ", impact_pos)
+	print("[CutsceneManager] Terrain/obstacle miss camera at: ", camera_pos, " looking at impact: ", impact_pos)
 
 
 func _position_camera_for_tank_centered() -> void:
 	"""Position camera to always keep tank in center of screen.
-	Camera is placed at a good viewing angle from the projectile's approach direction."""
+	Camera is placed at a good viewing angle from the projectile's approach direction.
+	If camera would be inside an obstacle (layer 2), rotate around tank until clear."""
 	if not _cutscene_camera or not _tank:
 		return
 	
@@ -172,15 +179,18 @@ func _position_camera_for_tank_centered() -> void:
 	
 	# Camera position: offset from tank, not from entry point
 	# This keeps tank centered regardless of where projectile enters
-	var camera_distance = 35.0  # Distance from tank
-	var side_offset_amount = 20.0  # How far to the side
-	var height_offset = 12.0  # How high above tank
+	var camera_distance = 55.0  # Distance from tank (increased for better view)
+	var side_offset_amount = 30.0  # How far to the side
+	var height_offset = 18.0  # How high above tank
 	
-	# Position camera to side and slightly behind the approach
+	# Calculate initial camera position
 	var camera_pos = tank_pos
 	camera_pos += approach_direction * (camera_distance * 0.3)  # Slightly toward projectile
 	camera_pos += side_direction * side_offset_amount  # To the side
 	camera_pos.y += height_offset  # Above
+	
+	# Check if camera is inside an obstacle (layer 2) and rotate until clear
+	camera_pos = _find_clear_camera_position(tank_pos, camera_pos, camera_distance, height_offset)
 	
 	_cutscene_camera.global_position = camera_pos
 	_camera_position_set = true
@@ -189,6 +199,60 @@ func _position_camera_for_tank_centered() -> void:
 	_cutscene_camera.look_at(tank_pos)
 	
 	print("[CutsceneManager] Camera at: ", camera_pos, " looking at tank: ", tank_pos)
+
+
+func _find_clear_camera_position(tank_pos: Vector3, initial_pos: Vector3, _distance: float, height: float) -> Vector3:
+	"""Find a camera position that is not inside an obstacle (layer 2).
+	Rotates around tank's Y axis until clear position is found."""
+	var camera_pos = initial_pos
+	
+	# Get the world for raycasting
+	var world_3d = _tank.get_world_3d() if _tank else null
+	if not world_3d:
+		return camera_pos
+	
+	var space_state = world_3d.direct_space_state
+	if not space_state:
+		return camera_pos
+	
+	# Check multiple angles around the tank (rotate in 30 degree increments)
+	var horizontal_offset = camera_pos - tank_pos
+	horizontal_offset.y = 0  # Keep horizontal for rotation
+	var original_angle = atan2(horizontal_offset.x, horizontal_offset.z)
+	var horizontal_dist = horizontal_offset.length()
+	
+	for rotation_step in range(12):  # Try 12 positions (30 degrees each = 360)
+		var test_angle = original_angle + (rotation_step * PI / 6.0)  # 30 degree increments
+		
+		# Calculate test position
+		var test_pos = tank_pos
+		test_pos.x += sin(test_angle) * horizontal_dist
+		test_pos.z += cos(test_angle) * horizontal_dist
+		test_pos.y = tank_pos.y + height
+		
+		# Raycast from tank to test position to check for obstacles
+		var query = PhysicsRayQueryParameters3D.create(tank_pos, test_pos)
+		query.collision_mask = 0b10  # Layer 2 only (obstacles)
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		
+		var result = space_state.intersect_ray(query)
+		
+		if not result:
+			# No obstacle hit, this position is clear
+			if rotation_step > 0:
+				# Add extra rotation for safety (15 degrees more)
+				test_angle += PI / 12.0
+				test_pos = tank_pos
+				test_pos.x += sin(test_angle) * horizontal_dist
+				test_pos.z += cos(test_angle) * horizontal_dist
+				test_pos.y = tank_pos.y + height
+				print("[CutsceneManager] Camera rotated %d degrees to avoid obstacle" % (rotation_step * 30 + 15))
+			return test_pos
+	
+	# All positions blocked, return original
+	print("[CutsceneManager] Warning: Could not find clear camera position, using original")
+	return camera_pos
 
 
 func process_cutscene(delta: float) -> void:

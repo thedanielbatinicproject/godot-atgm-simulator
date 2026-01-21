@@ -9,6 +9,18 @@ class_name HudManager
 @onready var projected_time: Label = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/MarginContainer/ProjectedTime
 @onready var point_arrow: Sprite2D = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer/BoxContainer/PointArrow
 
+# Camera type UI references
+@onready var camera_type_text: Label = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/BoxContainer/CameraTypeText
+@onready var camera_icon_container: BoxContainer = $BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/CameraIconContainer
+
+# Camera icon textures
+const CAMERA_ICONS: Dictionary = {
+	"OPTICAL": preload("res://assets/UI/HUD/Graphics/optical_camera.png"),
+	"SOUND": preload("res://assets/UI/HUD/Graphics/sound_camera.png"),
+	"IR": preload("res://assets/UI/HUD/Graphics/IR_camera.png"),
+	"THERMAL": preload("res://assets/UI/HUD/Graphics/heat_camera.png")
+}
+
 # ============================================================================
 # HUD MANAGER
 # ============================================================================
@@ -26,6 +38,9 @@ var projectile: Projectile = null
 var guidance: Guidance = null
 var tank: Node3D = null
 
+# Camera icon sprite reference
+var _camera_icon: TextureRect = null
+
 # Projectile tracking
 var initial_distance: float = 0.0
 var _initialized: bool = false
@@ -40,7 +55,41 @@ func _ready():
 	_find_projectile()
 	_find_tank()
 	_create_distance_bar()
+	_create_camera_icon()
 	_initialize_distances()
+	_update_camera_type("OPTICAL")  # Default camera type
+
+
+func _create_camera_icon() -> void:
+	"""Create the camera icon TextureRect in the icon container."""
+	if not camera_icon_container:
+		push_warning("[HudManager] CameraIconContainer not found!")
+		return
+	
+	_camera_icon = TextureRect.new()
+	_camera_icon.name = "CameraIcon"
+	_camera_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_camera_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL  # Fit proportionally
+	_camera_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_camera_icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_camera_icon.custom_minimum_size = Vector2(32, 32)  # Reasonable minimum size
+	_camera_icon.texture = CAMERA_ICONS.get("OPTICAL", null)
+	camera_icon_container.add_child(_camera_icon)
+
+
+func update_camera_type(camera_type: String) -> void:
+	"""Update the camera type display (called by ScenarioManager)."""
+	_update_camera_type(camera_type)
+
+
+func _update_camera_type(camera_type: String) -> void:
+	"""Internal: Update camera type text and icon."""
+	if camera_type_text:
+		camera_type_text.text = camera_type
+	
+	if _camera_icon and CAMERA_ICONS.has(camera_type):
+		_camera_icon.texture = CAMERA_ICONS[camera_type]
+
 
 func _find_projectile():
 	"""Find Projectile node in scene."""
@@ -203,12 +252,12 @@ func _update_angles():
 	angles.text = "Pitch: %+.0f° | Yaw: %+.0f° | Roll: %+.0f°" % [pitch_deg, yaw_deg, roll_deg]
 
 func _update_distance():
-	"""Update distance label with distance to target."""
-	if not distance_label:
+	"""Update speed label with current projectile speed."""
+	if not distance_label or not projectile or not projectile.state:
 		return
 	
-	var dist = _get_current_distance()
-	distance_label.text = "Distance to target: %06.1fm" % dist
+	var speed = projectile.state.velocity.length()
+	distance_label.text = "Speed: %.0f m/s" % speed
 
 func _update_thrust_bar():
 	"""Update thrust bar with current throttle input."""

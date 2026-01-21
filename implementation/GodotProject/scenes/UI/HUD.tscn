@@ -67,7 +67,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_fonts/font = ExtResource("3_vphgt")
 theme_override_font_sizes/font_size = 25
-text = "X: 112.24 | Y: 222.22 | Z: 002.22"
 vertical_alignment = 1
 
 [node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/XYZ/HBoxContainer"]
@@ -89,7 +88,6 @@ size_flags_horizontal = 8
 size_flags_vertical = 0
 theme_override_fonts/font = ExtResource("3_vphgt")
 theme_override_font_sizes/font_size = 25
-text = "Pitch: 14° | Yaw: 15° | Roll: 22°"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -108,7 +106,7 @@ size_flags_vertical = 4
 
 [node name="PointArrow" type="Sprite2D" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer2/MarginContainer/BoxContainer"]
 visible = false
-scale = Vector2(1.1, 1.1)
+scale = Vector2(1.15, 1.15)
 texture = ExtResource("3_5ip4n")
 
 [node name="BoxContainer4" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer"]
@@ -135,16 +133,53 @@ size_flags_horizontal = 0
 size_flags_vertical = 8
 theme_override_fonts/font = ExtResource("3_vphgt")
 theme_override_font_sizes/font_size = 25
-text = "Distance to target: 094.2m"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BoxContainer2" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2"]
+[node name="BoxContainer" type="VBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Label" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 18
+text = "Selected vison: "
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="CameraTypeText" type="Label" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer/BoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_vphgt")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CameraIconContainer" type="BoxContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer/BoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="BoxContainer/VBoxContainer/BoxContainer2/VBoxContainer/BoxContainer4/HBoxContainer/BoxContainer2/BoxContainer"]
 layout_mode = 2
@@ -157,7 +192,7 @@ size_flags_horizontal = 8
 size_flags_vertical = 8
 theme_override_fonts/font = ExtResource("3_vphgt")
 theme_override_font_sizes/font_size = 25
-text = "Estimated duration until impact: 12s"
+text = "Estimated duration until impact: >999s"
 horizontal_alignment = 2
 vertical_alignment = 1
 

@@ -7,10 +7,14 @@ class_name ScenarioEventWatcher
 # ============================================================================
 # Monitors projectile, tank, collisions, distance, and scenario conditions.
 # Also checks for terrain collision using HTerrain height functions.
+# Collision Layers:
+#   - Layer 1: Terrain and tank (main game objects)
+#   - Layer 2: Other obstacles (buildings, rocks, trees, etc.)
 # ============================================================================
 
 signal projectile_hit_tank
 signal projectile_hit_ground(position: Vector3)
+signal projectile_hit_obstacle(position: Vector3, obstacle: Node)  # Layer 2 collisions
 signal projectile_out_of_bounds
 signal cutscene_distance_reached
 signal terrain_cutscene_distance_reached  # When projectile is close to terrain
@@ -29,10 +33,19 @@ var _player_control_enabled: bool = false
 var _cutscene_triggered: bool = false
 var _terrain_hit_triggered: bool = false
 var _tank_hit_triggered: bool = false  # Prevent multiple tank hit signals
+var _obstacle_hit_triggered: bool = false  # Prevent multiple obstacle hit signals
 var _is_watching: bool = false
+
+# Collision layers
+const COLLISION_LAYER_TERRAIN: int = 1  # Layer 1: terrain and tank
+const COLLISION_LAYER_OBSTACLES: int = 2  # Layer 2: obstacles (buildings, rocks, etc.)
 
 # Proximity-based tank hit detection (backup for physics collision)
 @export var tank_hit_radius: float = 5.0  # Meters - radius around tank center for hit detection
+
+# Raycast collision prevention (for high-speed tunneling)
+var _last_projectile_position: Vector3 = Vector3.ZERO
+var _raycast_initialized: bool = false
 
 
 func start_watching(scenario_root: Node, scenario_data: ScenarioData) -> void:
@@ -44,6 +57,7 @@ func start_watching(scenario_root: Node, scenario_data: ScenarioData) -> void:
 	_cutscene_triggered = false
 	_terrain_hit_triggered = false
 	_tank_hit_triggered = false
+	_obstacle_hit_triggered = false
 	_is_watching = true
 	
 	# Find projectile and tank nodes
@@ -113,6 +127,9 @@ func stop_watching() -> void:
 	_hterrain = null
 	_terrain_hit_triggered = false
 	_tank_hit_triggered = false
+	_obstacle_hit_triggered = false
+	_raycast_initialized = false
+	_last_projectile_position = Vector3.ZERO
 
 
 func process(delta: float) -> void:
@@ -133,6 +150,9 @@ func process(delta: float) -> void:
 		scenario_timeout.emit()
 		return
 	
+	# Check raycast collision (prevents tunneling at high speeds)
+	_check_raycast_collision()
+	
 	# Check proximity-based tank hit (backup for physics collision)
 	_check_tank_proximity_hit()
 	
@@ -144,6 +164,107 @@ func process(delta: float) -> void:
 	
 	# Check out of bounds
 	_check_out_of_bounds()
+	
+	# Update last position for next frame raycast
+	if _projectile:
+		_last_projectile_position = _projectile.global_position
+
+
+func _check_raycast_collision() -> void:
+	"""Use raycast to detect collisions between frames (prevents tunneling at high speeds)."""
+	if not _projectile or not _scenario_root:
+		return
+	
+	# Skip if any collision already triggered
+	if _tank_hit_triggered or _terrain_hit_triggered or _obstacle_hit_triggered:
+		return
+	
+	var current_pos = _projectile.global_position
+	
+	# Initialize last position on first frame
+	if not _raycast_initialized:
+		_last_projectile_position = current_pos
+		_raycast_initialized = true
+		return
+	
+	# Calculate movement this frame
+	var movement = current_pos - _last_projectile_position
+	var distance_moved = movement.length()
+	
+	# Only raycast if we moved a significant distance (high speed detection)
+	if distance_moved < 1.0:
+		return
+	
+	# Perform raycast from last position to current position
+	# Get world from the projectile (Node3D) instead of scenario_root (Node)
+	if not _projectile:
+		return
+	var world_3d = _projectile.get_world_3d()
+	if not world_3d:
+		return
+	var space_state = world_3d.direct_space_state
+	if not space_state:
+		return
+	
+	var query = PhysicsRayQueryParameters3D.create(_last_projectile_position, current_pos)
+	# Check collision layers 1 (terrain/tank) and 2 (obstacles)
+	query.collision_mask = 0b11  # Layers 1 and 2
+	query.collide_with_areas = false  # Don't hit Area3D nodes (triggers, projectile's own area)
+	query.collide_with_bodies = true
+	
+	# Exclude the projectile itself and its children from raycast
+	var exclude_rids: Array[RID] = []
+	_collect_physics_rids(_projectile, exclude_rids)
+	query.exclude = exclude_rids
+	
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		var hit_position = result.position
+		var hit_body = result.collider
+		
+		print("[EventWatcher] RAYCAST HIT detected! Object: %s at %s (moved %.1fm this frame)" % [
+			hit_body.name if hit_body else "Unknown",
+			hit_position,
+			distance_moved
+		])
+		
+		# Determine what we hit and emit appropriate signal
+		if hit_body == _tank or _is_child_of(_tank, hit_body):
+			# Hit the tank!
+			_tank_hit_triggered = true
+			print("[EventWatcher] TANK HIT (raycast)!")
+			projectile_hit_tank.emit()
+		elif hit_body is StaticBody3D:
+			var static_body := hit_body as StaticBody3D
+			var collision_layer = static_body.collision_layer
+			
+			# Check if it's layer 2 (obstacles)
+			if collision_layer & (1 << 1):
+				_obstacle_hit_triggered = true
+				print("[EventWatcher] OBSTACLE HIT (raycast)!")
+				projectile_hit_obstacle.emit(hit_position, hit_body)
+			else:
+				# Layer 1 or unknown - treat as terrain
+				_terrain_hit_triggered = true
+				print("[EventWatcher] TERRAIN HIT (raycast)!")
+				projectile_hit_ground.emit(hit_position)
+		else:
+			# Unknown body type - treat as obstacle if in group, otherwise terrain
+			if hit_body.is_in_group("obstacles") or hit_body.is_in_group("obstacle"):
+				_obstacle_hit_triggered = true
+				projectile_hit_obstacle.emit(hit_position, hit_body)
+			else:
+				_terrain_hit_triggered = true
+				projectile_hit_ground.emit(hit_position)
+
+
+func _collect_physics_rids(node: Node, rids: Array[RID]) -> void:
+	"""Recursively collect all physics body RIDs from a node and its children."""
+	if node is PhysicsBody3D:
+		rids.append(node.get_rid())
+	for child in node.get_children():
+		_collect_physics_rids(child, rids)
 
 
 func _check_tank_proximity_hit() -> void:
@@ -247,21 +368,56 @@ func _on_projectile_collision(body: Node) -> void:
 	if not _is_watching:
 		return
 	
-	# Check if hit tank
+	# Check if hit tank (highest priority)
 	if body == _tank or _is_child_of(_tank, body):
 		if not _tank_hit_triggered:
 			_tank_hit_triggered = true
 			print("[EventWatcher] TANK HIT (physics collision)!")
 			projectile_hit_tank.emit()
-	elif body.is_in_group("ground") or body.is_in_group("terrain"):
+		return
+	
+	# Check for terrain/ground collision (layer 1)
+	if body.is_in_group("ground") or body.is_in_group("terrain"):
 		if not _terrain_hit_triggered:
 			_terrain_hit_triggered = true
+			print("[EventWatcher] TERRAIN HIT (group-based)!")
 			projectile_hit_ground.emit(_projectile.global_position)
-	else:
-		# Check if it's a static body (likely terrain)
-		if body is StaticBody3D and not _terrain_hit_triggered:
-			_terrain_hit_triggered = true
-			projectile_hit_ground.emit(_projectile.global_position)
+		return
+	
+	# Check collision layers for static bodies
+	if body is StaticBody3D:
+		var static_body := body as StaticBody3D
+		var collision_layer = static_body.collision_layer
+		
+		# Layer 2 (bit 1) = obstacles (buildings, rocks, trees, etc.)
+		if collision_layer & (1 << 1):  # Check if bit 1 is set (layer 2)
+			if not _obstacle_hit_triggered:
+				_obstacle_hit_triggered = true
+				print("[EventWatcher] OBSTACLE HIT (layer 2)! Object: ", body.name)
+				projectile_hit_obstacle.emit(_projectile.global_position, body)
+			return
+		
+		# Layer 1 (bit 0) = terrain (default for StaticBody3D without specific layer)
+		if collision_layer & (1 << 0) or collision_layer == 0:  # Layer 1 or no layer set
+			if not _terrain_hit_triggered:
+				_terrain_hit_triggered = true
+				print("[EventWatcher] TERRAIN HIT (layer 1)!")
+				projectile_hit_ground.emit(_projectile.global_position)
+			return
+	
+	# Fallback for any other body types - treat as obstacle
+	if body.is_in_group("obstacles") or body.is_in_group("obstacle"):
+		if not _obstacle_hit_triggered:
+			_obstacle_hit_triggered = true
+			print("[EventWatcher] OBSTACLE HIT (group-based)! Object: ", body.name)
+			projectile_hit_obstacle.emit(_projectile.global_position, body)
+		return
+	
+	# Final fallback: unknown collision, treat as terrain hit
+	if not _terrain_hit_triggered and not _obstacle_hit_triggered:
+		_terrain_hit_triggered = true
+		print("[EventWatcher] UNKNOWN HIT (fallback to terrain)! Object: ", body.name)
+		projectile_hit_ground.emit(_projectile.global_position)
 
 
 func _is_child_of(parent: Node, child: Node) -> bool:

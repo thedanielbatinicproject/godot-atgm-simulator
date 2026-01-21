@@ -40,13 +40,22 @@ var _beep_player: AudioStreamPlayer = null
 var _explosion_player: AudioStreamPlayer = null
 var _music_player: AudioStreamPlayer = null
 var _fail_sfx_player: AudioStreamPlayer = null
+var _tank_sound_player: AudioStreamPlayer3D = null  # 3D for doppler effect
+var _camera_switch_player: AudioStreamPlayer = null  # Camera type switch sound
 
 # Audio assets
 const SFX_PROPULSOR_LOOP = preload("res://assets/Audio/SIM_SFX/PropulsorLoop.wav")
 const SFX_HUD_BEEP = preload("res://assets/Audio/SIM_SFX/HUDBeep.wav")
 const SFX_EXPLOSION = preload("res://assets/Audio/SIM_SFX/MissleExplosion.wav")
 const SFX_FAIL = preload("res://assets/Audio/SIM_SFX/FailSfx.wav")
+const SFX_TANK_DRIVING = preload("res://assets/Audio/SIM_SFX/tank_driving.wav")
+const SFX_CAMERA_SWITCH = preload("res://assets/Audio/SIM_SFX/cam_sw.wav")
 const MUSIC_MAIN_MENU = preload("res://assets/Audio/Music/main_menu1.wav")
+
+# Tank audio state
+const TANK_BASE_SPEED_KMH: float = 25.0  # Base speed for default pitch/volume
+const TANK_AUDIO_RANGE: float = 1000.0  # Distance at which tank sound is audible (increased for long range)
+var _tank_last_position: Vector3 = Vector3.ZERO
 
 # Audio state
 var _beep_timer: float = 0.0
@@ -120,6 +129,7 @@ func _connect_signals() -> void:
 	# Event watcher signals
 	event_watcher.projectile_hit_tank.connect(_on_projectile_hit_tank)
 	event_watcher.projectile_hit_ground.connect(_on_projectile_hit_ground)
+	event_watcher.projectile_hit_obstacle.connect(_on_projectile_hit_obstacle)
 	event_watcher.projectile_out_of_bounds.connect(_on_projectile_out_of_bounds)
 	event_watcher.cutscene_distance_reached.connect(_on_cutscene_distance_reached)
 	event_watcher.terrain_cutscene_distance_reached.connect(_on_terrain_cutscene_distance_reached)
@@ -145,13 +155,51 @@ func _input(event: InputEvent) -> void:
 		if state.is_state(ScenarioStateClass.State.RUNNING):
 			camera_manager.switch_camera()
 	
+	# Camera type switching (OPTICAL -> SOUND -> IR -> THERMAL)
+	if event.is_action_pressed("camera_type_switch"):
+		if state.is_state(ScenarioStateClass.State.RUNNING):
+			_cycle_camera_type()
+	
 	# Track joystick vs mouse input during simulation for cursor hiding
 	if state.is_state(ScenarioStateClass.State.RUNNING) or state.is_state(ScenarioStateClass.State.CUTSCENE):
 		_handle_simulation_cursor_input(event)
 
 
+func _cycle_camera_type() -> void:
+	"""Cycle to the next camera type and update HUD."""
+	if camera_manager:
+		camera_manager.cycle_camera_type()
+		
+		# Play camera switch sound
+		if _camera_switch_player:
+			_camera_switch_player.play()
+		
+		# Update HUD
+		if _hud_instance and _hud_instance.has_method("update_camera_type"):
+			var camera_type_name = camera_manager.get_current_camera_type_name()
+			_hud_instance.update_camera_type(camera_type_name)
+
+
 func _handle_simulation_cursor_input(event: InputEvent) -> void:
-	"""Track input device and hide/show cursor during simulation."""
+	"""Track input device and hide/show cursor during simulation.
+	Respects control config options from main menu."""
+	
+	# Get control config to check enabled input methods
+	var control_config: ControlConfig = null
+	if current_scenario_data and current_scenario_data.control_config:
+		control_config = current_scenario_data.control_config
+	
+	# If only gamepad is enabled (no mouse/keyboard), always hide cursor
+	if control_config:
+		var mouse_enabled = control_config.enable_mouse_input
+		var gamepad_enabled = control_config.enable_gamepad_input
+		
+		# If gamepad is enabled and mouse is disabled, always hide cursor in simulation
+		if gamepad_enabled and not mouse_enabled:
+			if Input.get_mouse_mode() != Input.MOUSE_MODE_HIDDEN:
+				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+			return
+	
 	# --- Mouse input ---
 	if event is InputEventMouseMotion or event is InputEventMouseButton:
 		var current_time = Time.get_ticks_msec() / 1000.0
@@ -164,11 +212,18 @@ func _handle_simulation_cursor_input(event: InputEvent) -> void:
 		
 		if _using_joystick_in_sim:
 			_using_joystick_in_sim = false
-			# Show cursor when mouse is used (but still hidden during simulation)
-			# We keep cursor hidden during active gameplay - only menus need it
+			# Show cursor when mouse is used (only if mouse input is enabled)
+			if control_config and control_config.enable_mouse_input:
+				# During active simulation, we may want to keep cursor hidden
+				# But if mouse is the primary input, show it
+				pass  # Cursor visibility handled elsewhere
 	
 	# --- Gamepad input ---
 	elif event is InputEventJoypadMotion or event is InputEventJoypadButton:
+		# Only process gamepad input if gamepad is enabled
+		if control_config and not control_config.enable_gamepad_input:
+			return
+		
 		var x := Input.get_action_strength("steer_right") - Input.get_action_strength("steer_left")
 		var y := Input.get_action_strength("pitch_down") - Input.get_action_strength("pitch_up")
 		var throttle := Input.get_action_strength("thrust")
@@ -179,8 +234,42 @@ func _handle_simulation_cursor_input(event: InputEvent) -> void:
 			
 			if not _using_joystick_in_sim:
 				_using_joystick_in_sim = true
-				# Hide cursor when joystick is being used
-				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+				# Hide cursor when joystick is being used (only if mouse is also enabled)
+				# If mouse is disabled, cursor is already hidden
+				if control_config and control_config.enable_mouse_input:
+					Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
+
+func _initialize_simulation_cursor() -> void:
+	"""Initialize cursor visibility based on control config when simulation starts."""
+	# Get control config to check enabled input methods
+	var control_config: ControlConfig = null
+	if current_scenario_data and current_scenario_data.control_config:
+		control_config = current_scenario_data.control_config
+	
+	if not control_config:
+		# Default behavior: show cursor
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		return
+	
+	var mouse_enabled = control_config.enable_mouse_input
+	var gamepad_enabled = control_config.enable_gamepad_input
+	
+	# If only gamepad is enabled (no mouse), hide cursor at start
+	if gamepad_enabled and not mouse_enabled:
+		_using_joystick_in_sim = true
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+		print("[ScenarioManager] Cursor hidden: gamepad-only control config")
+	# If only mouse is enabled (no gamepad), show cursor
+	elif mouse_enabled and not gamepad_enabled:
+		_using_joystick_in_sim = false
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		print("[ScenarioManager] Cursor visible: mouse-only control config")
+	# If both are enabled, start with cursor visible (will hide when joystick is used)
+	else:
+		_using_joystick_in_sim = false
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		print("[ScenarioManager] Cursor visible: mixed control config (will hide on joystick use)")
 
 
 func _process(delta: float) -> void:
@@ -426,6 +515,9 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Setup camera manager
 	camera_manager.setup(_scenario_root, current_scenario_data)
 	
+	# Pass scenario root to camera manager for visual effects overlay (on separate layer below HUD)
+	camera_manager.set_scenario_root(_scenario_root)
+	
 	# DEBUG: Print comprehensive loading info
 	_debug_print_loaded_scenario()
 	
@@ -442,6 +534,9 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Transition to running (player control depends on delay)
 	state.transition_to(ScenarioStateClass.State.RUNNING)
 	player_control_changed.emit(false)  # Initially disabled until delay passes
+	
+	# Initialize cursor state based on control config
+	_initialize_simulation_cursor()
 	
 	# Reset mission stats for new scenario
 	_reset_mission_stats()
@@ -596,7 +691,7 @@ func _on_player_control_delay_finished() -> void:
 	if state.is_state(ScenarioStateClass.State.RUNNING):
 		player_control_changed.emit(true)
 		_set_hud_visible(true)
-		narrator.play_default_message("You have control!", 2.0)
+		# Note: General only speaks when voice lines are defined in scenario data
 
 
 func _set_hud_visible(visible: bool) -> void:
@@ -625,6 +720,9 @@ func _on_cutscene_distance_reached() -> void:
 	player_control_changed.emit(false)
 	_set_hud_visible(false)
 	_set_input_controls_visible(false)  # Hide circle and dot
+	
+	# Reset camera to optical for cutscene (remove shader effects)
+	camera_manager.reset_to_optical()
 	
 	# Start cutscene
 	state.transition_to(ScenarioStateClass.State.CUTSCENE)
@@ -655,6 +753,9 @@ func _on_terrain_cutscene_distance_reached() -> void:
 	player_control_changed.emit(false)
 	_set_hud_visible(false)
 	_set_input_controls_visible(false)
+	
+	# Reset camera to optical for cutscene (remove shader effects)
+	camera_manager.reset_to_optical()
 	
 	# Start cutscene
 	state.transition_to(ScenarioStateClass.State.CUTSCENE)
@@ -688,8 +789,7 @@ func _on_projectile_hit_tank() -> void:
 	# Play hit animation (handles visual explosion and projectile hiding)
 	cutscene_manager.play_hit_animation(hit_pos)
 	
-	# Narrator message
-	narrator.play_default_message("TARGET DESTROYED!", 3.0)
+	# Note: General only speaks when voice lines are defined in scenario data
 
 
 func _on_projectile_hit_ground(position: Vector3) -> void:
@@ -707,6 +807,9 @@ func _on_projectile_hit_ground(position: Vector3) -> void:
 		_set_hud_visible(false)
 		_set_input_controls_visible(false)  # Hide circle and dot
 		
+		# Reset camera to optical for cutscene (remove shader effects)
+		camera_manager.reset_to_optical()
+		
 		# Disable user input
 		var projectile = event_watcher.get_projectile()
 		if projectile and projectile.has_method("disable_user_input"):
@@ -715,13 +818,51 @@ func _on_projectile_hit_ground(position: Vector3) -> void:
 		# Start cutscene camera - TERRAIN MISS mode (camera looks at impact, not tank)
 		var tank = event_watcher.get_tank()
 		var entry_pos = projectile.global_position if projectile else position
-		cutscene_manager.start_final_cutscene(projectile, tank, entry_pos, true, position)
+		var cutscene_dist = current_scenario_data.final_cutscene_start_distance if current_scenario_data else 50.0
+		cutscene_manager.start_final_cutscene(projectile, tank, entry_pos, true, position, cutscene_dist)
 	
 	# Play miss animation (handles explosion and projectile hiding)
 	cutscene_manager.play_miss_animation(position)
 	
-	# Narrator message
-	narrator.play_default_message("MISSED! Target survived.", 3.0)
+	# Note: General only speaks when voice lines are defined in scenario data
+
+
+func _on_projectile_hit_obstacle(position: Vector3, obstacle: Node) -> void:
+	"""Called when projectile hits an obstacle (layer 2) - FAILURE!"""
+	var obstacle_name: String = "Unknown"
+	if obstacle:
+		obstacle_name = obstacle.name
+	print("[ScenarioManager] Projectile hit obstacle '%s' at: %s" % [obstacle_name, position])
+	
+	# IMMEDIATELY play explosion sound and stop simulation audio!
+	_stop_simulation_audio()
+	_play_explosion_sound()
+	
+	# If we're still in RUNNING state, transition to cutscene first
+	if state.is_state(ScenarioStateClass.State.RUNNING):
+		state.transition_to(ScenarioStateClass.State.CUTSCENE)
+		player_control_changed.emit(false)
+		_set_hud_visible(false)
+		_set_input_controls_visible(false)  # Hide circle and dot
+		
+		# Reset camera to optical for cutscene (remove shader effects)
+		camera_manager.reset_to_optical()
+		
+		# Disable user input
+		var projectile = event_watcher.get_projectile()
+		if projectile and projectile.has_method("disable_user_input"):
+			projectile.disable_user_input()
+		
+		# Start cutscene camera - OBSTACLE MISS mode (camera looks at impact, not tank)
+		var tank = event_watcher.get_tank()
+		var entry_pos = projectile.global_position if projectile else position
+		var cutscene_dist = current_scenario_data.final_cutscene_start_distance if current_scenario_data else 50.0
+		cutscene_manager.start_final_cutscene(projectile, tank, entry_pos, true, position, cutscene_dist)
+	
+	# Play miss animation (handles explosion and projectile hiding)
+	cutscene_manager.play_miss_animation(position)
+	
+	# Note: General only speaks when voice lines are defined in scenario data
 
 
 func _on_tank_should_stop() -> void:
@@ -912,12 +1053,12 @@ func _update_success_details() -> void:
 	var minutes = int(mission_time) / 60
 	var seconds = fmod(mission_time, 60.0)
 	
-	# Format: "Time: 1:23.4 | Max Speed: 342 m/s | Distance: 1.2 km"
+	# Format: "Time: 1:23.4    Max Speed: 342 m/s    Distance: 1.2 km"
 	var time_str = "%d:%05.2f" % [minutes, seconds]
 	var speed_str = "%.0f m/s" % _max_velocity_reached
 	var dist_str = "%.1f km" % (_total_distance_traveled / 1000.0)
 	
-	details_label.text = "Time: %s | Max: %s | Dist: %s" % [time_str, speed_str, dist_str]
+	details_label.text = "Time: %s    Max: %s    Dist: %s" % [time_str, speed_str, dist_str]
 
 
 func _connect_pause_menu_buttons() -> void:
@@ -1063,6 +1204,17 @@ func _initialize_audio() -> void:
 	_fail_sfx_player.bus = "SFX"  # Always use SFX bus
 	add_child(_fail_sfx_player)
 	
+	# Create camera switch sound player
+	_camera_switch_player = AudioStreamPlayer.new()
+	_camera_switch_player.name = "CameraSwitchPlayer"
+	_camera_switch_player.stream = SFX_CAMERA_SWITCH
+	_camera_switch_player.volume_db = 0.0
+	_camera_switch_player.bus = "SFX"
+	add_child(_camera_switch_player)
+	
+	# Create tank driving sound (3D for doppler effect)
+	_initialize_tank_audio()
+	
 	# Create music player
 	_music_player = AudioStreamPlayer.new()
 	_music_player.name = "MusicPlayer"
@@ -1105,6 +1257,8 @@ func _pause_audio() -> void:
 		_propulsor_player.stream_paused = true
 	if _beep_player:
 		_beep_player.stream_paused = true
+	if _tank_sound_player:
+		_tank_sound_player.stream_paused = true
 
 
 func _resume_audio() -> void:
@@ -1120,6 +1274,8 @@ func _resume_audio() -> void:
 			_propulsor_player.play()
 	if _beep_player:
 		_beep_player.stream_paused = false
+	if _tank_sound_player:
+		_tank_sound_player.stream_paused = false
 
 
 func _reset_mission_stats() -> void:
@@ -1159,6 +1315,9 @@ func _update_audio(delta: float) -> void:
 	
 	# Update beep timing based on distance
 	_update_beep_audio(delta)
+	
+	# Update tank driving sound
+	_update_tank_audio(delta)
 
 
 func _update_propulsor_audio() -> void:
@@ -1239,10 +1398,77 @@ func _update_beep_audio(delta: float) -> void:
 		_beep_player.play()  # Start new beep immediately
 
 
+func _initialize_tank_audio() -> void:
+	"""Initialize 3D audio player for tank driving sound with doppler effect."""
+	var tank = event_watcher.get_tank() if event_watcher else null
+	if not tank:
+		return
+	
+	_tank_sound_player = AudioStreamPlayer3D.new()
+	_tank_sound_player.name = "TankDrivingSound"
+	_tank_sound_player.stream = SFX_TANK_DRIVING
+	_tank_sound_player.bus = "SFX"
+	_tank_sound_player.volume_db = 0.0  # Base volume at 25 km/h
+	_tank_sound_player.pitch_scale = 1.0  # Base pitch at 25 km/h
+	_tank_sound_player.max_distance = TANK_AUDIO_RANGE
+	_tank_sound_player.unit_size = 10.0  # How quickly volume falls off
+	_tank_sound_player.doppler_tracking = AudioStreamPlayer3D.DOPPLER_TRACKING_PHYSICS_STEP
+	_tank_sound_player.panning_strength = 1.0
+	_tank_sound_player.autoplay = false
+	
+	# Add to tank node so it follows the tank and gets proper 3D positioning
+	tank.add_child(_tank_sound_player)
+	
+	# Initialize tracking for doppler
+	_tank_last_position = tank.global_position
+
+
+func _update_tank_audio(_delta: float) -> void:
+	"""Update tank driving sound based on speed - pitch/volume scale with speed."""
+	if not _tank_sound_player or not tank_movement:
+		return
+	
+	var is_tank_moving = tank_movement.is_moving() and not tank_movement.is_stopped()
+	var current_speed_ms = tank_movement.get_current_speed()  # m/s
+	var current_speed_kmh = current_speed_ms * 3.6  # Convert to km/h
+	
+	if is_tank_moving and current_speed_kmh > 0.1:
+		# Calculate pitch and volume scale based on speed ratio to base (25 km/h)
+		var speed_ratio = current_speed_kmh / TANK_BASE_SPEED_KMH
+		
+		# Pitch scales linearly with speed (faster = higher pitch)
+		# At 25 km/h: pitch = 1.0, at 50 km/h: pitch = 2.0, at 12.5 km/h: pitch = 0.5
+		var target_pitch = clampf(speed_ratio, 0.5, 2.0)
+		
+		# Volume scales with speed (louder when faster)
+		# Use logarithmic scaling for more natural sound
+		# At 25 km/h: 0 dB, at 50 km/h: +3 dB, at 12.5 km/h: -3 dB
+		var volume_ratio = log(speed_ratio + 0.1) / log(2.0)  # log base 2
+		var target_volume_db = clampf(volume_ratio * 6.0, -12.0, 6.0)
+		
+		_tank_sound_player.pitch_scale = target_pitch
+		_tank_sound_player.volume_db = target_volume_db
+		
+		# Start playing if not already
+		if not _tank_sound_player.playing:
+			_tank_sound_player.play()
+	else:
+		# Tank not moving - stop sound
+		if _tank_sound_player.playing:
+			_tank_sound_player.stop()
+	
+	# Update position tracking for doppler (handled automatically by AudioStreamPlayer3D
+	# when attached to moving node, but we track for debug purposes)
+	var tank = event_watcher.get_tank() if event_watcher else null
+	_tank_last_position = tank.global_position if tank else Vector3.ZERO
+
+
 func _stop_simulation_audio() -> void:
-	"""Stop propulsor and beep sounds (called on explosion)."""
+	"""Stop propulsor, beep, and tank sounds (called on explosion)."""
 	if _propulsor_player:
 		_propulsor_player.stop()
+	if _tank_sound_player:
+		_tank_sound_player.stop()
 	# Beep can continue or stop - let's stop it
 	_audio_initialized = false
 
@@ -1294,4 +1520,12 @@ func _cleanup_audio() -> void:
 		_music_player.stop()
 		_music_player.queue_free()
 		_music_player = null
+	if _tank_sound_player:
+		_tank_sound_player.stop()
+		_tank_sound_player.queue_free()
+		_tank_sound_player = null
+	if _camera_switch_player:
+		_camera_switch_player.stop()
+		_camera_switch_player.queue_free()
+		_camera_switch_player = null
 	_audio_initialized = false
