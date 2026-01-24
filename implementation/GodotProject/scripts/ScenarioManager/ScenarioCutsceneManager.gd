@@ -163,6 +163,7 @@ func _position_camera_for_tank_centered() -> void:
 	If camera would be inside an obstacle (layer 2), rotate around tank until clear."""
 	if not _cutscene_camera or not _tank:
 		return
+
 	
 	var tank_pos = _tank.global_position + Vector3(0, 2, 0)  # Aim at tank center (slightly above ground)
 	
@@ -214,6 +215,7 @@ func _find_clear_camera_position(tank_pos: Vector3, initial_pos: Vector3, _dista
 	var space_state = world_3d.direct_space_state
 	if not space_state:
 		return camera_pos
+	
 	
 	# Check multiple angles around the tank (rotate in 30 degree increments)
 	var horizontal_offset = camera_pos - tank_pos

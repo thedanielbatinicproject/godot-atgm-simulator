@@ -37,8 +37,7 @@ shader_params/u_tile_reduction = null
 metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 298.33167, 75.351906, 522.77454)
+transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 293.65616, 178.53366, 149.0357)
 use_collision = true
 collision_layer = 2
 collision_mask = 2
-size = Vector3(4.939453, 8.111328, 4.432617)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RocketData" load_steps=2 format=3 uid="uid://cw8lwna8ecf2s"]
+
+[ext_resource type="Script" uid="uid://c6btekbi0in50" path="res://scripts/ProjectileModel/RocketData.gd" id="1_108fv"]
+
+[resource]
+script = ExtResource("1_108fv")
+rocket_name = "BGM-71F TOW"
+radius = 0.076
+cylinder_height = 1.0
+mass = 22.0
+max_thrust = 2500.0
+max_thrust_angle = 0.017453292519943295
+metadata/_custom_type_script = "uid://c6btekbi0in50"
