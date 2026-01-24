@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://sodij565y173"]
+[gd_scene load_steps=5 format=3 uid="uid://sodij565y173"]
 
 [ext_resource type="PackedScene" uid="uid://hks4o5ma4rnf" path="res://assets/Rockets/BGM-71 TOW/bgm_71f_tow_atgm.tscn" id="1_qc235"]
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="2_proj"]
+[ext_resource type="PackedScene" uid="uid://bmckm4qlrip6q" path="res://assets/3D Assets/Props/Humvee/Humvee Military Armored Car.gltf" id="3_snsi8"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_a0no4"]
 height = 1.4
@@ -21,3 +22,6 @@ debug_fill = false
 transform = Transform3D(1.9106855e-15, 1, -4.371139e-08, 4.371139e-08, -4.371139e-08, -1, -1, 0, -4.371139e-08, 2.9466907e-08, 0.6741243, -2.9466907e-08)
 
 [node name="BGM-71F TOW ATGM (BLEND)" parent="." instance=ExtResource("1_qc235")]
+
+[node name="Humvee Military Armored Car" parent="." instance=ExtResource("3_snsi8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1110209, 0, 0.35917157)
