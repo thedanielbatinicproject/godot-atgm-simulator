@@ -26,6 +26,8 @@ var wind_profile: = load("res://scripts/ScenarioModel/WindProfile.gd")
 @export var scenario_difficulty: String = "Easy"
 ## Description of what this scenario tests or demonstrates.
 @export_multiline var scenario_description: String = ""
+## Skip the entry cutscene and go directly to simulation.
+@export var skip_entering_cutscene: bool = false
 
 @export_group("3D Scene")
 ## The 3D level/environment scene to load for this scenario.

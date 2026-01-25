@@ -13,6 +13,7 @@ const ScenarioLoaderClass = preload("res://scripts/ScenarioManager/ScenarioLoade
 const ScenarioEnvironmentClass = preload("res://scripts/ScenarioManager/ScenarioEnvironment.gd")
 const ScenarioEventWatcherClass = preload("res://scripts/ScenarioManager/ScenarioEventWatcher.gd")
 const ScenarioCutsceneManagerClass = preload("res://scripts/ScenarioManager/ScenarioCutsceneManager.gd")
+const EntryCutsceneManagerClass = preload("res://scripts/ScenarioManager/EntryCutsceneManager.gd")
 const NarratorManagerClass = preload("res://scripts/ScenarioManager/NarratorManager.gd")
 const CameraManagerClass = preload("res://scripts/ScenarioManager/CameraManager.gd")
 const TankMovementControllerClass = preload("res://scripts/ScenarioManager/TankMovementController.gd")
@@ -30,6 +31,7 @@ var loader
 var environment
 var event_watcher
 var cutscene_manager
+var entry_cutscene_manager
 var narrator
 var camera_manager
 var tank_movement: TankMovementController = null
@@ -80,7 +82,6 @@ const JOYSTICK_DEADZONE_SIM: float = 0.15
 var current_scenario_data: ScenarioData = null
 var _scenario_root: Node = null
 var _hud_layer: CanvasLayer = null
-var _pause_menu: Control = null
 
 # Configuration
 @export var pause_menu_scene: PackedScene
@@ -106,6 +107,9 @@ func _ready() -> void:
 	
 	cutscene_manager = ScenarioCutsceneManagerClass.new()
 	add_child(cutscene_manager)
+	
+	entry_cutscene_manager = EntryCutsceneManagerClass.new()
+	add_child(entry_cutscene_manager)
 	
 	narrator = NarratorManagerClass.new()
 	add_child(narrator)
@@ -141,23 +145,27 @@ func _connect_signals() -> void:
 	cutscene_manager.hit_animation_finished.connect(_on_hit_animation_finished)
 	cutscene_manager.miss_animation_finished.connect(_on_miss_animation_finished)
 	cutscene_manager.tank_should_stop.connect(_on_tank_should_stop)
+	
+	# Entry cutscene signals
+	entry_cutscene_manager.cutscene_finished.connect(_on_entry_cutscene_finished)
 
 func _input(event: InputEvent) -> void:
 	# Handle pause toggle
 	if event.is_action_pressed("pause_toggle"):
-		if state.is_state(ScenarioStateClass.State.RUNNING):
+		if state.is_state(ScenarioStateClass.State.RUNNING) or state.is_state(ScenarioStateClass.State.ENTRY_CUTSCENE):
 			pause_scenario()
 		elif state.is_state(ScenarioStateClass.State.PAUSED):
 			resume_scenario()
 	
-	# Camera switching - ONLY during RUNNING state (not during cutscene/success/fail)
+	# Camera switching - ONLY during RUNNING state and not on static camera
 	if event.is_action_pressed("switch_camera"):
 		if state.is_state(ScenarioStateClass.State.RUNNING):
 			camera_manager.switch_camera()
+			_update_hud_visibility_for_camera()
 	
-	# Camera type switching (OPTICAL -> SOUND -> IR -> THERMAL)
+	# Camera type switching - ONLY during RUNNING state and not on static camera
 	if event.is_action_pressed("camera_type_switch"):
-		if state.is_state(ScenarioStateClass.State.RUNNING):
+		if state.is_state(ScenarioStateClass.State.RUNNING) and not camera_manager.is_static_camera_active():
 			_cycle_camera_type()
 	
 	# Track joystick vs mouse input during simulation for cursor hiding
@@ -276,6 +284,15 @@ func _process(delta: float) -> void:
 	if not state.is_active():
 		return
 	
+	# Process entry cutscene
+	if state.is_state(ScenarioStateClass.State.ENTRY_CUTSCENE):
+		entry_cutscene_manager.process_cutscene(delta)
+		# Start narrator timing from entry cutscene so general speaks from the beginning
+		narrator.process(delta)
+		if tank_movement:
+			tank_movement.process(delta)
+		return
+	
 	# Process sub-managers
 	if state.is_state(ScenarioStateClass.State.RUNNING):
 		event_watcher.process(delta)
@@ -336,6 +353,9 @@ func pause_scenario() -> void:
 	# Pause audio streams immediately (before tree pause)
 	_pause_audio()
 	
+	# Hide narrator during pause
+	narrator.hide_narrator()
+	
 	# Show cursor for pause menu (menu script will handle joystick/mouse switching)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
@@ -345,12 +365,18 @@ func pause_scenario() -> void:
 
 
 func resume_scenario() -> void:
-	if not state.can_transition_to(ScenarioStateClass.State.RUNNING):
+	var target_state = ScenarioStateClass.State.RUNNING
+	
+	# Check if we were in entry cutscene before pause
+	if state.previous_state == ScenarioStateClass.State.ENTRY_CUTSCENE:
+		target_state = ScenarioStateClass.State.ENTRY_CUTSCENE
+	
+	if not state.can_transition_to(target_state):
 		return
 	
 	_hide_pause_menu()
 	get_tree().paused = false
-	state.transition_to(ScenarioStateClass.State.RUNNING)
+	state.transition_to(target_state)
 	
 	# Resume audio that was paused
 	_resume_audio()
@@ -489,7 +515,6 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	_scenario_root = scenario_root
 	
 	# Create InputManager BEFORE adding scenario_root to tree
-	# This ensures it exists when Projectile's _ready() is called
 	_create_input_manager()
 	
 	# Add scenario root to tree (this triggers _ready() on all children)
@@ -505,8 +530,10 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Setup environment
 	environment.setup_environment(_scenario_root, current_scenario_data)
 	
-	# Create HUD layer
+	# Create HUD layer (hidden during entry cutscene)
 	_create_hud()
+	_set_hud_visible(false)
+	_set_input_controls_visible(false)
 	
 	# Setup narrator
 	if _hud_layer:
@@ -514,8 +541,6 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	
 	# Setup camera manager
 	camera_manager.setup(_scenario_root, current_scenario_data)
-	
-	# Pass scenario root to camera manager for visual effects overlay (on separate layer below HUD)
 	camera_manager.set_scenario_root(_scenario_root)
 	
 	# DEBUG: Print comprehensive loading info
@@ -524,25 +549,26 @@ func _on_loading_completed(scenario_root: Node) -> void:
 	# Transition to starting state
 	state.transition_to(ScenarioStateClass.State.STARTING)
 	
-	# Start event watching
-	event_watcher.start_watching(_scenario_root, current_scenario_data)
+	# Check if we should skip entry cutscene
+	if current_scenario_data.skip_entering_cutscene:
+		# Skip directly to running state
+		state.transition_to(ScenarioStateClass.State.RUNNING)
+		_start_simulation_after_cutscene()
+	else:
+		# Setup and start entry cutscene
+		entry_cutscene_manager.setup(_scenario_root, current_scenario_data)
+		state.transition_to(ScenarioStateClass.State.ENTRY_CUTSCENE)
+		entry_cutscene_manager.start_cutscene()
 	
-	# Start tank movement
+	# Start tank movement (begins moving during cutscene)
 	if tank_movement:
 		tank_movement.start()
 	
-	# Transition to running (player control depends on delay)
-	state.transition_to(ScenarioStateClass.State.RUNNING)
-	player_control_changed.emit(false)  # Initially disabled until delay passes
-	
-	# Initialize cursor state based on control config
+	# Initialize cursor state
 	_initialize_simulation_cursor()
 	
-	# Reset mission stats for new scenario
+	# Reset mission stats
 	_reset_mission_stats()
-	
-	# Initialize and start audio system
-	_initialize_audio()
 	
 	scenario_started.emit()
 
@@ -703,13 +729,57 @@ func _set_hud_visible(visible: bool) -> void:
 func _set_input_controls_visible(visible: bool) -> void:
 	"""Show or hide the input controls (StickController circle/dot)."""
 	if _input_manager:
-		# Find the UIRoot which contains StickController visuals
 		var ui_root = _input_manager.get_node_or_null("UIRoot")
 		if ui_root:
 			ui_root.visible = visible
-		# Also disable/enable controls functionality
 		if _input_manager.has_method("set_controls_enabled"):
 			_input_manager.set_controls_enabled(visible)
+
+
+func _update_hud_visibility_for_camera() -> void:
+	"""Update HUD and input controls visibility based on active camera."""
+	if camera_manager.is_static_camera_active():
+		_set_hud_visible(false)
+		_set_input_controls_visible(false)
+	else:
+		_set_hud_visible(true)
+		_set_input_controls_visible(true)
+
+
+func _start_simulation_after_cutscene() -> void:
+	"""Start simulation - shared logic for after cutscene or when skipping cutscene."""
+	print("[ScenarioManager] Starting simulation")
+	
+	# Start event watching
+	event_watcher.start_watching(_scenario_root, current_scenario_data)
+	
+	# Activate projectile camera
+	camera_manager.activate_projectile_camera()
+	
+	player_control_changed.emit(false)
+	
+	# Show HUD and controls (will be enabled after delay)
+	_set_hud_visible(true)
+	_set_input_controls_visible(true)
+	
+	# Start propulsion particles
+	var projectile = _scenario_root.get_node_or_null("Projectile")
+	if projectile and projectile.has_method("start_propulsion_particles"):
+		projectile.start_propulsion_particles()
+	
+	# Initialize and start audio system
+	_initialize_audio()
+
+
+func _on_entry_cutscene_finished() -> void:
+	"""Called when entry cutscene completes, transition to simulation."""
+	print("[ScenarioManager] Entry cutscene finished")
+	
+	# Transition to running state
+	state.transition_to(ScenarioStateClass.State.RUNNING)
+	
+	# Start simulation
+	_start_simulation_after_cutscene()
 
 
 func _on_cutscene_distance_reached() -> void:
@@ -1015,6 +1085,9 @@ func _show_end_screen(success: bool, reason: String) -> void:
 	if _pause_menu_instance:
 		_pause_menu_instance.visible = false
 	
+	# Hide narrator during end screen
+	narrator.hide_narrator()
+	
 	# Record end time
 	_mission_end_time = get_scenario_time()
 	
@@ -1132,6 +1205,7 @@ func _cleanup_scenario() -> void:
 	# Stop all sub-managers
 	event_watcher.stop_watching()
 	cutscene_manager.cleanup()
+	entry_cutscene_manager.cleanup()
 	narrator.cleanup()
 	environment.cleanup()
 	camera_manager.cleanup()

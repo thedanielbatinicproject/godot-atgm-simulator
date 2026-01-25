@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://2fl736ekeq20"]
+[gd_scene load_steps=5 format=3 uid="uid://2fl736ekeq20"]
 
 [ext_resource type="Script" uid="uid://b25tkb068a363" path="res://scripts/ProjectileModel/Projectile.gd" id="1_0s1o0"]
+[ext_resource type="PackedScene" uid="uid://bdd2m12at0lpd" path="res://assets/Rockets/FGM-148/scene.gltf" id="2_mua37"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_78euo"]
 
@@ -8,20 +9,6 @@
 
 [node name="Fgm148" type="Node3D"]
 script = ExtResource("1_0s1o0")
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.415)
-radius = 0.064
-height = 0.83
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.83)
-radius = 0.064
-radial_segments = 10
-rings = 15
-
-[node name="Camera3D" type="Camera3D" parent="CSGSphere3D"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, -1.8873791e-15, -0.036231637)
 
 [node name="Area3D" type="Area3D" parent="."]
 
@@ -40,3 +27,9 @@ shape = SubResource("CylinderShape3D_78euo")
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="Area3D"]
 transform = Transform3D(0.135, 0, 0, 0, -5.9010374e-09, -0.135, 0, 0.135, -5.9010374e-09, 0, 0, 0.827401)
 shape = SubResource("SphereShape3D_7kpfk")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("2_mua37")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0020475388, 0, 0.85708165)
+
+[node name="Camera3D" type="Camera3D" parent="Sketchfab_Scene"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.0020475388, -1.8873791e-15, 0.1591478)

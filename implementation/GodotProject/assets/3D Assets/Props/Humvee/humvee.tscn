@@ -8,7 +8,7 @@ size = Vector3(2.624939, 2.8114014, 6.274414)
 [node name="Humvee Military Armored Car" instance=ExtResource("1_6upqj")]
 
 [node name="Sketchfab_model" parent="." index="0"]
-transform = Transform3D(0.34467673, 0.9387214, 2.9802322e-08, 0.042256624, -0.015515566, 0.99898624, 0.9377699, -0.3443273, -0.045015097, 0, 0, 0)
+transform = Transform3D(0.8668237, 0.49777445, -0.028935222, 0.042256776, -0.015515623, 0.99898624, 0.496821, -0.86716765, -0.034483653, 0, 0, 0)
 
 [node name="Light_0" parent="Sketchfab_model" index="1"]
 visible = false
@@ -23,6 +23,7 @@ visible = false
 visible = false
 
 [node name="Area3D" type="Area3D" parent="." index="1"]
+transform = Transform3D(-0.76604444, 0, -0.64278764, 0, 1, 0, 0.64278764, 0, -0.76604444, 0, 0, 0)
 collision_layer = 2
 collision_mask = 2
 

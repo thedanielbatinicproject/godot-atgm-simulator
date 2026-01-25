@@ -35,9 +35,3 @@ shader_params/u_depth_blending = true
 shader_params/u_triplanar = null
 shader_params/u_tile_reduction = null
 metadata/_custom_type_script = "uid://c3hcoqnoqhrb4"
-
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(7.8069596, 0, 0, 0, 7.8069596, 0, 0, 0, 7.8069596, 293.65616, 178.53366, 149.0357)
-use_collision = true
-collision_layer = 2
-collision_mask = 2

@@ -56,6 +56,9 @@ var utils: Utils
 var elapsed_time: float = 0.0
 var debug_timer: float = 0.0
 
+# Propulsion particles
+var _propulsion_particles: GPUParticles3D = null
+
 func normalize_angle(angle: float) -> float:
 	"""Normalizira kut u raspon [-π, π]."""
 	var normalized = angle
@@ -471,6 +474,16 @@ func stop_physics() -> void:
 	print("[Projectile] Physics stopped for cutscene")
 
 
+func disable_physics() -> void:
+	"""Disable physics (alias for stop_physics)."""
+	stop_physics()
+
+
+func enable_physics() -> void:
+	"""Enable physics (alias for resume_physics)."""
+	resume_physics()
+
+
 func resume_physics() -> void:
 	"""Resume physics calculations."""
 	physics_enabled = true
@@ -528,3 +541,65 @@ func get_direction_vector() -> Vector3:
 	if state and utils:
 		return utils.get_direction_vector(state.alpha, state.beta, state.gamma)
 	return Vector3(0, 0, 1)
+
+
+func start_propulsion_particles() -> void:
+	"""Create and start propulsion flame particles at projectile rear."""
+	if _propulsion_particles:
+		_propulsion_particles.emitting = true
+		return
+	
+	_propulsion_particles = GPUParticles3D.new()
+	_propulsion_particles.name = "PropulsionFlame"
+	_propulsion_particles.amount = 64
+	_propulsion_particles.lifetime = 0.4
+	_propulsion_particles.speed_scale = 2.0
+	_propulsion_particles.explosiveness = 0.0
+	_propulsion_particles.randomness = 0.2
+	_propulsion_particles.local_coords = false
+	
+	var material = ParticleProcessMaterial.new()
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	material.emission_sphere_radius = 0.03
+	material.direction = Vector3(0, 0, -1)
+	material.spread = 15.0
+	material.initial_velocity_min = 8.0
+	material.initial_velocity_max = 15.0
+	material.gravity = Vector3.ZERO
+	material.scale_min = 0.08
+	material.scale_max = 0.15
+	
+	var color_ramp = Gradient.new()
+	color_ramp.add_point(0.0, Color(1.0, 0.9, 0.4, 1.0))
+	color_ramp.add_point(0.3, Color(1.0, 0.5, 0.1, 0.9))
+	color_ramp.add_point(0.6, Color(0.3, 0.5, 1.0, 0.6))
+	color_ramp.add_point(1.0, Color(0.2, 0.2, 0.3, 0.0))
+	
+	var color_texture = GradientTexture1D.new()
+	color_texture.gradient = color_ramp
+	material.color_ramp = color_texture
+	
+	var scale_curve = Curve.new()
+	scale_curve.add_point(Vector2(0.0, 1.0))
+	scale_curve.add_point(Vector2(0.5, 0.6))
+	scale_curve.add_point(Vector2(1.0, 0.1))
+	var scale_texture = CurveTexture.new()
+	scale_texture.curve = scale_curve
+	material.scale_curve = scale_texture
+	
+	_propulsion_particles.process_material = material
+	
+	var mesh = SphereMesh.new()
+	mesh.radius = 0.1
+	mesh.height = 0.2
+	_propulsion_particles.draw_pass_1 = mesh
+	
+	_propulsion_particles.position = Vector3(0, 0, -0.2)
+	add_child(_propulsion_particles)
+	_propulsion_particles.emitting = true
+
+
+func stop_propulsion_particles() -> void:
+	"""Stop propulsion particles."""
+	if _propulsion_particles:
+		_propulsion_particles.emitting = false

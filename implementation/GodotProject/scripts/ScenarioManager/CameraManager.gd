@@ -45,6 +45,7 @@ var _is_static_active: bool = false
 
 # Camera type state
 var _current_camera_type: CameraType = CameraType.OPTICAL
+var _saved_projectile_camera_type: CameraType = CameraType.OPTICAL  # Saved type when switching to static
 var _camera_type_order: Array[CameraType] = [CameraType.OPTICAL, CameraType.SOUND, CameraType.IR, CameraType.THERMAL]
 
 # Camera effect overlay
@@ -202,11 +203,30 @@ func switch_camera() -> void:
 	_is_static_active = !_is_static_active
 	
 	if _is_static_active:
+		# Save current camera type before switching to static
+		_saved_projectile_camera_type = _current_camera_type
+		# Force optical for static camera
+		if _current_camera_type != CameraType.OPTICAL:
+			_current_camera_type = CameraType.OPTICAL
+			_apply_camera_effect()
+			camera_type_changed.emit(CAMERA_TYPE_NAMES[_current_camera_type])
 		_set_active_camera(_static_camera)
 		camera_switched.emit("Static")
 	else:
+		# Restore saved camera type when switching back to projectile
+		if _current_camera_type != _saved_projectile_camera_type:
+			_current_camera_type = _saved_projectile_camera_type
+			_apply_camera_effect()
+			camera_type_changed.emit(CAMERA_TYPE_NAMES[_current_camera_type])
 		_set_active_camera(_projectile_camera)
 		camera_switched.emit("Projectile")
+
+
+func activate_projectile_camera() -> void:
+	"""Activate the projectile camera directly."""
+	_is_static_active = false
+	_set_active_camera(_projectile_camera)
+	camera_switched.emit("Projectile")
 
 
 func _set_active_camera(camera: Camera3D) -> void:

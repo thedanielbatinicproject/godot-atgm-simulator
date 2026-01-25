@@ -12,6 +12,7 @@ enum State {
 	NONE,           # No scenario active
 	LOADING,        # Loading scenario assets
 	STARTING,       # Scenario loaded, initializing
+	ENTRY_CUTSCENE, # Entry cutscene playing before simulation
 	RUNNING,        # Scenario in progress, player has control
 	CUTSCENE,       # Final cutscene playing, no player control
 	PAUSED,         # Scenario paused by player
@@ -28,10 +29,11 @@ var previous_state: State = State.NONE
 var _valid_transitions: Dictionary = {
 	State.NONE: [State.LOADING],
 	State.LOADING: [State.STARTING, State.NONE],
-	State.STARTING: [State.RUNNING, State.NONE],
+	State.STARTING: [State.ENTRY_CUTSCENE, State.RUNNING, State.NONE],
+	State.ENTRY_CUTSCENE: [State.RUNNING, State.PAUSED, State.NONE],
 	State.RUNNING: [State.CUTSCENE, State.PAUSED, State.COMPLETED, State.FAILED, State.NONE],
 	State.CUTSCENE: [State.COMPLETED, State.FAILED, State.NONE],
-	State.PAUSED: [State.RUNNING, State.NONE],
+	State.PAUSED: [State.ENTRY_CUTSCENE, State.RUNNING, State.NONE],
 	State.COMPLETED: [State.NONE],
 	State.FAILED: [State.NONE],
 }
@@ -67,7 +69,7 @@ func is_any_state(states: Array[State]) -> bool:
 
 func is_active() -> bool:
 	# Returns true if a scenario is currently in progress
-	return current_state in [State.LOADING, State.STARTING, State.RUNNING, State.CUTSCENE, State.PAUSED]
+	return current_state in [State.LOADING, State.STARTING, State.ENTRY_CUTSCENE, State.RUNNING, State.CUTSCENE, State.PAUSED]
 
 
 func is_player_control_enabled() -> bool:

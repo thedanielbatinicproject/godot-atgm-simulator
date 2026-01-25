@@ -44,12 +44,23 @@ shadow_mesh = SubResource("ArrayMesh_7psn1")
 size = Vector3(3.2861328, 1.8500214, 8.150269)
 
 [node name="Rocket luncher vehicle" instance=ExtResource("1_gu4g2")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+
+[node name="Missle luncher_001" parent="." index="0"]
+transform = Transform3D(0.009999513, -1.5098843e-09, -9.8435776e-05, -1.5099579e-09, -0.01, 0, -9.8435776e-05, 1.4863388e-11, -0.009999513, 0.04808105, 0.38167927, -0.26882398)
+
+[node name="Empty" parent="Missle luncher_001" index="0"]
+transform = Transform3D(-100, -1.5050189e-05, 1.7524308e-05, 1.509952e-05, -99.9996, 0.28184342, 1.7481821e-05, 0.28184345, 99.999596, 3.7510235, -127.63516, -331.71613)
 
 [node name="WWR_wieloprowadnicowa_wyrzutnia_rakietowa_003" parent="Missle luncher_001/Empty" index="0"]
-transform = Transform3D(1, 2.869387e-10, -1.7286775e-10, -1.2666945e-10, 0.8016193, 0.59783506, 3.1011582e-10, -0.5978355, 0.8016193, 0.03751101, 0.6394888, 3.843635)
+transform = Transform3D(1, 2.8693892e-10, -1.7286729e-10, -1.2666945e-10, 0.8016193, 0.5978353, 3.1011582e-10, -0.5978355, 0.8016191, 0.03751101, 0.6394888, 3.843635)
 
 [node name="Missle luncher_002" parent="." index="1"]
+transform = Transform3D(-0.9999514, 0, -0.009843578, 0, 1, 0, 0.009843578, 0, -0.9999514, 0.04808105, 0.38167927, -0.26882398)
 mesh = SubResource("ArrayMesh_3jfp0")
+
+[node name="Missle luncher" parent="." index="2"]
+transform = Transform3D(0.009999513, -1.5098843e-09, -9.8435776e-05, -1.5099579e-09, -0.01, 0, -9.8435776e-05, 1.4863388e-11, -0.009999513, 0.04808105, 0.38167927, -0.26882398)
 
 [node name="Area3D" type="Area3D" parent="." index="4"]
 
@@ -57,5 +68,5 @@ mesh = SubResource("ArrayMesh_3jfp0")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.10498047, 1.0067033, -0.6586304)
 shape = SubResource("BoxShape3D_gu4g2")
 
-[node name="Node3D" type="Node3D" parent="." index="5"]
-transform = Transform3D(1, 0, 0, 0, 0.809017, 0.58778524, 0, -0.58778524, 0.809017, 0, 3.7094607, -1.7590477)
+[node name="L_ROOT_POS_OR" type="Node3D" parent="." index="5"]
+transform = Transform3D(-0.9999997, -8.7422755e-08, 4.3711378e-08, 8.093027e-08, -0.48982373, 0.8718213, -5.4806147e-08, 0.8718212, 0.48982355, 0, 3.1575847, 0.38277844)
