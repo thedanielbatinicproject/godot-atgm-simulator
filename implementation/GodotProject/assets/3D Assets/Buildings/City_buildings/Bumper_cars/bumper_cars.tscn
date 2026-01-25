@@ -1,0 +1,60 @@
+[gd_scene load_steps=12 format=3 uid="uid://cvheuef5ssl6s"]
+
+[ext_resource type="PackedScene" uid="uid://br3l1jjjxspfj" path="res://assets/3D Assets/Buildings/City_buildings/Bumper_cars/bumper_cars.glb" id="1_18s5q"]
+[ext_resource type="Texture2D" uid="uid://bvk0mbroujvrk" path="res://assets/3D Assets/Buildings/City_buildings/Bumper_cars/bumper_cars_2K-fabric_60_baseColor.jpg" id="2_gc6uo"]
+[ext_resource type="Texture2D" uid="uid://dpd5s15tvfknr" path="res://assets/3D Assets/Buildings/City_buildings/Bumper_cars/bumper_cars_Leather031_2K_Color.jpg" id="3_oklvy"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mli0p"]
+albedo_texture = ExtResource("2_gc6uo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lciek"]
+albedo_texture = ExtResource("2_gc6uo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4exmb"]
+albedo_texture = ExtResource("2_gc6uo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f5bcd"]
+albedo_texture = ExtResource("3_oklvy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86fwf"]
+albedo_texture = ExtResource("3_oklvy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dojho"]
+albedo_texture = ExtResource("3_oklvy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x6dnn"]
+albedo_texture = ExtResource("2_gc6uo")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s40pp"]
+size = Vector3(25.091675, 5.3344727, 36.93875)
+
+[node name="bumper_cars" instance=ExtResource("1_18s5q")]
+
+[node name="0_30" parent="Lemon Bumper Cars Ride" index="0"]
+material_override = SubResource("StandardMaterial3D_mli0p")
+
+[node name="0_45" parent="Lemon Bumper Cars Ride" index="1"]
+material_override = SubResource("StandardMaterial3D_lciek")
+
+[node name="Columns" parent="Lemon Bumper Cars Ride" index="100"]
+material_override = SubResource("StandardMaterial3D_4exmb")
+
+[node name="Control Structure" parent="Lemon Bumper Cars Ride" index="101"]
+material_override = SubResource("StandardMaterial3D_f5bcd")
+
+[node name="Gates" parent="Lemon Bumper Cars Ride" index="269"]
+material_override = SubResource("StandardMaterial3D_86fwf")
+
+[node name="Object" parent="Lemon Bumper Cars Ride" index="330"]
+material_override = SubResource("StandardMaterial3D_dojho")
+
+[node name="track bumper" parent="Lemon Bumper Cars Ride" index="414"]
+material_override = SubResource("StandardMaterial3D_x6dnn")
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4541626, 2.3327637, -1.0630646)
+shape = SubResource("BoxShape3D_s40pp")

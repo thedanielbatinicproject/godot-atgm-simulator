@@ -288,9 +288,9 @@ func _apply_fog_settings() -> void:
 		# Sky affect - how much fog blends with sky at horizon
 		env.fog_sky_affect = 0.3 + user_density * 0.4
 		
-		# Height fog - denser near ground
-		env.fog_height = 50.0  # Height where fog starts to thin
-		env.fog_height_density = user_density * 0.1  # Subtle height falloff
+		# Global fog - uniform at all heights
+		env.fog_height = 10000.0  # Very high value - fog is uniform everywhere
+		env.fog_height_density = 0.0  # No height-based falloff
 		
 		# Aerial perspective - objects fade with distance (key for realism)
 		# This makes distant objects appear hazier

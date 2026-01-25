@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cc57ol1efprcs"]
+
+[ext_resource type="PackedScene" uid="uid://d35emw5gtjeuy" path="res://assets/3D Assets/Buildings/Towers/Tower_02/commercial_tower.glb" id="1_4dsmv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_743wd"]
+size = Vector3(21.513123, 90.31822, 26.565186)
+
+[node name="commercial_tower" instance=ExtResource("1_4dsmv")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.574013, 45.4815, -4.0438232)
+shape = SubResource("BoxShape3D_743wd")

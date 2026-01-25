@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnw2peq3gdp0w"]
+
+[ext_resource type="PackedScene" uid="uid://skklpw2l17up" path="res://assets/3D Assets/Buildings/City_buildings/Central_Park/double_park_bench/double_park_bench.glb" id="1_rlu4y"]
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_rlu4y")]

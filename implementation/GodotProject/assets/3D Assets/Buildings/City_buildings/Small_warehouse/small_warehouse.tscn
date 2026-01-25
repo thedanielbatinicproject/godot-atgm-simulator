@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4nksmgo7mv3d"]
+
+[ext_resource type="PackedScene" uid="uid://c2hcfc4kxwjx5" path="res://assets/3D Assets/Buildings/City_buildings/Small_warehouse/small_warehouse.glb" id="1_3kbqs"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vlcvm"]
+size = Vector3(10.060486, 3.5492554, 12.141357)
+
+[node name="small_warehouse" instance=ExtResource("1_3kbqs")]
+
+[node name="Sketchfab_model" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 2.220446e-16, 1, 0, -1, 2.220446e-16, 0, 0, -37.13449)
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.009967804, 1.8102112, -1.1716547)
+shape = SubResource("BoxShape3D_vlcvm")

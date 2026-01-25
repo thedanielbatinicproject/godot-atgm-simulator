@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://rv7fbd2obxlt"]
+
+[ext_resource type="PackedScene" uid="uid://covstonwypuxd" path="res://assets/3D Assets/Buildings/City_buildings/Morrocan_building/morrocan_building.glb" id="1_x1tiy"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fgm7h"]
+size = Vector3(0.49890137, 0.6783447, 0.65875244)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_x1tiy")]
+transform = Transform3D(0.9996251, 0, -0.027380794, 0, 1, 0, 0.027380794, 0, 0.9996251, 0, 0, 0)
+
+[node name="Sketchfab_model" parent="." index="0"]
+transform = Transform3D(-0.7408867, -0.67163, 1.4913182e-16, 0, 2.220446e-16, 1, -0.67163, 0.7408867, -1.6450989e-16, 0, 0, 0)
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.025451628, -0.0289917, 0.008636496)
+shape = SubResource("BoxShape3D_fgm7h")

@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3 uid="uid://3khypxoq2cly"]
+
+[ext_resource type="PackedScene" uid="uid://68js5ks68y5q" path="res://assets/3D Assets/Buildings/City_buildings/Building_01/building.glb" id="1_ap57k"]
+[ext_resource type="Texture2D" uid="uid://c6fn8g7dy53ii" path="res://assets/3D Assets/Buildings/City_buildings/Building_01/building_Wood043_2K_Color.jpg" id="2_ptxvc"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_seeef"]
+albedo_texture = ExtResource("2_ptxvc")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gx8ch"]
+albedo_texture = ExtResource("2_ptxvc")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0orpi"]
+albedo_texture = ExtResource("2_ptxvc")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ptxvc"]
+size = Vector3(41.584366, 23.518555, 36.42505)
+
+[node name="building" instance=ExtResource("1_ap57k")]
+
+[node name="Components_GalvanizedMetal_001" parent="Modular Building 13" index="26"]
+material_override = SubResource("StandardMaterial3D_seeef")
+
+[node name="Components_GalvanizedMetal_002" parent="Modular Building 13" index="27"]
+material_override = SubResource("StandardMaterial3D_gx8ch")
+
+[node name="Components_GalvanizedMetal_016" parent="Modular Building 13" index="28"]
+material_override = SubResource("StandardMaterial3D_0orpi")
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.433529, 11.708008, -22.32568)
+shape = SubResource("BoxShape3D_ptxvc")

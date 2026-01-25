@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3 uid="uid://dxek4ptnrdo1s"]
+
+[ext_resource type="PackedScene" uid="uid://1i0yvy26q81j" path="res://assets/3D Assets/Buildings/City_buildings/Schools/School 2/high_school_2.glb" id="1_60yb3"]
+[ext_resource type="Texture2D" uid="uid://gqa58n5igtcd" path="res://assets/3D Assets/Buildings/City_buildings/Schools/School 2/high_school_2_GWC_ZigZag_Interlok_Tiles_Aged_BaseColor.jpg" id="2_h7fka"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5jcug"]
+albedo_texture = ExtResource("2_h7fka")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_odv7w"]
+size = Vector3(13.903809, 9.543884, 63.691895)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jidjm"]
+size = Vector3(13.903809, 9.543884, 63.691895)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f0frw"]
+size = Vector3(22.514404, 9.543884, 39.146423)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1xqdh"]
+size = Vector3(13.903809, 9.543884, 63.839844)
+
+[node name="high_school_2" instance=ExtResource("1_60yb3")]
+
+[node name="HighSchoolBuilding_108" parent="HighSchoolBuilding" index="107"]
+material_override = SubResource("StandardMaterial3D_5jcug")
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.896313, 3.5746155, -21.845947)
+shape = SubResource("BoxShape3D_odv7w")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Area3D" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.882317, 3.5746155, -21.845947)
+shape = SubResource("BoxShape3D_jidjm")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Area3D" index="2"]
+transform = Transform3D(-0.010454347, 0, -0.99994534, 0, 1, 0, 0.99994534, 0, -0.010454347, -45.272636, 3.5746155, 22.142836)
+shape = SubResource("BoxShape3D_f0frw")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Area3D" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.101543, 3.5746155, -21.919922)
+shape = SubResource("BoxShape3D_1xqdh")

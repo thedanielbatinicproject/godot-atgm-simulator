@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://ckvo6lpghx3hd"]
+
+[ext_resource type="PackedScene" uid="uid://d4evjokeaj7oy" path="res://assets/3D Assets/Buildings/City_buildings/Panelka_02/lowpoly_panelka_psx.glb" id="1_4r8ro"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tusrt"]
+size = Vector3(26.898315, 11.606995, 9.42041)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_4r8ro")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.046936035, 5.776703, 0.20874023)
+shape = SubResource("BoxShape3D_tusrt")

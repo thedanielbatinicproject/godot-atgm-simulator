@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://bxbf71qp5pila"]
+
+[ext_resource type="PackedScene" uid="uid://c1yply23rlduc" path="res://assets/3D Assets/Buildings/Houses/House_with_garage/house_with_garage_01.glb" id="1_xtjaq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eww7r"]
+size = Vector3(14.639557, 20, 7.548523)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_xtjaq")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.659317, 0, -0.004180908)
+shape = SubResource("BoxShape3D_eww7r")

@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://cfcoppcy5x82a"]
+
+[ext_resource type="PackedScene" uid="uid://1hshtnof3xxu" path="res://assets/3D Assets/Buildings/City_buildings/Panelka_01/panelka_01.glb" id="1_xmyp0"]
+[ext_resource type="Texture2D" uid="uid://go48rsy34ujh" path="res://assets/3D Assets/Buildings/City_buildings/Panelka_01/roof.jpg" id="2_cvrmo"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dkoau"]
+albedo_texture = ExtResource("2_cvrmo")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xmyp0"]
+size = Vector3(37.032898, 11.95401, 17.344238)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_xmyp0")]
+
+[node name="pPlane33_standardSurface1_0" parent="Sketchfab_model/8d38c4d0d8a4473b8fc2819ef9017523_fbx/RootNode/Panelka_01/pPlane33" index="0"]
+material_override = SubResource("StandardMaterial3D_dkoau")
+
+[node name="Area3D" type="Area3D" parent="Sketchfab_model" index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_model/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16360474, 5.9232025, 8.172119)
+shape = SubResource("BoxShape3D_xmyp0")

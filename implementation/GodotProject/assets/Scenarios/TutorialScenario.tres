@@ -3,17 +3,16 @@
 [ext_resource type="PackedScene" uid="uid://g4avkbt1qmi2" path="res://scenes/Levels/Forest/Forest.tscn" id="1_fqmhx"]
 [ext_resource type="PackedScene" uid="uid://2fl736ekeq20" path="res://assets/Rockets/FGM-148/FGM-148.tscn" id="2_pn45g"]
 [ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148/FGM-148.tres" id="3_h2wk0"]
-[ext_resource type="Texture2D" uid="uid://bx2sd7a86s5mc" path="res://assets/UI/MainMenu/Graphics/scenario_thumb_placeholder.png" id="3_va8r5"]
 [ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="4_h2wk0"]
+[ext_resource type="Texture2D" uid="uid://b7j7vwfe7m1cq" path="res://assets/UI/MainMenu/Graphics/tutorial.png" id="4_va8r5"]
 [ext_resource type="PackedScene" uid="uid://g377ixe5k4he" path="res://assets/Tanks/T-62A Main Battle Tank/T-62A Main Battle Tank.tscn" id="6_h2wk0"]
 
 [resource]
 script = ExtResource("4_h2wk0")
-scenario_thumbnail = ExtResource("3_va8r5")
+scenario_thumbnail = ExtResource("4_va8r5")
 scenario_name = "Tutorial"
 scenario_difficulty = "Very easy"
 scenario_description = "Learn how to control rocket in this simple environment. We recommend using default controls with easy game profile!"
-skip_entering_cutscene = true
 level_scene = ExtResource("1_fqmhx")
 tank_scene = ExtResource("6_h2wk0")
 tank_name = "T-62A Main Battle Tank"
@@ -34,9 +33,9 @@ wind_type = "constant"
 wind_amplitudes = Vector3(0, 0, 0)
 wind_frequencies = Vector3(0.5, 0.5, 0.5)
 wind_gradient = Vector3(0.01, 0.01, 0.01)
-voice_line_times = Array[float]([3.0])
-voice_line_texts = Array[String](["JA SAM GENERAL."])
-voice_line_audios = Array[AudioStream]([null])
+voice_line_times = Array[float]([3.0, 10.0, 16.0])
+voice_line_texts = Array[String](["You can control projectile with clicking and draging red circle.", "You can control roll with A and D.", "You can control throtle on E or Q."])
+voice_line_audios = Array[AudioStream]([null, null, null])
 final_cutscene_start_distance = 6.0
 mission_area_limit = 5000.0
 static_camera_location = Vector3(295.408, 159.91, 173.383)

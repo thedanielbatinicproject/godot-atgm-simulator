@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://0t7hm4608dus"]
+
+[ext_resource type="PackedScene" uid="uid://dup2ufpire1bv" path="res://assets/3D Assets/Buildings/City_buildings/stadium/emirates_stadium.glb" id="1_utrtp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wlkxp"]
+size = Vector3(31.943207, 40.48938, 122.148735)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2qhdq"]
+size = Vector3(31.943207, 40.48938, 122.148735)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mq3u0"]
+size = Vector3(31.943207, 40.48938, 122.148735)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4uvg6"]
+size = Vector3(31.943207, 40.48938, 122.148735)
+
+[node name="Stadium" instance=ExtResource("1_utrtp")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.04152, 22.654358, 1.0586433)
+shape = SubResource("BoxShape3D_wlkxp")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Area3D" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80.672775, 22.654358, 1.0586433)
+shape = SubResource("BoxShape3D_2qhdq")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Area3D" index="2"]
+transform = Transform3D(-0.0026180372, 0, -0.99999666, 0, 1, 0, 0.99999666, 0, -0.0026180372, -2.4817696, 22.654358, 84.79903)
+shape = SubResource("BoxShape3D_mq3u0")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Area3D" index="3"]
+transform = Transform3D(-0.0026180372, 0, -0.99999666, 0, 1, 0, 0.99999666, 0, -0.0026180372, -2.4817696, 22.654358, -85.47169)
+shape = SubResource("BoxShape3D_4uvg6")

@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://ptxd4btwkspi"]
+
+[ext_resource type="PackedScene" uid="uid://dyh0ocj35b1qu" path="res://assets/3D Assets/Vehicles_city/Police_car/police_car.glb" id="1_crc4j"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k8fwk"]
+size = Vector3(0.99328613, 1.0576172, 3.9343872)
+
+[node name="police_car" instance=ExtResource("1_crc4j")]
+
+[node name="Area3D" type="Area3D" parent="." index="19"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0033569336, 0.86572266, -0.2206726)
+shape = SubResource("BoxShape3D_k8fwk")

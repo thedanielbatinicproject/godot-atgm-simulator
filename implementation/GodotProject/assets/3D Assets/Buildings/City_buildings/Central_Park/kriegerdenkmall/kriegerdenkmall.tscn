@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://bptjjm0mxg558"]
+
+[ext_resource type="PackedScene" uid="uid://14s35vpcf12v" path="res://assets/3D Assets/Buildings/City_buildings/Central_Park/kriegerdenkmall/kriegerdenkmal.glb" id="1_rldc1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4rjaw"]
+size = Vector3(0.9045563, 1.642395, 1)
+
+[node name="kriegerdenkmall" instance=ExtResource("1_rldc1")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.95552826, 0.77090454, 0)
+shape = SubResource("BoxShape3D_4rjaw")

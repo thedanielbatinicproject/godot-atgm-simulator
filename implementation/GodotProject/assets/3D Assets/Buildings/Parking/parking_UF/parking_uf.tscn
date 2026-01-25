@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cn2smqkkki8v6"]
+
+[ext_resource type="PackedScene" uid="uid://tnsrrgmbd878" path="res://assets/3D Assets/Buildings/Parking/parking_UF/parking_lot_uf.glb" id="1_sjj1g"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ppbg3"]
+size = Vector3(8.022833, 3.1361303, 1.2817383)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_sjj1g")]
+
+[node name="Area3D" type="Area3D" parent="Sketchfab_model" index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_model/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.89156914, 3.3729148, 0.7228699)
+shape = SubResource("BoxShape3D_ppbg3")

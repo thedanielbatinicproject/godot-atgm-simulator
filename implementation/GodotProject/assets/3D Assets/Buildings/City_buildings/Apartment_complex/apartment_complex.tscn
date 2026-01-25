@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://bbtcla3orm5nl"]
+
+[ext_resource type="PackedScene" uid="uid://ngboh7yh80no" path="res://assets/3D Assets/Buildings/City_buildings/Apartment_complex/apartment_complex.glb" id="1_ivc17"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sy5py"]
+size = Vector3(14.291748, 11.605408, 33.647217)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2gfba"]
+size = Vector3(13.696106, 11.605408, 48.40808)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0uwt3"]
+size = Vector3(15.102814, 11.605408, 26.777634)
+
+[node name="apartment_complex" instance=ExtResource("1_ivc17")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.50797, 6.4151306, -6.8236084)
+shape = SubResource("BoxShape3D_sy5py")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Area3D" index="1"]
+transform = Transform3D(0.015812052, 0, -0.999875, 0, 1, 0, 0.999875, 0, 0.015812052, -5.3402095, 6.4151306, -17.79556)
+shape = SubResource("BoxShape3D_2gfba")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Area3D" index="2"]
+transform = Transform3D(-0.99988765, 0, 0.014991764, 0, 1, 0, -0.014991764, 0, -0.99988765, 26.479807, 6.4151306, -9.68642)
+shape = SubResource("BoxShape3D_0uwt3")

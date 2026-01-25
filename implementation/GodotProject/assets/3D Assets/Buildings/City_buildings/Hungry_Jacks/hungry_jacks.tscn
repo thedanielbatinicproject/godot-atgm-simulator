@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvfwn7eli0u56"]
+
+[ext_resource type="PackedScene" uid="uid://dihgnray6y5wv" path="res://assets/3D Assets/Buildings/City_buildings/Hungry_Jacks/hungry_jacks_restaurant_low_poly.glb" id="1_s2t3h"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7dj3n"]
+size = Vector3(24.999664, 5.3481445, 13.308044)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_s2t3h")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.51856995, 2.5598145, -8.22879)
+shape = SubResource("BoxShape3D_7dj3n")

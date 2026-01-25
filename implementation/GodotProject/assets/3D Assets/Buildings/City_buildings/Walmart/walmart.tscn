@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://da2bauopdelbv"]
+
+[ext_resource type="PackedScene" uid="uid://bclb7c80vjbwq" path="res://assets/3D Assets/Buildings/City_buildings/Walmart/gm_walmart.glb" id="1_afqof"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xenfp"]
+size = Vector3(60.481445, 9.584595, 25.345215)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w5c2j"]
+size = Vector3(68.74707, 9.584595, 17.876427)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wotnm"]
+size = Vector3(133.60583, 13.429291, 34.84393)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_afqof")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.222702, 4.3670044, 52.74159)
+shape = SubResource("BoxShape3D_xenfp")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Area3D" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.217819, 4.3670044, -65.83336)
+shape = SubResource("BoxShape3D_w5c2j")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Area3D" index="2"]
+transform = Transform3D(0.007592085, 0, 0.99997115, 0, 1, 0, -0.99997115, 0, 0.007592085, -68.93514, 4.337784, 6.186345)
+shape = SubResource("BoxShape3D_wotnm")

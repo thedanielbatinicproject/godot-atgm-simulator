@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://ogjisrwxk2da"]
+
+[ext_resource type="PackedScene" uid="uid://c1t7gmojs7kyp" path="res://assets/3D Assets/Buildings/Houses/Wooden_house_worn_01/abandoned_house.glb" id="1_tdeml"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vmyda"]
+size = Vector3(18.684814, 13.808853, 16.832031)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_tdeml")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9142494, 6.9755173, -2.9349184)
+shape = SubResource("BoxShape3D_vmyda")

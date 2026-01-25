@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://bb40wn2pxdsk3"]
+
+[ext_resource type="PackedScene" uid="uid://bw6ooapeof7lo" path="res://assets/3D Assets/Buildings/City_buildings/Block_of_flats/block_of_flats.glb" id="1_kxca8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8nxhn"]
+size = Vector3(35.718353, 24.567932, 11.381714)
+
+[node name="block_of_flats" instance=ExtResource("1_kxca8")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5615692, 11.596588, -0.9302368)
+shape = SubResource("BoxShape3D_8nxhn")

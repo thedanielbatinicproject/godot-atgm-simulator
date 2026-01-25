@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cft2amjvucoap"]
+
+[ext_resource type="PackedScene" uid="uid://bu8yfh8qnfa4b" path="res://assets/3D Assets/Buildings/City_buildings/Residental block/residental_block.glb" id="1_h6yia"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jxhad"]
+size = Vector3(0.27172852, 0.79089355, 0.63793945)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_h6yia")]
+
+[node name="Area3D" type="Area3D" parent="Sketchfab_model" index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_model/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.052124023, -0.042053223, -0.037231445)
+shape = SubResource("BoxShape3D_jxhad")

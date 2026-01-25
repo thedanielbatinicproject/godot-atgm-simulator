@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://qeg8w5lfii2g"]
+
+[ext_resource type="PackedScene" uid="uid://ygnaa6ivljsf" path="res://assets/3D Assets/Buildings/Houses/House_02/american_house.glb" id="1_jgclw"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ycmy4"]
+size = Vector3(14.449219, 13.067322, 19.433533)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_jgclw")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.684792, 6.4451723, -0.1993103)
+shape = SubResource("BoxShape3D_ycmy4")

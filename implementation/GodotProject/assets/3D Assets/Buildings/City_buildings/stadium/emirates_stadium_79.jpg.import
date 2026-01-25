@@ -1,0 +1,44 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://c656u7jn5xtlh"
+path.s3tc="res://.godot/imported/emirates_stadium_79.jpg-a8240d397535586121e89c677a5f4011.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "78c2bf7fa8ce07621c5b8401572defd0"
+}
+
+[deps]
+
+source_file="res://assets/3D Assets/Buildings/City_buildings/stadium/emirates_stadium_79.jpg"
+dest_files=["res://.godot/imported/emirates_stadium_79.jpg-a8240d397535586121e89c677a5f4011.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

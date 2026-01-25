@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ScenarioData" load_steps=7 format=3 uid="uid://ctqonobj4elcw"]
+
+[ext_resource type="Script" uid="uid://0mnruf4ps0g6" path="res://scripts/ScenarioModel/ScenarioData.gd" id="1_2m61g"]
+[ext_resource type="PackedScene" uid="uid://eu2uclptk8vc" path="res://scenes/Levels/SisakSela/SisakSela.tscn" id="1_26dgw"]
+[ext_resource type="PackedScene" uid="uid://2fl736ekeq20" path="res://assets/Rockets/FGM-148/FGM-148.tscn" id="2_a2ign"]
+[ext_resource type="Resource" uid="uid://oih1w570e4a8" path="res://assets/Rockets/FGM-148/FGM-148.tres" id="3_0vspa"]
+[ext_resource type="PackedScene" uid="uid://g377ixe5k4he" path="res://assets/Tanks/T-62A Main Battle Tank/T-62A Main Battle Tank.tscn" id="3_7243b"]
+[ext_resource type="Texture2D" uid="uid://cj6j1hq4wy426" path="res://assets/UI/MainMenu/Graphics/city.png" id="4_0vspa"]
+
+[resource]
+script = ExtResource("1_2m61g")
+scenario_thumbnail = ExtResource("4_0vspa")
+scenario_name = "City"
+scenario_difficulty = "Medium"
+scenario_description = "The tank enters the city at night from the outskirts."
+level_scene = ExtResource("1_26dgw")
+tank_scene = ExtResource("3_7243b")
+tank_name = "T-62A Main Battle Tank"
+tank_path_positions = PackedVector2Array(-290.75, 133.68, -290.46, -132.43, -277.29, -146.8, -277.09, -530.2, -276.7, -828.7, -277.6, -1056.5, -278.8, -1364.9)
+tank_path_speeds = Array[float]([40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0])
+projectile_scene = ExtResource("2_a2ign")
+rocket_data = ExtResource("3_0vspa")
+initial_position = Vector3(209.2, 1389.48, 1835.498)
+initial_speed = 30.0
+initial_pitch_alpha = -0.7592182246175333
+initial_yaw_beta = 3.141592653589793
+time_of_day = 20.0
+fog_color = Color(0.7411765, 0.70980394, 0.6666667, 0.75686276)
+fog_density = 0.2
+wind_amplitudes = Vector3(0, 0, 0)
+final_cutscene_start_distance = 25.0
+max_scenario_time = 300.0
+mission_area_limit = 4000.0
+static_camera_location = Vector3(-112.693, 244.366, 2021.192)
+metadata/_custom_type_script = "uid://0mnruf4ps0g6"

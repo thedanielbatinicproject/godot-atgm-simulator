@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dlgf7bfwn607"]
+
+[ext_resource type="PackedScene" uid="uid://cnd6cwjkrlifk" path="res://assets/3D Assets/Buildings/City_buildings/Schools/School_1/high_school_1.glb" id="1_k34k2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k34k2"]
+size = Vector3(10.220337, 20, 112.000854)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chhom"]
+size = Vector3(10.220337, 20, 57.82199)
+
+[node name="high_school_1" instance=ExtResource("1_k34k2")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(-0.013840038, 0, 0.9999042, 0, 1, 0, -0.9999042, 0, -0.013840038, -10.653363, 0, 5.9075522)
+shape = SubResource("BoxShape3D_k34k2")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Area3D" index="1"]
+transform = Transform3D(-0.013840038, 0, 0.9999042, 0, 1, 0, -0.9999042, 0, -0.013840038, -9.708004, 0, -13.130167)
+shape = SubResource("BoxShape3D_chhom")

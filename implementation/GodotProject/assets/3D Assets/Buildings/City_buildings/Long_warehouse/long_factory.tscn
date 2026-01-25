@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://beuu436egqeim"]
+
+[ext_resource type="PackedScene" uid="uid://d0jljcbvsk07u" path="res://assets/3D Assets/Buildings/City_buildings/Long_warehouse/long_warehouse.glb" id="1_7j3o0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wdys1"]
+size = Vector3(32.727783, 3.9974976, 10.0563965)
+
+[node name="Long_factory" instance=ExtResource("1_7j3o0")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.04895, 2.3025818, 0.007446289)
+shape = SubResource("BoxShape3D_wdys1")

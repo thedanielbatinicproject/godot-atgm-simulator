@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://jfaxa41dgdom"]
+
+[ext_resource type="PackedScene" uid="uid://chulf45mbkwu3" path="res://assets/3D Assets/Buildings/City_buildings/Central_Park/lampost/central_park_lamppost.glb" id="1_7dmh5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5f524"]
+size = Vector3(0.17407227, 1.7529297, 0.21600342)
+
+[node name="lampost" instance=ExtResource("1_7dmh5")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0045166016, -0.030761719, 0.006072998)
+shape = SubResource("BoxShape3D_5f524")

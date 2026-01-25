@@ -30,6 +30,7 @@ var scenario_data: ScenarioData  # Set via initialize() at runtime
 const PHYSICS_DEBUG_VELOCITY_THRESHOLD: float = 500.0  # Log if velocity exceeds this
 const PHYSICS_DEBUG_POSITION_THRESHOLD: float = 10000.0  # Log if position exceeds this
 const PHYSICS_DEBUG_ACCEL_THRESHOLD: float = 1000.0  # Log if acceleration exceeds this
+const MAX_PROJECTILE_SPEED: float = 260.0  # Maximum projectile speed in m/s
 var _physics_debug_frame_count: int = 0
 var _last_position: Vector3 = Vector3.ZERO
 var _last_velocity: Vector3 = Vector3.ZERO
@@ -266,6 +267,12 @@ func _physics_process(delta: float):
 	
 	# Euler integracija
 	state.velocity = state.velocity + acceleration * delta
+	
+	# Clamp velocity to max speed while preserving direction
+	var current_speed = state.velocity.length()
+	if current_speed > MAX_PROJECTILE_SPEED:
+		state.velocity = state.velocity.normalized() * MAX_PROJECTILE_SPEED
+	
 	state.position = state.position + state.velocity * delta
 	
 	# ========== ROTACIJA ==========

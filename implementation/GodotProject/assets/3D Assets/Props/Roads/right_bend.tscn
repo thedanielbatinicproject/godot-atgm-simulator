@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3 uid="uid://dg8ankumrtcvi"]
+
+[ext_resource type="PackedScene" uid="uid://cuv4e40sxs8yq" path="res://assets/3D Assets/Props/Roads/Road Pack.gltf" id="1_tr0pf"]
+
+[node name="Road Pack" instance=ExtResource("1_tr0pf")]
+
+[node name="Sketchfab_model" parent="." index="0"]
+transform = Transform3D(-0.010192037, -0.999948, -2.9802322e-08, 0.78528917, -0.008004189, 0.61907744, -0.61904526, 0.006309688, 0.78532994, 18.894753, -1.4978461, -33.997307)
+
+[node name="root" parent="Sketchfab_model" index="0"]
+transform = Transform3D(0.62934047, 0.0045850123, 0.77711636, 0.0034905197, 0.99995583, -0.008726535, -0.7771224, 0.008204499, 0.6292964, -30.898457, -0.90087384, 39.18253)
+
+[node name="Road_0" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="0"]
+visible = false
+
+[node name="Light pole_1" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="1"]
+visible = false
+
+[node name="Light pole_003_2" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="2"]
+visible = false
+
+[node name="Light pole_004_3" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="3"]
+visible = false
+
+[node name="Pedestrian crossing_4" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="4"]
+visible = false
+
+[node name="Road entrance_5" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="5"]
+visible = false
+
+[node name="Crossroad_6" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="6"]
+visible = false
+
+[node name="Traffic light_7" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="7"]
+visible = false
+
+[node name="Traffic light_001_8" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="8"]
+visible = false
+
+[node name="Traffic light_002_9" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="9"]
+visible = false
+
+[node name="Traffic light_003_10" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="10"]
+visible = false
+
+[node name="Stop sign_001_11" parent="Sketchfab_model/root/GLTF_SceneRootNode" index="11"]
+visible = false
+
+[node name="Light_0" parent="Sketchfab_model" index="1"]
+visible = false
+
+[node name="Light_1" parent="Sketchfab_model" index="2"]
+visible = false
+
+[node name="Light_2" parent="Sketchfab_model" index="3"]
+visible = false
+
+[node name="Camera_0" parent="Sketchfab_model" index="4"]
+visible = false
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Sketchfab_model" index="5"]
+transform = Transform3D(-0.010192115, 0.59138864, 0.8063224, -0.99994814, -0.0060277446, -0.008218512, -2.5145713e-08, -0.8063643, 0.59141934, -16.84652, 11.223139, 35.16314)
+light_color = Color(1, 1, 0.8235294, 1)
+light_energy = 2.0
+spot_range = 13.045097
+spot_angle = 39.528015
+
+[node name="SpotLight3D2" type="SpotLight3D" parent="Sketchfab_model" index="6"]
+transform = Transform3D(-0.010192115, 0.59138864, 0.8063224, -0.99994814, -0.0060277446, -0.008218512, -2.5145713e-08, -0.8063643, 0.59141934, -21.34338, 9.938015, 40.881935)
+light_color = Color(1, 1, 0.8235294, 1)
+light_energy = 2.0
+spot_range = 13.531105
+spot_angle = 41.395008

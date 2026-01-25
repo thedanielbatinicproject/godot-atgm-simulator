@@ -19,3 +19,5 @@ mono_crash.*.json
 /releases/v0.2
 /releases/v0.3
 /releases
+implementation/GodotProject/assets/3D Assets/Buildings/City_buildings/Apartment_complex/apartment_complex.glb
+implementation/GodotProject/assets/3D Assets/Buildings/City_buildings/Schools/School 2/high_school_2.glb

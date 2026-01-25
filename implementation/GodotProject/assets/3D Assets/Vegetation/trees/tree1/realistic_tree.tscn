@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://doxs3d76oyhim"]
+
+[ext_resource type="PackedScene" uid="uid://daknd5fxey1pp" path="res://assets/3D Assets/Vegetation/trees/tree1/Realistic Tree.gltf" id="1_7o3uq"]
+
+[node name="Realistic Tree" instance=ExtResource("1_7o3uq")]
+
+[node name="Light_0" parent="Sketchfab_model" index="1"]
+visible = false
+
+[node name="Camera_0" parent="Sketchfab_model" index="2"]
+visible = false

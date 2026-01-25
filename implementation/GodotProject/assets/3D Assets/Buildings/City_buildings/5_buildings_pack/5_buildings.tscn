@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://l6vlx501rssw"]
+
+[ext_resource type="PackedScene" uid="uid://e2ph4i1f67pf" path="res://assets/3D Assets/Buildings/City_buildings/5_buildings_pack/5_buildings_pack.glb" id="1_mklmi"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x62qh"]
+size = Vector3(1.2619629, 0.20422363, 0.16925049)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_mklmi")]
+
+[node name="Area3D" type="Area3D" parent="." index="1"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.46154785, 0.09173584, -1.5230408)
+shape = SubResource("BoxShape3D_x62qh")

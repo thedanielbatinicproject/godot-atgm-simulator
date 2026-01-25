@@ -1,0 +1,547 @@
+{
+  "asset": {
+    "generator": "OpenSceneGraph 3.5.6",
+    "version": "2.0"
+  },
+  "accessors": [
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 18517,
+      "bufferView": 0,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 18517,
+      "bufferView": 0,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 18517,
+      "bufferView": 0,
+      "byteOffset": 28
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 18517,
+      "max": [
+        7.573626518249512,
+        6.319045066833496,
+        6.655155181884766
+      ],
+      "min": [
+        -6.776559829711914,
+        -5.405700206756592,
+        -5.308700084686279
+      ],
+      "bufferView": 0,
+      "byteOffset": 36
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 35595,
+      "bufferView": 1,
+      "byteOffset": 0
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 19296,
+      "bufferView": 1,
+      "byteOffset": 71192
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 4872,
+      "bufferView": 1,
+      "byteOffset": 109784
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 8897,
+      "bufferView": 2,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 8897,
+      "bufferView": 2,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 8897,
+      "bufferView": 2,
+      "byteOffset": 28
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 8897,
+      "max": [
+        6.6268134117126465,
+        5.325848579406738,
+        5.684130668640137
+      ],
+      "min": [
+        -5.80633020401001,
+        -4.464210033416748,
+        -4.669750213623047
+      ],
+      "bufferView": 2,
+      "byteOffset": 36
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1215,
+      "bufferView": 3,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 1215,
+      "bufferView": 3,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 1215,
+      "bufferView": 3,
+      "byteOffset": 28
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1215,
+      "max": [
+        4.162221908569336,
+        4.042845249176025,
+        13.593284606933594
+      ],
+      "min": [
+        -4.948969841003418,
+        -3.3119699954986572,
+        -0.31440600752830505
+      ],
+      "bufferView": 3,
+      "byteOffset": 36
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 888816,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 888816,
+      "byteLength": 119528,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1008344,
+      "byteLength": 427056,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1435400,
+      "byteLength": 58320,
+      "byteStride": 48,
+      "target": 34962
+    }
+  ],
+  "samplers": [
+    {
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "textures": [
+    {
+      "source": 0,
+      "sampler": 0
+    },
+    {
+      "source": 4,
+      "sampler": 0
+    },
+    {
+      "source": 3,
+      "sampler": 0
+    },
+    {
+      "source": 1,
+      "sampler": 0
+    },
+    {
+      "source": 2,
+      "sampler": 0
+    },
+    {
+      "source": 5,
+      "sampler": 0
+    }
+  ],
+  "images": [
+    {
+      "name": "leaves nm.png",
+      "mimeType": "image/png",
+      "uri": "images/leaves nm.png"
+    },
+    {
+      "name": "leaves color.png",
+      "mimeType": "image/png",
+      "uri": "images/leaves color.png"
+    },
+    {
+      "name": "leaves specular.png",
+      "mimeType": "image/png",
+      "uri": "images/leaves specular.png"
+    },
+    {
+      "name": "trunk_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/trunk_Mixed_AO.png"
+    },
+    {
+      "name": "trunk_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/trunk_Normal_OpenGL.png"
+    },
+    {
+      "name": "trunk_Base_color.png",
+      "mimeType": "image/png",
+      "uri": "images/trunk_Base_color.png"
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "Realistic Tree.bin",
+      "byteLength": 1493720
+    }
+  ],
+  "materials": [
+    {
+      "name": "normal leaves",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {},
+      "normalTexture": {
+        "index": 0
+      },
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "specularFactor": [
+            0.1828084749035033,
+            0.1828084749035033,
+            0.1828084749035033
+          ],
+          "glossinessFactor": 1,
+          "diffuseTexture": {
+            "index": 3
+          },
+          "specularGlossinessTexture": {
+            "index": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "trunk",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "metallicRoughnessTexture": {
+          "index": 2
+        }
+      },
+      "normalTexture": {
+        "index": 1
+      },
+      "occlusionTexture": {
+        "index": 2
+      },
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "specularFactor": [
+            0.009,
+            0.009,
+            0.009
+          ],
+          "glossinessFactor": 1,
+          "diffuseTexture": {
+            "index": 5
+          }
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "crown merged_normal leaves_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 3,
+            "NORMAL": 0,
+            "TANGENT": 1,
+            "TEXCOORD_0": 2
+          },
+          "mode": 4,
+          "material": 0,
+          "indices": 4
+        }
+      ]
+    },
+    {
+      "name": "br_low_trunk_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 10,
+            "NORMAL": 7,
+            "TANGENT": 8,
+            "TEXCOORD_0": 9
+          },
+          "mode": 4,
+          "material": 1,
+          "indices": 5
+        }
+      ]
+    },
+    {
+      "name": "trunk_low_trunk_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 14,
+            "NORMAL": 11,
+            "TANGENT": 12,
+            "TEXCOORD_0": 13
+          },
+          "mode": 4,
+          "material": 1,
+          "indices": 6
+        }
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "name": "Camera_0",
+      "type": "perspective",
+      "perspective": {
+        "znear": 8.274968458716863,
+        "zfar": 1654.9936917433727,
+        "yfov": 0.6981317007977318
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "name": "TREE.fbx",
+      "rotation": [
+        0.7071067811865475,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "scale": [
+        0.009999999776482582,
+        0.009999999776482582,
+        0.009999999776482582
+      ],
+      "children": [
+        1
+      ]
+    },
+    {
+      "name": "RootNode",
+      "children": [
+        2,
+        5,
+        8
+      ]
+    },
+    {
+      "name": "crown merged",
+      "translation": [
+        -114.14199829101562,
+        908.52099609375,
+        5.807109832763672
+      ],
+      "rotation": [
+        -0.7071068387878191,
+        0,
+        0,
+        0.7071067235852713
+      ],
+      "scale": [
+        100,
+        100.00000000000132,
+        100.00000000000132
+      ],
+      "children": [
+        3
+      ]
+    },
+    {
+      "name": "crown merged",
+      "children": [
+        4
+      ]
+    },
+    {
+      "name": "crown merged_normal leaves_0",
+      "mesh": 0
+    },
+    {
+      "name": "br_low",
+      "translation": [
+        -114.14199829101562,
+        908.52099609375,
+        5.807109832763672
+      ],
+      "rotation": [
+        -0.7071068387878191,
+        0,
+        0,
+        0.7071067235852713
+      ],
+      "scale": [
+        100,
+        100.00000000000132,
+        100.00000000000132
+      ],
+      "children": [
+        6
+      ]
+    },
+    {
+      "name": "br_low",
+      "children": [
+        7
+      ]
+    },
+    {
+      "name": "br_low_trunk_0",
+      "mesh": 1
+    },
+    {
+      "name": "trunk_low",
+      "rotation": [
+        -0.7071068387878191,
+        0,
+        0,
+        0.7071067235852713
+      ],
+      "scale": [
+        100,
+        100.00000000000132,
+        100.00000000000132
+      ],
+      "children": [
+        9
+      ]
+    },
+    {
+      "name": "trunk_low",
+      "children": [
+        10
+      ]
+    },
+    {
+      "name": "trunk_low_trunk_0",
+      "mesh": 2
+    },
+    {
+      "name": "Light_0",
+      "extensions": {
+        "KHR_lights_punctual": {
+          "light": 0
+        }
+      }
+    },
+    {
+      "name": "Camera_0",
+      "camera": 0
+    },
+    {
+      "name": "Sketchfab_model",
+      "translation": [
+        -0.015178775414824486,
+        -7.690423488616943,
+        -23.486251831054688
+      ],
+      "rotation": [
+        -0.6864438430614516,
+        -0.14905798480520702,
+        -0.15103163332599584,
+        0.6955328976856338
+      ],
+      "children": [
+        0,
+        11,
+        12
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        13
+      ]
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_lights_punctual",
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensions": {
+    "KHR_lights_punctual": {
+      "lights": [
+        {
+          "type": "point",
+          "color": [
+            1,
+            0.9771244521838818,
+            0.8607038297366221
+          ],
+          "intensity": 0.48252000169923254,
+          "range": 0.11456784859041633,
+          "name": "Light_0"
+        }
+      ]
+    }
+  }
+}
